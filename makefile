@@ -1,59 +1,51 @@
-# Nome do projeto
-PROJETO = compiler
+# Nome do executável
+TARGET = compilador
 
-# Lista de arquivos fontes
-FONTES = main.c grafos.c dotgrafos.c Bibliotecas/path.c Bibliotecas/learquivo.c Bibliotecas/geradores.c Bibliotecas/utilities.c Bibliotecas/listadupla.c Bibliotecas/efficiency.c
+# Lista de arquivos fonte
+SOURCES = main.cpp 
 
-# Lista de arquivos de cabeçalho correspondentes aos arquivos fontes
-HEADERS = $(filter-out main.h, $(FONTES:.c=.h))
+# Gerar lista de headers automaticamente (qualquer .cpp que não seja main.cpp)
+HEADERS = $(patsubst %.cpp,%.h,$(filter-out main.cpp,$(SOURCES)))
 
-# Nome do arquivo zip
-ZIP_FILE = muriloa.zip
+# Definir o compilador
+CXX = g++
 
-# Pasta de saída
-OUTPUT = output/
-LOGS = logs/
+# Definir flags do compilador
+CXXFLAGS = -Wall -Wextra -std=c++17
 
-# Cria a pasta de saída se ela não existir
-$(shell mkdir -p $(OUTPUT) $(OUTPUT)Bibliotecas)
-$(shell mkdir -p $(LOGS))
+# Gerar a lista de arquivos objeto a partir dos arquivos fonte
+OBJECTS = $(SOURCES:.cpp=.o)
 
-# Arquivos objeto na pasta de saída
-OBJETOS = $(addprefix $(OUTPUT), $(FONTES:.c=.o))
+# Regra padrão para compilar o projeto
+all: $(TARGET)
 
-# Compilador e opções de compilação
-CC = gcc
-CFLAGS = -Wall -Wextra -pedantic-errors -fstack-protector-all -Werror=implicit-function-declaration -g
+# Regra para gerar o executável
+$(TARGET): $(OBJECTS)
+	$(CXX) $(CXXFLAGS) -o $@ $^
 
-# Regra padrão
-all: $(OUTPUT)$(PROJETO)
+# Regra para compilar arquivos .cpp em .o e gerar dependências
+%.o: %.cpp
+	$(CXX) $(CXXFLAGS) -MMD -c $< -o $@
 
-# Regra para compilar o projeto
-$(OUTPUT)$(PROJETO): $(OBJETOS)
-	$(CC) $(OBJETOS) -o $@ -lm
+# Incluir dependências geradas automaticamente
+-include $(SOURCES:.cpp=.d)
 
-# Regra para criar os arquivos objeto
-$(OUTPUT)%.o: %.c
-	$(CC) $(CFLAGS) -c $< -o $@ -MMD -MP
+# Função run: compilar e rodar o executável
+run: $(TARGET)
+	$(TARGET)
 
-# Inclui as dependências dos arquivos objeto
--include $(OBJETOS:.o=.d)
+# Função zip: criar um arquivo zip com fontes e headers
+zip:
+	tar -cf fontes.zip $(SOURCES) $(HEADERS) makefile
 
-# Regra para limpar os arquivos objeto e o executável
+# Limpeza dos arquivos gerados
 clean:
-	rm -rf $(OUTPUT) $(PROJETO)
-	rm -rf $(LOGS)
+	del $(subst /,\,$(OBJECTS)) $(subst /,\,$(SOURCES:.cpp=.d))
 
-# Regra para executar o programa
-run: all
-	cd $(OUTPUT) && ./$(PROJETO)
+# Limpeza geral
+clean_all: clean
+	del $(subst /,\,$(TARGET).exe)
 
-# Regra para executar o programa com o Valgrind
-valgrind: all
-	cd $(OUTPUT) && valgrind --leak-check=full --show-leak-kinds=all ./$(PROJETO)
+finish: all run clean_all zip
 
-# Comando para criar o arquivo zip
-zip: $(FONTES) $(HEADERS)
-	zip $(ZIP_FILE) $(FONTES) $(HEADERS) makefile
-
-finish: all valgrind zip clean
+.PHONY: all clean run zip
