@@ -30,7 +30,7 @@ public:
      * Por exemplo: 0-9 ele irá entender como todos os números de 0 até 9
      * Outro exemplo: a,b,0-9 ele irá entender como todos os números de 0 até 9 e também as letras 'a' e 'b'
      */
-    void addTransition(const int estado_inicial, const int estado_final, const std::string& transitions);
+    void addTransitions(const int estado_inicial, const int estado_final, const std::string& transitions);
 };
 
 #endif

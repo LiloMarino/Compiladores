@@ -1,0 +1,12 @@
+{
+    "files.associations": {
+        "*.c": "c",
+        "*.gml": "cpp",
+        "cstdlib": "cpp",
+        "cstdio": "cpp",
+        "xstring": "cpp",
+        "format": "cpp",
+        "initializer_list": "cpp",
+        "xutility": "cpp"
+    }
+}
