@@ -31,6 +31,16 @@ public:
      * Outro exemplo: a,b,0-9 ele irá entender como todos os números de 0 até 9 e também as letras 'a' e 'b'
      */
     void addTransitions(const int estado_inicial, const int estado_final, const std::string& transitions);
+
+    /**
+     * @brief Faz a transição dentro do autômato a partir do estado atual para 
+     * um estado de destino determinado pela letra lida
+     * 
+     * @param estado_atual Estado atual
+     * @param letra Letra lida
+     * @return Estado destino determinado pelo autômato
+     */
+    int makeTransition(const int estado_atual, const char letra);
 };
 
 #endif

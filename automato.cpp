@@ -63,3 +63,17 @@ void Automato::addTransitions(const int estado_inicial, const int estado_final, 
         fim = atual;
     }
 }
+
+int Automato::makeTransition(const int estado_atual, const char letra)
+{
+    if (estado_atual >= num_estados || estado_atual < 0)
+    {
+        throw length_error("Estado Inválido");
+    }
+    if (letra < 0 || letra > ASCII_SIZE)
+    {
+        throw length_error("Caractere Inválido");
+    }
+    int estado_destino = matriz[estado_atual][(int)letra];
+    return estado_destino;
+}
