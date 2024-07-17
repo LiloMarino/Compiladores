@@ -26,7 +26,7 @@ Automato::~Automato()
     delete[] matriz;
 }
 
-void Automato::addTransitions(const int estado_inicial, const int estado_final, const std::string &transitions)
+void Automato::addTransitions(const int estado_inicial, const int estado_final, const string &transitions)
 {
     if ((estado_inicial >= num_estados || estado_inicial < 0) ||
         (estado_final >= num_estados || estado_final < 0))
@@ -70,10 +70,11 @@ int Automato::makeTransition(const int estado_atual, const char letra)
     {
         throw length_error("Estado Inválido");
     }
-    if (letra < 0 || letra > ASCII_SIZE)
-    {
-        throw length_error("Caractere Inválido");
-    }
     int estado_destino = matriz[estado_atual][(int)letra];
     return estado_destino;
+}
+
+int Automato::getNumEstados()
+{
+    return num_estados;
 }

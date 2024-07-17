@@ -41,6 +41,12 @@ public:
      * @return Estado destino determinado pelo autômato
      */
     int makeTransition(const int estado_atual, const char letra);
+
+    /**
+     * @brief Getter do número de estados
+     * @return Retorna o número de estados
+     */
+    int getNumEstados();
 };
 
 #endif
