@@ -19,13 +19,27 @@ void Reconhecedor::addToken(const string &token, const int estado_final)
 list<string> Reconhecedor::reconhecer(const string &entrada)
 {
     list<string> lista_tokens;
-    int estado = 1; // Estado inicial
-    for (int i = 0; i < entrada.size(); i++)
+    int estado_atual = 1; // Estado inicial
+    int ultimo_estado = 0;
+    for (const char c : entrada)
     {
-        char c = entrada[i];
-        if (c == '\n')
+        ultimo_estado = estado_atual;
+        estado_atual = automato.makeTransition(estado_atual, c);
+        if (estado_atual == 0)
         {
-            c = ' ';
+            // Estado inválido, então verifica se algum token foi reconhecido
+            // Procura no mapa de tokens verificando se o último estado é final
+            if (mapa_tokens.find(ultimo_estado) != mapa_tokens.end())
+            {
+                lista_tokens.push_back(mapa_tokens[ultimo_estado]);
+            }
+            else
+            {
+                // Não é um estado final, então reconhece um ERRO
+                lista_tokens.push_back("ERRO");
+            }
+            
         }
     }
+    return lista_tokens;
 }
