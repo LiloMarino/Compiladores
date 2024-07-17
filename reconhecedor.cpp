@@ -24,9 +24,9 @@ list<recon> Reconhecedor::reconhecer(const string &entrada)
     string termo;
     recon aux;
 
-    for (const char c : entrada)
+    for (auto it = entrada.begin(); it != entrada.end(); ++it)
     {
-        termo += c;
+        char c = *it;
         ultimo_estado = estado_atual;
         estado_atual = automato.makeTransition(estado_atual, c);
 
@@ -45,7 +45,10 @@ list<recon> Reconhecedor::reconhecer(const string &entrada)
             lista_tokens.push_back(aux);
             termo.clear();
         }
+        else
+        {
+            termo += c;
+        }
     }
-
     return lista_tokens;
 }

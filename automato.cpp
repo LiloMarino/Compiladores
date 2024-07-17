@@ -11,11 +11,11 @@ using namespace std;
 Automato::Automato(int num_estados)
 {
     num_estados++; // Adiciona o estado de erro
-    Automato::num_estados = num_estados;
-    matriz = new int *[num_estados];
+    this->num_estados = num_estados;
+    matriz = new int *[num_estados]();
     for (int i = 0; i < num_estados; ++i)
     {
-        matriz[i] = new int[ASCII_SIZE];
+        matriz[i] = new int[ASCII_SIZE]();
     }
 }
 
@@ -63,6 +63,19 @@ void Automato::addTransitions(const int estado_inicial, const int estado_final, 
             intervalo = true;
         }
         fim = atual;
+    }
+    // Cria a última transição
+    if (intervalo)
+    {
+        for (char i = inicio; i <= fim; ++i)
+        {
+            matriz[estado_inicial][(int)i] = estado_final;
+        }
+        intervalo = false;
+    }
+    else
+    {
+        matriz[estado_inicial][(int)fim] = estado_final;
     }
 }
 

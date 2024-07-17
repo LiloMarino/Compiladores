@@ -39,9 +39,9 @@ int main()
     while (getline(cin, input))
     {
         list<recon> aux = r.reconhecer(input);
-        tokens_reconhecidos.splice(tokens_reconhecidos.end(), tokens_reconhecidos);
+        tokens_reconhecidos.splice(tokens_reconhecidos.end(), aux);
     }
-    for (const auto &token : tokens_reconhecidos)
+    for (recon &token : tokens_reconhecidos)
     {
         cout << "Termo: " << token.cadeia << ", Token: " << token.token << endl;
     }

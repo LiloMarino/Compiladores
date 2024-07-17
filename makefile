@@ -11,7 +11,7 @@ HEADERS = $(patsubst %.cpp,%.hpp,$(filter-out main.cpp,$(SOURCES)))
 CXX = g++
 
 # Definir flags do compilador
-CXXFLAGS = -Wall -Wextra -std=c++17
+CXXFLAGS = -Wall -Wextra -std=c++17 -g
 
 # Gerar a lista de arquivos objeto a partir dos arquivos fonte
 OBJECTS = $(SOURCES:.cpp=.o)
