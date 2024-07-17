@@ -2,7 +2,7 @@
 TARGET = compilador
 
 # Lista de arquivos fonte
-SOURCES = main.cpp automato.cpp
+SOURCES = main.cpp automato.cpp reconhecedor.cpp
 
 # Gerar lista de headers automaticamente (qualquer .cpp que não seja main.cpp)
 HEADERS = $(patsubst %.cpp,%.hpp,$(filter-out main.cpp,$(SOURCES)))

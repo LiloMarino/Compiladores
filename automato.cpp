@@ -11,6 +11,7 @@ using namespace std;
 Automato::Automato(int num_estados)
 {
     num_estados++; // Adiciona o estado de erro
+    Automato::num_estados = num_estados;
     matriz = new int *[num_estados];
     for (int i = 0; i < num_estados; ++i)
     {

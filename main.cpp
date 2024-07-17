@@ -45,11 +45,11 @@ int main()
     }
     for (const auto &token : tokens)
     {
-        cout << token;
+        cout << token << "\n";
     }
     for (const auto &entrada : entradas)
     {
-        cout << entrada;
+        cout << entrada << "\n";
     }
 
     return 0;
