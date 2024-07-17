@@ -55,5 +55,12 @@
         "list": "cpp",
         "iostream": "cpp",
         "istream": "cpp"
-    }
+    },
+    "makefile.launchConfigurations": [
+        {
+            "cwd": "d:\\Desktop\\Faculdade\\Compiladores",
+            "binaryPath": "d:\\Desktop\\Faculdade\\Compiladores\\compilador",
+            "binaryArgs": []
+        }
+    ]
 }
