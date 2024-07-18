@@ -1,11 +1,17 @@
 # Nome do executável
-TARGET = compilador
+EXEC_NAME = l5e1
+
+# Nome do zip
+ZIP_NAME = LISTA_5_EXERCICIO_1
 
 # Lista de arquivos fonte
 SOURCES = main.cpp automato.cpp reconhecedor.cpp
 
 # Gerar lista de headers automaticamente (qualquer .cpp que não seja main.cpp)
 HEADERS = $(patsubst %.cpp,%.hpp,$(filter-out main.cpp,$(SOURCES)))
+
+# Lista todos os arquivos envolvidos
+FILES = $(SOURCES) $(HEADERS) makefile
 
 # Definir o compilador
 CXX = g++
@@ -17,10 +23,10 @@ CXXFLAGS = -Wall -Wextra -std=c++17 -g
 OBJECTS = $(SOURCES:.cpp=.o)
 
 # Regra padrão para compilar o projeto
-all: $(TARGET)
+all: $(EXEC_NAME)
 
 # Regra para gerar o executável
-$(TARGET): $(OBJECTS)
+$(EXEC_NAME): $(OBJECTS)
 	$(CXX) $(CXXFLAGS) -o $@ $^
 
 # Regra para compilar arquivos .cpp em .o e gerar dependências
@@ -30,18 +36,22 @@ $(TARGET): $(OBJECTS)
 # Incluir dependências geradas automaticamente
 -include $(SOURCES:.cpp=.d)
 
-# Função run: compilar e rodar o executável
-run: $(TARGET)
-	$(TARGET)
+# run: Compila e roda o programa
+run: $(EXEC_NAME)
+	$(EXEC_NAME)
 
-# Função zip: criar um arquivo zip com fontes e headers
-zip:
-	tar -cf fontes.zip $(SOURCES) $(HEADERS) makefile
+# zip: Zippa os arquivos fonte
+zip: $(ZIP_NAME)
 
-# Limpeza dos arquivos gerados
+$(ZIP_NAME): $(FILES)
+	zip -r $(ZIP_NAME) $(FILES)
+	mkdir -p $(ZIP_NAME)
+	unzip -q $(ZIP_NAME) -d $(ZIP_NAME)
+
+# clean: Limpa todos os arquivos gerados da compilação
 clean:
-	del $(subst /,\,$(OBJECTS)) $(subst /,\,$(SOURCES:.cpp=.d)) $(subst /,\,$(TARGET).exe)
+	del $(subst /,\,$(OBJECTS)) $(subst /,\,$(SOURCES:.cpp=.d)) $(subst /,\,$(EXEC_NAME).exe)
 
-finish: all run clean_all zip
+finish: all run clean zip
 
 .PHONY: all clean run zip
