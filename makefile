@@ -50,7 +50,9 @@ $(ZIP_NAME): $(FILES)
 
 # clean: Limpa todos os arquivos gerados da compilação
 clean:
-	del $(subst /,\,$(OBJECTS)) $(subst /,\,$(SOURCES:.cpp=.d)) $(subst /,\,$(EXEC_NAME).exe)
+	rm $(OBJECTS) 
+	rm $(SOURCES:.cpp=.d)
+	rm $(EXEC_NAME).exe
 
 finish: all run clean zip
 
