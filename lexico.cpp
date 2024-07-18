@@ -46,8 +46,23 @@ list<recon> AnalisadorLexico::reconhecer(const string &entrada)
                     ++inicio_string;
                     aux.token = "ERRO";
                 }
-                aux.cadeia = termo;
-                lista_tokens.push_back(aux);
+
+                if (termo.back() != '\n')
+                {
+                    aux.cadeia = termo;
+                    lista_tokens.push_back(aux);
+                }
+                else
+                {
+                    // O último caractere é o '\n' então desconsidera
+                    termo.pop_back();
+                    if (aux.token == "comment")
+                    {
+                        // É um comentário então considera
+                        aux.cadeia = termo;
+                        lista_tokens.push_back(aux);
+                    }
+                }
                 termo.clear();
                 break;
             }

@@ -7,32 +7,46 @@
 using namespace std;
 void createAutomato(Automato &au)
 {
-    au.addTransitions(1, 2, "a-z");
-    au.addTransitions(1, 3, "+");
-    au.addTransitions(1, 4, "-");
-    au.addTransitions(1, 5, "0-9");
-    au.addTransitions(2, 2, "a-z");
-    au.addTransitions(2, 2, "0-9");
-    au.addTransitions(5, 5, "0-9");
-    au.addTransitions(5, 6, "e");
-    au.addTransitions(6, 8, "0-9");
-    au.addTransitions(6, 7, "+,-");
-    au.addTransitions(7, 8, "0-9");
-    au.addTransitions(8, 8, "0-9");
+    au.addTransitions(1, 2, "i");
+    au.addTransitions(1, 4, "a-h,j-z");
+    au.addTransitions(1, 5, ".");
+    au.addTransitions(1, 7, "0-9");
+    au.addTransitions(1, 9, "-");
+    au.addTransitions(1, 12, " ");
+    au.addTransitions(1, 13, "other");
+    au.addTransitions(2, 3, "f");
+    au.addTransitions(2, 4, "a-e,g-z,0-9");
+    au.addTransitions(3, 4, "0-9,a-z");
+    au.addTransitions(4, 4, "0-9,a-z");
+    au.addTransitions(5, 6, "0-9");
+    au.addTransitions(6, 6, "0-9");
+    au.addTransitions(7,7, "0-9");
+    au.addTransitions(7,8, ".");
+    au.addTransitions(8,8, "0-9");
+    au.addTransitions(9,10, "-");
+    au.addTransitions(10,10, "a-z");
+    au.addTransitions(10,11, "\n");
+    au.addTransitions(12,12, " ");
 }
 
 void createAnalisador(AnalisadorLexico &al)
 {
-    al.addToken("2", 2);
-    al.addToken("3", 3);
-    al.addToken("4", 4);
-    al.addToken("5", 5);
-    al.addToken("8", 8);
+    al.addToken("ID", 2);
+    al.addToken("IF", 3);
+    al.addToken("ID", 4);
+    al.addToken("error", 5);
+    al.addToken("REAL", 6);
+    al.addToken("NUM", 7);
+    al.addToken("REAL", 8);
+    al.addToken("error", 9);
+    al.addToken("comment", 11);
+    al.addToken("white space", 12);
+    al.addToken("error", 13);
 }
 
 int main()
 {
-    Automato a(8);
+    Automato a(13);
     createAutomato(a);
     AnalisadorLexico al(a);
     createAnalisador(al);
@@ -40,19 +54,13 @@ int main()
     list<recon> tokens_reconhecidos;
     while (getline(cin, input))
     {
+        input += "\n";
         list<recon> aux = al.reconhecer(input);
         tokens_reconhecidos.splice(tokens_reconhecidos.end(), aux);
     }
     for (recon &token : tokens_reconhecidos)
     {
-        if (token.token != "ERRO")
-        {
-            cout << token.cadeia << endl;
-        }
-        else
-        {
-            cout << "ERRO" << endl;
-        }
+        cout << token.cadeia << " " << token.token << endl;
     }
     return 0;
 }
