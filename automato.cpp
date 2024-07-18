@@ -36,47 +36,61 @@ void Automato::addTransitions(const int estado_inicial, const int estado_final, 
         throw length_error("Estados Inválidos");
     }
 
-    bool intervalo = false;
-    char inicio, fim;
-    for (size_t i = 0; i < transitions.length(); i++)
+    if (transitions == "other")
     {
-        const char atual = transitions[i];
-        if (atual == ',')
+        // Qualquer outra transição não definida (0)
+        for (int i = 0; i < ASCII_SIZE; ++i)
         {
-            // Cria a transição
-            if (intervalo)
+            if (matriz[estado_inicial][i] == 0)
             {
-                for (char i = inicio; i <= fim; ++i)
-                {
-                    matriz[estado_inicial][(int)i] = estado_final;
-                }
-                intervalo = false;
-            }
-            else
-            {
-                matriz[estado_inicial][(int)fim] = estado_final;
+                matriz[estado_inicial][i] = estado_final;
             }
         }
-        else if (atual == '-' && i+1 < transitions.length())
-        {
-            // Salva o início e determina a leitura de um intervalo
-            inicio = fim;
-            intervalo = true;
-        }
-        fim = atual;
-    }
-    // Cria a última transição
-    if (intervalo)
-    {
-        for (char i = inicio; i <= fim; ++i)
-        {
-            matriz[estado_inicial][(int)i] = estado_final;
-        }
-        intervalo = false;
     }
     else
     {
-        matriz[estado_inicial][(int)fim] = estado_final;
+        bool intervalo = false;
+        char inicio, fim;
+        for (size_t i = 0; i < transitions.length(); i++)
+        {
+            const char atual = transitions[i];
+            if (atual == ',')
+            {
+                // Cria a transição
+                if (intervalo)
+                {
+                    for (char i = inicio; i <= fim; ++i)
+                    {
+                        matriz[estado_inicial][(int)i] = estado_final;
+                    }
+                    intervalo = false;
+                }
+                else
+                {
+                    matriz[estado_inicial][(int)fim] = estado_final;
+                }
+            }
+            else if (atual == '-' && i + 1 < transitions.length())
+            {
+                // Salva o início e determina a leitura de um intervalo
+                inicio = fim;
+                intervalo = true;
+            }
+            fim = atual;
+        }
+        // Cria a última transição
+        if (intervalo)
+        {
+            for (char i = inicio; i <= fim; ++i)
+            {
+                matriz[estado_inicial][(int)i] = estado_final;
+            }
+            intervalo = false;
+        }
+        else
+        {
+            matriz[estado_inicial][(int)fim] = estado_final;
+        }
     }
 }
 
