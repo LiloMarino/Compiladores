@@ -36,10 +36,12 @@ list<recon> Reconhecedor::reconhecer(const string &entrada)
                 // Estado inválido, então verifica se algum token foi reconhecido
                 if (mapa_tokens.find(ultimo_estado) != mapa_tokens.end())
                 {
+                    // Token Válido
                     aux.token = mapa_tokens[ultimo_estado];
                 }
                 else
                 {
+                    // Token Inválido
                     termo += c;
                     ++inicio_string;
                     aux.token = "ERRO";
@@ -55,7 +57,7 @@ list<recon> Reconhecedor::reconhecer(const string &entrada)
                 ++inicio_string;
             }
         }
-        estado_atual = 1;
+        estado_atual = 1; // Reseta para o estado inicial
     }
     return lista_tokens;
 }

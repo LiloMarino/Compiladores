@@ -38,8 +38,9 @@ void Automato::addTransitions(const int estado_inicial, const int estado_final, 
 
     bool intervalo = false;
     char inicio, fim;
-    for (const char atual : transitions)
+    for (size_t i = 0; i < transitions.length(); i++)
     {
+        const char atual = transitions[i];
         if (atual == ',')
         {
             // Cria a transição
@@ -56,7 +57,7 @@ void Automato::addTransitions(const int estado_inicial, const int estado_final, 
                 matriz[estado_inicial][(int)fim] = estado_final;
             }
         }
-        else if (atual == '-')
+        else if (atual == '-' && i+1 < transitions.length())
         {
             // Salva o início e determina a leitura de um intervalo
             inicio = fim;
