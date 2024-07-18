@@ -45,8 +45,14 @@ int main()
     }
     for (recon &token : tokens_reconhecidos)
     {
-        cout << "Termo: " << token.cadeia << ", Token: " << token.token << endl;
+        if (token.token != "ERRO")
+        {
+            cout << token.cadeia << endl;
+        }
+        else
+        {
+            cout << "ERRO" << endl;
+        }
     }
-
     return 0;
 }
