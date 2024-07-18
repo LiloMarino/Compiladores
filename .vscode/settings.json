@@ -61,6 +61,11 @@
             "cwd": "d:\\Desktop\\Faculdade\\Compiladores",
             "binaryPath": "d:\\Desktop\\Faculdade\\Compiladores\\compilador",
             "binaryArgs": []
+        },
+        {
+            "cwd": "c:\\Users\\Usuario\\Desktop\\Faculdade\\Compiladores",
+            "binaryPath": "c:\\Users\\Usuario\\Desktop\\Faculdade\\Compiladores\\compilador",
+            "binaryArgs": []
         }
     ]
 }

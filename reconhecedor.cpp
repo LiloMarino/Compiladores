@@ -19,36 +19,43 @@ void Reconhecedor::addToken(const string &token, const int estado_final)
 list<recon> Reconhecedor::reconhecer(const string &entrada)
 {
     list<recon> lista_tokens;
-    int estado_atual = 1; // Estado inicial
-    int ultimo_estado = 0;
     string termo;
     recon aux;
-
-    for (auto it = entrada.begin(); it != entrada.end(); ++it)
+    int estado_atual = 1; // Estado inicial
+    int ultimo_estado = 0;
+    int inicio_string = 0;
+    while (inicio_string < entrada.size())
     {
-        char c = *it;
-        ultimo_estado = estado_atual;
-        estado_atual = automato.makeTransition(estado_atual, c);
-
-        if (estado_atual == 0)
+        for (int i = inicio_string; i < entrada.size(); ++i)
         {
-            // Estado inválido, então verifica se algum token foi reconhecido
-            if (mapa_tokens.find(ultimo_estado) != mapa_tokens.end())
+            char c = entrada[i];
+            ultimo_estado = estado_atual;
+            estado_atual = automato.makeTransition(estado_atual, c);
+            if (estado_atual == 0)
             {
-                aux.token = mapa_tokens[ultimo_estado];
+                // Estado inválido, então verifica se algum token foi reconhecido
+                if (mapa_tokens.find(ultimo_estado) != mapa_tokens.end())
+                {
+                    aux.token = mapa_tokens[ultimo_estado];
+                }
+                else
+                {
+                    termo += c;
+                    ++inicio_string;
+                    aux.token = "ERRO";
+                }
+                aux.cadeia = termo;
+                lista_tokens.push_back(aux);
+                termo.clear();
+                break;
             }
             else
             {
-                aux.token = "ERRO";
+                termo += c;
+                ++inicio_string;
             }
-            aux.cadeia = termo;
-            lista_tokens.push_back(aux);
-            termo.clear();
         }
-        else
-        {
-            termo += c;
-        }
+        estado_atual = 1;
     }
     return lista_tokens;
 }

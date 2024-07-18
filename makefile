@@ -40,11 +40,7 @@ zip:
 
 # Limpeza dos arquivos gerados
 clean:
-	del $(subst /,\,$(OBJECTS)) $(subst /,\,$(SOURCES:.cpp=.d))
-
-# Limpeza geral
-clean_all: clean
-	del $(subst /,\,$(TARGET).exe)
+	del $(subst /,\,$(OBJECTS)) $(subst /,\,$(SOURCES:.cpp=.d)) $(subst /,\,$(TARGET).exe)
 
 finish: all run clean_all zip
 

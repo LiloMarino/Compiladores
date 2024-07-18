@@ -21,11 +21,11 @@ void createAutomato(Automato &au)
 
 void createReconhecedor(Reconhecedor &re)
 {
-    re.addToken("F", 2);
-    re.addToken("F", 3);
-    re.addToken("F", 4);
-    re.addToken("F", 5);
-    re.addToken("F", 8);
+    re.addToken("2", 2);
+    re.addToken("3", 3);
+    re.addToken("4", 4);
+    re.addToken("5", 5);
+    re.addToken("8", 8);
 }
 
 int main()
