@@ -20,13 +20,13 @@ void createAutomato(Automato &au)
     au.addTransitions(4, 4, "0-9,a-z");
     au.addTransitions(5, 6, "0-9");
     au.addTransitions(6, 6, "0-9");
-    au.addTransitions(7,7, "0-9");
-    au.addTransitions(7,8, ".");
-    au.addTransitions(8,8, "0-9");
-    au.addTransitions(9,10, "-");
-    au.addTransitions(10,10, "a-z");
-    au.addTransitions(10,11, "\n");
-    au.addTransitions(12,12, " ");
+    au.addTransitions(7, 7, "0-9");
+    au.addTransitions(7, 8, ".");
+    au.addTransitions(8, 8, "0-9");
+    au.addTransitions(9, 10, "-");
+    au.addTransitions(10, 10, "a-z");
+    au.addTransitions(10, 11, "\n");
+    au.addTransitions(12, 12, " ");
 }
 
 void createAnalisador(AnalisadorLexico &al)
