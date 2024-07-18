@@ -1,13 +1,13 @@
-#include "reconhecedor.hpp"
+#include "lexico.hpp"
 #include <stdexcept>
 
 using namespace std;
 
-Reconhecedor::Reconhecedor(Automato &a) : automato(a)
+AnalisadorLexico::AnalisadorLexico(Automato &a) : automato(a)
 {
 }
 
-void Reconhecedor::addToken(const string &token, const int estado_final)
+void AnalisadorLexico::addToken(const string &token, const int estado_final)
 {
     if (estado_final >= automato.getNumEstados() || estado_final < 0)
     {
@@ -16,7 +16,7 @@ void Reconhecedor::addToken(const string &token, const int estado_final)
     mapa_tokens[estado_final] = token;
 }
 
-list<recon> Reconhecedor::reconhecer(const string &entrada)
+list<recon> AnalisadorLexico::reconhecer(const string &entrada)
 {
     list<recon> lista_tokens;
     string termo;

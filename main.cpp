@@ -2,7 +2,7 @@
 #include <string>
 #include <list>
 #include "automato.hpp"
-#include "reconhecedor.hpp"
+#include "lexico.hpp"
 
 using namespace std;
 void createAutomato(Automato &au)
@@ -21,26 +21,26 @@ void createAutomato(Automato &au)
     au.addTransitions(8, 8, "0-9");
 }
 
-void createReconhecedor(Reconhecedor &re)
+void createAnalisador(AnalisadorLexico &al)
 {
-    re.addToken("2", 2);
-    re.addToken("3", 3);
-    re.addToken("4", 4);
-    re.addToken("5", 5);
-    re.addToken("8", 8);
+    al.addToken("2", 2);
+    al.addToken("3", 3);
+    al.addToken("4", 4);
+    al.addToken("5", 5);
+    al.addToken("8", 8);
 }
 
 int main()
 {
     Automato a(8);
     createAutomato(a);
-    Reconhecedor r(a);
-    createReconhecedor(r);
+    AnalisadorLexico al(a);
+    createAnalisador(al);
     string input;
     list<recon> tokens_reconhecidos;
     while (getline(cin, input))
     {
-        list<recon> aux = r.reconhecer(input);
+        list<recon> aux = al.reconhecer(input);
         tokens_reconhecidos.splice(tokens_reconhecidos.end(), aux);
     }
     for (recon &token : tokens_reconhecidos)

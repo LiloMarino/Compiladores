@@ -11,14 +11,14 @@ struct recon
     std::string token;
 };
 
-class Reconhecedor
+class AnalisadorLexico
 {
 private:
     Automato &automato;
     std::map<int, std::string> mapa_tokens;
 
 public:
-    Reconhecedor(Automato &a);
+    AnalisadorLexico(Automato &a);
 
     /**
      * @brief Associa o token ao estado final
