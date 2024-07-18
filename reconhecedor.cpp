@@ -26,7 +26,7 @@ list<recon> Reconhecedor::reconhecer(const string &entrada)
     int inicio_string = 0;
     while (inicio_string < entrada.size())
     {
-        for (int i = inicio_string; i < entrada.size(); ++i)
+        for (int i = inicio_string; i <= entrada.size(); ++i)
         {
             char c = entrada[i];
             ultimo_estado = estado_atual;

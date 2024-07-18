@@ -11,6 +11,8 @@ void createAutomato(Automato &au)
     au.addTransitions(1, 3, "+");
     au.addTransitions(1, 4, "-");
     au.addTransitions(1, 5, "0-9");
+    au.addTransitions(2, 2, "a-z");
+    au.addTransitions(2, 2, "0-9");
     au.addTransitions(5, 5, "0-9");
     au.addTransitions(5, 6, "e");
     au.addTransitions(6, 8, "0-9");
