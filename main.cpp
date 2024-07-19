@@ -30,6 +30,7 @@ void createAutomato(Automato &au)
     au.addTransitions(9, 10, "s");
     au.addTransitions(13, 15, "s");
     au.addTransitions(14, 16, "s");
+    au.addTransitions(22, 22, "0-9");
 }
 
 void createAnalisador(AnalisadorLexico &al)

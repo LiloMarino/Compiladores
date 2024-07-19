@@ -91,6 +91,11 @@
             "cwd": "c:\\Users\\Usuario\\Desktop\\Faculdade\\Compiladores",
             "binaryPath": "c:\\Users\\Usuario\\Desktop\\Faculdade\\Compiladores\\l6e1",
             "binaryArgs": []
+        },
+        {
+            "cwd": "/home/lilo/Faculdade/Compiladores",
+            "binaryPath": "/home/lilo/Faculdade/Compiladores/l6e1",
+            "binaryArgs": []
         }
     ]
 }
