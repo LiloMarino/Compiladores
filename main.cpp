@@ -62,9 +62,15 @@ int main()
         list<recon> aux = al.reconhecer(input);
         tokens_reconhecidos.splice(tokens_reconhecidos.end(), aux);
     }
-    for (recon &token : tokens_reconhecidos)
+    for (auto it = tokens_reconhecidos.begin(); it != tokens_reconhecidos.end(); ++it)
     {
-        cout << token.token << ((token.token == "INTEIRO" || token.token == "REAL") ? " " + token.cadeia : "")  << endl;
+        recon token = *it;
+        cout << token.token << ((token.token == "INTEIRO" || token.token == "REAL") ? " " + token.cadeia : "");
+        if (next(it) != tokens_reconhecidos.end())
+        {
+            cout << endl;
+        }
+        
     }
     return 0;
 }
