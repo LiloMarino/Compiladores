@@ -54,6 +54,10 @@ clean:
 	rm $(SOURCES:.cpp=.d)
 	rm $(EXEC_NAME).exe
 
+# valgrind: Regra para executar o programa com o Valgrind
+valgrind: all
+	valgrind --leak-check=full --show-leak-kinds=all ./$(EXEC_NAME)
+
 finish: all run clean zip
 
 .PHONY: all clean run zip
