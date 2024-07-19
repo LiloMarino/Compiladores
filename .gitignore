@@ -33,3 +33,11 @@
 
 # Zips
 *.zip
+
+# Pastas
+entrada/
+saida_esperada/
+saida/
+
+# Txt
+*.txt

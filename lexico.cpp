@@ -24,9 +24,9 @@ list<recon> AnalisadorLexico::reconhecer(const string &entrada)
     int estado_atual = 1; // Estado inicial
     int ultimo_estado = 0;
     int inicio_string = 0;
-    while (inicio_string < entrada.size())
+    while (inicio_string < (int)entrada.size())
     {
-        for (int i = inicio_string; i <= entrada.size(); ++i)
+        for (int i = inicio_string; i <= (int)entrada.size(); ++i)
         {
             char c = entrada[i];
             ultimo_estado = estado_atual;
@@ -38,12 +38,13 @@ list<recon> AnalisadorLexico::reconhecer(const string &entrada)
                 {
                     // Token Válido
                     aux.token = mapa_tokens[ultimo_estado];
+                    inicio_string = i;
                 }
                 else
                 {
                     // Token Inválido
-                    // termo += c;
-                    // ++inicio_string;
+                    termo += c;
+                    ++inicio_string;
                     aux.token = "ERRO";
                 }
 
@@ -58,8 +59,7 @@ list<recon> AnalisadorLexico::reconhecer(const string &entrada)
             }
             else
             {
-                termo += c;                            
-                ++inicio_string;
+                termo += c;
             }
         }
         estado_atual = 1; // Reseta para o estado inicial

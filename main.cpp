@@ -63,7 +63,7 @@ int main()
     }
     for (recon &token : tokens_reconhecidos)
     {
-        cout << token.cadeia << " " << token.token << endl;
+        cout << token.token << ((token.token == "INTEIRO" || token.token == "REAL") ? " " + token.cadeia : "")  << endl;
     }
     return 0;
 }
