@@ -42,33 +42,23 @@ list<recon> AnalisadorLexico::reconhecer(const string &entrada)
                 else
                 {
                     // Token Inválido
-                    termo += c;
-                    ++inicio_string;
+                    // termo += c;
+                    // ++inicio_string;
                     aux.token = "ERRO";
                 }
 
-                if (termo.back() != '\n')
+                // Se for um espaço então não considera
+                if (termo != " ")
                 {
                     aux.cadeia = termo;
                     lista_tokens.push_back(aux);
-                }
-                else
-                {
-                    // O último caractere é o '\n' então desconsidera
-                    termo.pop_back();
-                    if (aux.token == "comment")
-                    {
-                        // É um comentário então considera
-                        aux.cadeia = termo;
-                        lista_tokens.push_back(aux);
-                    }
                 }
                 termo.clear();
                 break;
             }
             else
             {
-                termo += c;
+                termo += c;                            
                 ++inicio_string;
             }
         }

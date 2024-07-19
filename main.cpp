@@ -7,46 +7,50 @@
 using namespace std;
 void createAutomato(Automato &au)
 {
-    au.addTransitions(1, 2, "i");
-    au.addTransitions(1, 4, "a-h,j-z");
-    au.addTransitions(1, 5, ".");
-    au.addTransitions(1, 7, "0-9");
-    au.addTransitions(1, 9, "-");
-    au.addTransitions(1, 12, " ");
-    au.addTransitions(1, 13, "other");
-    au.addTransitions(2, 3, "f");
-    au.addTransitions(2, 4, "a-e,g-z,0-9");
-    au.addTransitions(3, 4, "0-9,a-z");
-    au.addTransitions(4, 4, "0-9,a-z");
-    au.addTransitions(5, 6, "0-9");
-    au.addTransitions(6, 6, "0-9");
-    au.addTransitions(7, 7, "0-9");
-    au.addTransitions(7, 8, ".");
-    au.addTransitions(8, 8, "0-9");
-    au.addTransitions(9, 10, "-");
-    au.addTransitions(10, 10, "a-z");
-    au.addTransitions(10, 11, "\n");
-    au.addTransitions(12, 12, " ");
+    au.addTransitions(1, 17, "+");
+    au.addTransitions(1, 18, "-");
+    au.addTransitions(1, 19, "0-9");
+    au.addTransitions(1, 2, "h");
+    au.addTransitions(1, 4, "s");
+    au.addTransitions(1, 11, "c");
+    au.addTransitions(19, 19, "0-9");
+    au.addTransitions(19, 20, "e");
+    au.addTransitions(2, 3, "e");
+    au.addTransitions(2, 7, "i");
+    au.addTransitions(4, 5, "h");
+    au.addTransitions(11, 12, "a");
+    au.addTransitions(20, 22, "0-9");
+    au.addTransitions(20, 21, "+,-");
+    au.addTransitions(3, 9, "r");
+    au.addTransitions(7, 8, "s");
+    au.addTransitions(5, 6, "e");
+    au.addTransitions(12, 13, "t");
+    au.addTransitions(12, 14, "r");
+    au.addTransitions(21, 22, "0-9");
+    au.addTransitions(9, 10, "s");
+    au.addTransitions(13, 15, "s");
+    au.addTransitions(14, 16, "s");
 }
 
 void createAnalisador(AnalisadorLexico &al)
 {
-    al.addToken("ID", 2);
-    al.addToken("IF", 3);
-    al.addToken("ID", 4);
-    al.addToken("error", 5);
-    al.addToken("REAL", 6);
-    al.addToken("NUM", 7);
-    al.addToken("REAL", 8);
-    al.addToken("error", 9);
-    al.addToken("comment", 11);
-    al.addToken("white space", 12);
-    al.addToken("error", 13);
+    al.addToken("MAIS", 17);
+    al.addToken("MENOS", 18);
+    al.addToken("INTEIRO", 19);
+    al.addToken("ELE", 3);
+    al.addToken("DELE", 8);
+    al.addToken("DELA", 10);
+    al.addToken("REAL", 22);
+    al.addToken("ELA", 6);
+    al.addToken("GATO", 13);
+    al.addToken("GATOS", 15);
+    al.addToken("CARRO", 14);
+    al.addToken("CARROS", 16);
 }
 
 int main()
 {
-    Automato a(13);
+    Automato a(22);
     createAutomato(a);
     AnalisadorLexico al(a);
     createAnalisador(al);
@@ -54,7 +58,6 @@ int main()
     list<recon> tokens_reconhecidos;
     while (getline(cin, input))
     {
-        input += "\n";
         list<recon> aux = al.reconhecer(input);
         tokens_reconhecidos.splice(tokens_reconhecidos.end(), aux);
     }

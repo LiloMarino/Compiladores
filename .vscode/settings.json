@@ -81,6 +81,11 @@
             "cwd": "c:\\Users\\Usuario\\Desktop\\Faculdade\\Compiladores",
             "binaryPath": "c:\\Users\\Usuario\\Desktop\\Faculdade\\Compiladores\\l5e2",
             "binaryArgs": []
+        },
+        {
+            "cwd": "d:\\Desktop\\Faculdade\\Compiladores",
+            "binaryPath": "d:\\Desktop\\Faculdade\\Compiladores\\l5e2",
+            "binaryArgs": []
         }
     ]
 }
