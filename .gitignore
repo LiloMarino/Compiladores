@@ -41,3 +41,4 @@ saida/
 
 # Txt
 *.txt
+lex.yy.cpp

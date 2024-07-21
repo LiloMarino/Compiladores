@@ -1,17 +1,21 @@
 # Nome do executável
-EXEC_NAME = l6e1
+EXEC_NAME = l7e1
 
 # Nome do zip
-ZIP_NAME = LISTA_6_EXERCICIO_1
+ZIP_NAME = LISTA_7_EXERCICIO_1
 
 # Lista de arquivos fonte
-SOURCES = main.cpp automato.cpp lexico.cpp
+SOURCES = main.cpp lex.yy.cpp
+
+# Arquivo Flex
+LEX_FILE = lexer.l
 
 # Gerar lista de headers automaticamente (qualquer .cpp que não seja main.cpp)
-HEADERS = $(patsubst %.cpp,%.hpp,$(filter-out main.cpp,$(SOURCES)))
+# HEADERS = $(patsubst %.cpp,%.hpp,$(filter-out main.cpp,$(SOURCES)))
+HEADERS = lexer.hpp
 
 # Lista todos os arquivos envolvidos
-FILES = $(SOURCES) $(HEADERS) makefile
+FILES = $(SOURCES) $(HEADERS) $(LEX_FILE) makefile
 
 # Definir o compilador
 CXX = g++
@@ -33,12 +37,16 @@ $(EXEC_NAME): $(OBJECTS)
 %.o: %.cpp
 	$(CXX) $(CXXFLAGS) -MMD -c $< -o $@
 
+# Regra para compilar o arquivo Flex
+lex.yy.cpp: $(LEX_FILE)
+	flex -o lex.yy.cpp $(LEX_FILE)
+
 # Incluir dependências geradas automaticamente
--include $(SOURCES:.cpp=.d)
+-include $(OBJECTS:.o=.d)
 
 # run: Compila e roda o programa
 run: $(EXEC_NAME)
-	$(EXEC_NAME)
+	./$(EXEC_NAME)
 
 # zip: Zippa os arquivos fonte
 zip: $(ZIP_NAME)
@@ -50,9 +58,10 @@ $(ZIP_NAME): $(FILES)
 
 # clean: Limpa todos os arquivos gerados da compilação
 clean:
-	rm $(OBJECTS) 
-	rm $(SOURCES:.cpp=.d)
-	rm $(EXEC_NAME).exe
+	rm -f $(OBJECTS) 
+	rm -f $(SOURCES:.cpp=.d)
+	rm -f $(EXEC_NAME)
+	rm -f lex.yy.cpp
 
 # valgrind: Regra para executar o programa com o Valgrind
 valgrind: all
