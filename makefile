@@ -39,7 +39,7 @@ $(EXEC_NAME): $(OBJECTS)
 
 # Regra para compilar o arquivo Flex
 lex.yy.cpp: $(LEX_FILE)
-	flex -o lex.yy.cpp $(LEX_FILE)
+	flex++ -o lex.yy.cpp $(LEX_FILE)
 
 # Incluir dependências geradas automaticamente
 -include $(OBJECTS:.o=.d)

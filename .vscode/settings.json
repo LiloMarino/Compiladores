@@ -64,7 +64,19 @@
         "span": "cpp",
         "stop_token": "cpp",
         "thread": "cpp",
-        "variant": "cpp"
+        "variant": "cpp",
+        "cstdarg": "cpp",
+        "strstream": "cpp",
+        "bitset": "cpp",
+        "chrono": "cpp",
+        "complex": "cpp",
+        "set": "cpp",
+        "fstream": "cpp",
+        "iomanip": "cpp",
+        "sstream": "cpp",
+        "cfenv": "cpp",
+        "cinttypes": "cpp",
+        "typeindex": "cpp"
     },
     "makefile.launchConfigurations": [
         {
@@ -95,6 +107,11 @@
         {
             "cwd": "/home/lilo/Faculdade/Compiladores",
             "binaryPath": "/home/lilo/Faculdade/Compiladores/l6e1",
+            "binaryArgs": []
+        },
+        {
+            "cwd": "/home/lilo/Faculdade/Compiladores",
+            "binaryPath": "/home/lilo/Faculdade/Compiladores/l7e1",
             "binaryArgs": []
         }
     ]

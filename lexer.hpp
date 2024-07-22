@@ -1,12 +1,82 @@
 #ifndef LEXER_HPP
 #define LEXER_HPP
 
-extern int yylex();
-extern char* yytext;
+#include <FlexLexer.h>
+#include <string>
+#include "tokens.hpp"
 
-enum Token {
-    IDENTIFIER = 256,
-    NUMBER
+/**
+ * @brief Classe usada para fazer o léxico usando o Flex
+ */
+class MyLexer : public yyFlexLexer
+{
+private:
+    Token current_token;
+    std::string current_text;
+
+public:
+    /**
+     * @brief Construtor do Léxico
+     * @param in Stream de entrada de dados
+     * @param out Stream de saída de dados
+     */
+    MyLexer(std::istream &in = std::cin, std::ostream &out = std::cout)
+        : yyFlexLexer(&in, &out), current_token(Token::ERROR) {}
+
+    /**
+     * @brief Obtém o próximo token
+     * @return Retorna o token definido pelo enum
+     */
+    Token nextToken()
+    {
+        int token = yylex(); // Chama o método yylex da classe base
+        current_token = static_cast<Token>(token);
+        current_text = YYText(); // Obtém o texto atual do token
+        return current_token;
+    }
+
+    /**
+     * @brief Obtém o token atual
+     * @return Retorna o token atual
+     */
+    Token getTokenValue() const
+    {
+        return current_token;
+    }
+
+    /**
+     * @brief Obtém o texto do token atual
+     * @return Retorna o texto
+     */
+    const std::string &getTokenText() const
+    {
+        return current_text;
+    }
+
+    /**
+     * @brief Define o token atual
+     * @param value Valor do Token atual
+     */
+    void setTokenValue(Token value)
+    {
+        current_token = value;
+    }
+
+    /**
+     * @brief Define o texto do token atual
+     * @param text Texto do token
+     */
+    void setTokenText(const std::string &text)
+    {
+        current_text = text;
+    }
+
+private:
+    // Necessário para obter o texto do token. Adicione essa função para obter o texto do token.
+    std::string YYText() const
+    {
+        return std::string(yytext, yyleng);
+    }
 };
 
 #endif

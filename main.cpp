@@ -2,17 +2,21 @@
 #include "lexer.hpp"
 
 int main() {
-    int token;
-    while ((token = yylex()) != 0) {
+    MyLexer lexer(std::cin, std::cout); // Passa std::cin e std::cout como referências
+    Token token;
+    while ((token = lexer.nextToken()) != Token::ERROR) {
         switch (token) {
-            case IDENTIFIER:
-                std::cout << "Identifier: " << yytext << std::endl;
+            case Token::STRING1:
+                std::cout << "Token: STRING1, Texto: " << lexer.getTokenText() << std::endl;
                 break;
-            case NUMBER:
-                std::cout << "Number: " << yytext << std::endl;
+            case Token::STRING2:
+                std::cout << "Token: STRING2, Texto: " << lexer.getTokenText() << std::endl;
+                break;
+            case Token::STRING3:
+                std::cout << "Token: STRING3, Texto: " << lexer.getTokenText() << std::endl;
                 break;
             default:
-                std::cout << "Other: " << static_cast<char>(token) << std::endl;
+                std::cout << "Token não reconhecido: " << static_cast<int>(token) << std::endl;
         }
     }
     return 0;

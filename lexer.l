@@ -1,13 +1,16 @@
+%option noyywrap
 %{
-#include "lexer.hpp"
+#include "tokens.hpp"
 %}
 
-%option noyywrap
-
+%%
+"token1" { 
+    return static_cast<int>(Token::STRING1); 
+}
+"token2" { 
+    return static_cast<int>(Token::STRING2); 
+}
+. {return 0;}
 %%
 
-[a-z][a-z0-9]*   { return IDENTIFIER; }
-[0-9]+           { return NUMBER; }
-.                { return yytext[0]; }
-
-%%
+// Outras definições e funções, como o método main para rodar o lexer, se necessário
