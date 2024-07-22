@@ -6,8 +6,13 @@
  */
 enum class Token {
     END_OF_FILE = -1,
-    INVALIDO,
-    VALIDO,
+    ID = 0,
+    IF,
+    WHITE_SPACE,
+    NUM,
+    REAL,
+    COMMENT,
+    ERROR,
 };
 
 #endif

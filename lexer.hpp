@@ -3,6 +3,7 @@
 
 #include <FlexLexer.h>
 #include <string>
+#include <unordered_map>
 #include "tokens.hpp"
 
 /**
@@ -13,6 +14,7 @@ class MyLexer : public yyFlexLexer
 private:
     Token current_token;
     std::string current_text;
+    static const std::unordered_map<Token, std::string> tokenMap;
 
     /**
      * @brief Obtém a string do token
@@ -63,6 +65,23 @@ public:
     }
 
     /**
+     * @brief Obtém a string associada ao token atual
+     * @return Retorna a string associada ao token atual
+     */
+    std::string getTokenString() const
+    {
+        auto it = tokenMap.find(current_token);
+        if (it != tokenMap.end())
+        {
+            return it->second;
+        }
+        else
+        {
+            return "UNKNOWN";
+        }
+    }
+
+    /**
      * @brief Define o token atual
      * @param value Valor do Token atual
      */
@@ -79,7 +98,20 @@ public:
     {
         current_text = text;
     }
+};
 
+/**
+ * @brief Mapeamento de tokens para strings
+ */
+const std::unordered_map<Token, std::string> MyLexer::tokenMap = {
+        {Token::END_OF_FILE, "END_OF_FILE"},
+        {Token::ID, "ID"},
+        {Token::IF, "IF"},
+        {Token::WHITE_SPACE, "white space"},
+        {Token::NUM, "NUM"},
+        {Token::REAL, "REAL"},
+        {Token::COMMENT, "comment"},
+        {Token::ERROR, "error"},
 };
 
 #endif

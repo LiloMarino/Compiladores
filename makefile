@@ -1,8 +1,8 @@
 # Nome do executável
-EXEC_NAME = l7e1
+EXEC_NAME = l7e2
 
 # Nome do zip
-ZIP_NAME = LISTA_7_EXERCICIO_1
+ZIP_NAME = LISTA_7_EXERCICIO_2
 
 # Lista de arquivos fonte
 SOURCES = main.cpp lex.yy.cpp
