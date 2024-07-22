@@ -5,14 +5,10 @@
 
 %%
 
-"if"            { return static_cast<int>(Token::IF); }
-[a-z][a-z0-9]*  { return static_cast<int>(Token::ID); }
-[0-9]+          { return static_cast<int>(Token::NUM); }
-[0-9]+"."[0-9]* { return static_cast<int>(Token::REAL); }
-"."[0-9]+       { return static_cast<int>(Token::REAL); }
---[a-z]*$       { return static_cast<int>(Token::COMMENT); }
-[ \t]+          { return static_cast<int>(Token::WHITE_SPACE); }
-\n              { /* Ignora quebra de linha não associada a comment */ }
+"aba"+          { return static_cast<int>(Token::ACTION1); }
+"a""b"*"a"      { return static_cast<int>(Token::ACTION2); }
+"a"|"b"         { return static_cast<int>(Token::ACTION3); }
+\n              { /* Ignora quebra de linha */ }
 <<EOF>>         { return static_cast<int>(Token::END_OF_FILE); }
 .               { return static_cast<int>(Token::ERROR); }
 

@@ -6,12 +6,9 @@
  */
 enum class Token {
     END_OF_FILE = -1,
-    ID = 0,
-    IF,
-    WHITE_SPACE,
-    NUM,
-    REAL,
-    COMMENT,
+    ACTION1,
+    ACTION2,
+    ACTION3,
     ERROR,
 };
 
