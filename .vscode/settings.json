@@ -1,4 +1,5 @@
 {
+    "terminal.integrated.defaultProfile.linux": "zsh",
     "files.associations": {
         "*.c": "c",
         "*.gml": "cpp",

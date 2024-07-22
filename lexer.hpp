@@ -14,6 +14,15 @@ private:
     Token current_token;
     std::string current_text;
 
+    /**
+     * @brief Obtém a string do token
+     * @return Retorna a string
+     */
+    std::string YYText() const
+    {
+        return std::string(yytext, yyleng);
+    }
+
 public:
     /**
      * @brief Construtor do Léxico
@@ -21,7 +30,7 @@ public:
      * @param out Stream de saída de dados
      */
     MyLexer(std::istream &in = std::cin, std::ostream &out = std::cout)
-        : yyFlexLexer(&in, &out), current_token(Token::ERROR) {}
+        : yyFlexLexer(&in, &out), current_token(Token::END_OF_FILE) {}
 
     /**
      * @brief Obtém o próximo token
@@ -71,12 +80,6 @@ public:
         current_text = text;
     }
 
-private:
-    // Necessário para obter o texto do token. Adicione essa função para obter o texto do token.
-    std::string YYText() const
-    {
-        return std::string(yytext, yyleng);
-    }
 };
 
 #endif

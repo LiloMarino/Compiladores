@@ -2,21 +2,19 @@
 #include "lexer.hpp"
 
 int main() {
-    MyLexer lexer(std::cin, std::cout); // Passa std::cin e std::cout como referências
+    MyLexer lexer(std::cin, std::cout);
     Token token;
-    while ((token = lexer.nextToken()) != Token::ERROR) {
+    while ((token = lexer.nextToken()) != Token::END_OF_FILE) {
         switch (token) {
-            case Token::STRING1:
-                std::cout << "Token: STRING1, Texto: " << lexer.getTokenText() << std::endl;
+            case Token::VALIDO:
+                std::cout << lexer.getTokenText() << std::endl;
                 break;
-            case Token::STRING2:
-                std::cout << "Token: STRING2, Texto: " << lexer.getTokenText() << std::endl;
-                break;
-            case Token::STRING3:
-                std::cout << "Token: STRING3, Texto: " << lexer.getTokenText() << std::endl;
+            case Token::INVALIDO:
+                std::cout << "ERRO" << std::endl;
                 break;
             default:
-                std::cout << "Token não reconhecido: " << static_cast<int>(token) << std::endl;
+                std::cout << "???" << std::endl;
+                break;
         }
     }
     return 0;

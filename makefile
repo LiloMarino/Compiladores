@@ -12,7 +12,7 @@ LEX_FILE = lexer.l
 
 # Gerar lista de headers automaticamente (qualquer .cpp que não seja main.cpp)
 # HEADERS = $(patsubst %.cpp,%.hpp,$(filter-out main.cpp,$(SOURCES)))
-HEADERS = lexer.hpp
+HEADERS = lexer.hpp tokens.hpp
 
 # Lista todos os arquivos envolvidos
 FILES = $(SOURCES) $(HEADERS) $(LEX_FILE) makefile
