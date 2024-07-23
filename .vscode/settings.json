@@ -114,6 +114,11 @@
             "cwd": "/home/lilo/Faculdade/Compiladores",
             "binaryPath": "/home/lilo/Faculdade/Compiladores/l7e1",
             "binaryArgs": []
+        },
+        {
+            "cwd": "/home/lilo/Faculdade/Compiladores",
+            "binaryPath": "/home/lilo/Faculdade/Compiladores/cstats",
+            "binaryArgs": ["/home/lilo/Faculdade/Compiladores/test.c"]
         }
     ]
 }

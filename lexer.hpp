@@ -105,9 +105,6 @@ public:
  */
 const std::unordered_map<Token, std::string> MyLexer::tokenMap = {
         {Token::END_OF_FILE, "END_OF_FILE"},
-        {Token::ACTION1, "(action 1)"},
-        {Token::ACTION2, "(action 2)"},
-        {Token::ACTION3, "(action 3)"},
         {Token::ERROR, "error"},
 };
 
