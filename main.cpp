@@ -3,20 +3,9 @@
 #include <vector>
 #include <fstream>
 #include "lexer.hpp"
-#include "tokens.hpp"
+#include "stats.hpp"
 
-bool comment = false;
-
-struct Stats
-{
-    int total_lines;
-    int blank_lines;
-    int lines_with_comments;
-    int nb_nc_lines;
-    int semi_colons;
-    int prepoc_direct;
-    std::string file_name;
-};
+Stats atual;
 
 void montarTabela(std::vector<Stats> &arquivos)
 {
@@ -73,6 +62,7 @@ int main(int argc, char *argv[])
     // Para cada arquivo no vetor obtém as estatísticas dele
     for (auto &arquivo : arquivos)
     {
+        atual = arquivo;
         std::ifstream file(arquivo.file_name);
         if (!file)
         {
@@ -82,51 +72,23 @@ int main(int argc, char *argv[])
 
         MyLexer lexer(file, std::cout);
         Token token;
-        while ((token = lexer.nextToken()) != Token::END_OF_FILE)
-        {
-            std::string str = lexer.getTokenText();
-            switch (token)
-            {
-            case Token::COMMENTLINE:
-                arquivo.total_lines++;
-                arquivo.lines_with_comments++;
-                break;
-            case Token::BLANKLINE:
-                arquivo.total_lines++;
-                arquivo.blank_lines++;
-                break;
-            case Token::NB_NC_LINE:
-                arquivo.total_lines++;
-                arquivo.nb_nc_lines++;
-                break;
-            case Token::SEMICOLON:
-                arquivo.total_lines++;
-                arquivo.semi_colons++;
-                break;
-            case Token::PREPROCDIR:
-                arquivo.total_lines++;
-                arquivo.prepoc_direct++;
-                break;
-            default:
-                std::cout << "TOKEN INDEFINIDO\n";
-                break;
-            }
-        }
-
-        // Cálcula o total
-        Stats total = {0, 0, 0, 0, 0, 0, "total"};
-        for (const auto &arquivo : arquivos)
-        {
-            total.total_lines += arquivo.total_lines;
-            total.blank_lines += arquivo.blank_lines;
-            total.lines_with_comments += arquivo.lines_with_comments;
-            total.nb_nc_lines += arquivo.nb_nc_lines;
-            total.semi_colons += arquivo.semi_colons;
-            total.prepoc_direct += arquivo.prepoc_direct;
-        }
-        arquivos.push_back(total);
-
-        montarTabela(arquivos);
-        return 0;
+        while ((token = lexer.nextToken()) != Token::END_OF_FILE) {}
+        arquivo = atual;
     }
+
+    // Cálcula o total
+    Stats total = {0, 0, 0, 0, 0, 0, "total"};
+    for (const auto &arquivo : arquivos)
+    {
+        total.total_lines += arquivo.total_lines;
+        total.blank_lines += arquivo.blank_lines;
+        total.lines_with_comments += arquivo.lines_with_comments;
+        total.nb_nc_lines += arquivo.nb_nc_lines;
+        total.semi_colons += arquivo.semi_colons;
+        total.prepoc_direct += arquivo.prepoc_direct;
+    }
+    arquivos.push_back(total);
+
+    montarTabela(arquivos);
+    return 0;
 }
