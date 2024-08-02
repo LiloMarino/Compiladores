@@ -2,57 +2,63 @@
 %option yylineno
 %x COMMENT
 %{
-    #include <stdio.h>
-    #include <stdbool.h>
-    #include <string.h>
-    bool haveTextBefore = false;
-    bool firstToken = true;
-    int coluna = 1;
-    int inicioLinha;
-    int inicioColuna;
-    char result[256];
-    void print(char * token)
+#include <stdio.h>
+#include <stdbool.h>
+#include <string.h>
+
+// Variáveis globais
+bool firstToken = true;
+int coluna = 1;
+int inicioLinha;
+int inicioColuna;
+char result[256];
+
+// Print Token
+void print(char *token)
+{
+    if (firstToken)
     {
-        if(firstToken)
-        {
-            printf("%s",token);
-            firstToken = false;
-        }
-        else
-        {
-            printf("\n%s",token);
-        }
-        haveTextBefore = true;
-        coluna += strlen(yytext);
+        printf("%s", token);
+        firstToken = false;
     }
-    void throwError(char *message)
+    else
     {
-        if(firstToken)
-        {
-            printf("error:%s:%d:%d: %s",message,yylineno,coluna,yytext);
-            firstToken = false;
-        }
-        else
-        {
-            printf("\nerror:%s:%d:%d: %s",message,yylineno,coluna,yytext);
-        }
-        haveTextBefore = true;
-        coluna += strlen(yytext);
+        printf("\n%s", token);
     }
-    void throwWarning(char *message)
+    coluna += strlen(yytext);
+}
+
+// Controle de exceções
+enum ExceptionLevel
+{
+    WARNING,
+    ERROR,
+};
+
+void throwException(enum ExceptionLevel level, bool lexical, int line, int column, char *message)
+{
+    char text[256] = "";
+    if (level == WARNING)
     {
-        if(firstToken)
-        {
-            printf("warning:%d:%d: %s",message,yylineno,coluna,yytext);
-            firstToken = false;
-        }
-        else
-        {
-            printf("\nwarning:%d:%d: %s",message,yylineno,coluna,yytext);
-        }
-        haveTextBefore = true;
-        coluna += strlen(yytext);
+        strcat(text, "warning:");
     }
+    else if (level == ERROR)
+    {
+        strcat(text, "error:");
+    }
+    if (lexical)
+    {
+        strcat(text, "lexical:");
+    }
+
+    if (!firstToken)
+    {
+        printf("\n");
+    }
+    printf("%s%d:%d: %s", text, line, column, message);
+    firstToken = false;
+    coluna += strlen(yytext);
+}
 %}
 %%
 
@@ -79,11 +85,8 @@
     }
     else
     {
-        if (haveTextBefore)
-        {
-            printf("\n");
-        }
-        throwWarning(sprintf(result, "'%s' within block comment", yytext));
+        sprintf(result, "'%s' within block comment", yytext);
+        throwException(WARNING,false,yylineno,coluna,result);
         coluna += strlen(yytext);
         if (next == '\n')
         {
@@ -91,16 +94,11 @@
         }
         unput(next);
     }
-    haveTextBefore = 1;
 }
 <COMMENT>. { coluna += strlen(yytext); }
 <COMMENT>\n { coluna = 1; }
 <COMMENT><<EOF>> { 
-    if (haveTextBefore) 
-    {
-        printf("\n");
-    }
-    printf("error:lexical:%d:%d: unterminated comment", inicioLinha, inicioColuna); 
+    throwException(ERROR,true,inicioLinha,inicioColuna,"unterminated comment");
     exit(1);
 }
 "//".*\n               {printf("comentario de linha\n"); /*Ignora comentário */ }
@@ -162,8 +160,17 @@
 "scanf"                {print("SCANF");}
 "define"               {print("DEFINE");}
 "exit"                 {print("EXIT");}
-[a-zA-Z_][0-9a-zA-Z_]* {if(yyleng <= 255){print("IDENTIFIER");}}
-.                      {throwError("lexical");}
+[a-zA-Z_][0-9a-zA-Z_]* {if (yyleng <= 255)
+                        {
+                            sprintf(result,"IDENTIFIER(%s)",yytext);
+                            print(result);
+                        }
+                        else
+                        {
+                            throwException(ERROR, true, yylineno, coluna," identifier too long");
+                        }
+                       }
+.                      {throwException(ERROR,true,yylineno,coluna,yytext);}
 %%
 
 int main() {
