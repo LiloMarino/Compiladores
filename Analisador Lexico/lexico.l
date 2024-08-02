@@ -101,8 +101,8 @@ void throwException(enum ExceptionLevel level, bool lexical, int line, int colum
     throwException(ERROR,true,inicioLinha,inicioColuna,"unterminated comment");
     exit(1);
 }
-"//".*\n               {printf("comentario de linha\n"); /*Ignora comentário */ }
-\n                     {/*Ignora quebra de linha*/}
+"//".*\n               {/*Ignora comentário */ }
+\n                     {coluna=1;/*Ignora quebra de linha*/}
 [ ]                    {coluna++;}
 "void"                 {print("VOID");}
 "int"                  {print("INT");}
@@ -170,6 +170,12 @@ void throwException(enum ExceptionLevel level, bool lexical, int line, int colum
                             throwException(ERROR, true, yylineno, coluna," identifier too long");
                         }
                        }
+0[1-7][0-7]*           {sprintf(result,"NUM_OCTAL(%s)",yytext);print(result);}
+0[xX][0-9a-fA-F]+      {sprintf(result,"NUM_HEXA(%s)",yytext);print(result);}
+[0-9]+                 {sprintf(result,"NUM_INTEGER(%s)",yytext);print(result);}
+\"(\\.|[^"\\])*?\"     {sprintf(result,"STRING(%.*s)",(int)(strlen(yytext) - 2), yytext+1);print(result);}
+\'(\\.|[^'\\])\'       {sprintf(result,"CHARACTER(%.*s)",(int)(strlen(yytext) - 2), yytext+1);print(result);}
+
 .                      {throwException(ERROR,true,yylineno,coluna,yytext);}
 %%
 
