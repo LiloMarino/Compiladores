@@ -175,7 +175,6 @@ void throwException(enum ExceptionLevel level, bool lexical, int line, int colum
 [0-9]+                 {sprintf(result,"NUM_INTEGER(%s)",yytext);print(result);}
 \"(\\.|[^"\\])*?\"     {sprintf(result,"STRING(%.*s)",(int)(strlen(yytext) - 2), yytext+1);print(result);}
 \'(\\.|[^'\\])\'       {sprintf(result,"CHARACTER(%.*s)",(int)(strlen(yytext) - 2), yytext+1);print(result);}
-
 .                      {throwException(ERROR,true,yylineno,coluna,yytext);}
 %%
 
