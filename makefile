@@ -1,21 +1,17 @@
 # Nome do executável
-EXEC_NAME = cstats
+EXEC_NAME = l5e2
 
 # Nome do zip
-ZIP_NAME = LISTA_7_EXERCICIO_4
+ZIP_NAME = LISTA_5_EXERCICIO_2
 
 # Lista de arquivos fonte
-SOURCES = main.cpp lex.yy.cpp
-
-# Arquivo Flex
-LEX_FILE = lexer.l
+SOURCES = main.cpp automato.cpp lexico.cpp
 
 # Gerar lista de headers automaticamente (qualquer .cpp que não seja main.cpp)
-# HEADERS = $(patsubst %.cpp,%.hpp,$(filter-out main.cpp,$(SOURCES)))
-HEADERS = lexer.hpp tokens.hpp stats.hpp
+HEADERS = $(patsubst %.cpp,%.hpp,$(filter-out main.cpp,$(SOURCES)))
 
 # Lista todos os arquivos envolvidos
-FILES = $(SOURCES) $(HEADERS) $(LEX_FILE) makefile
+FILES = $(SOURCES) $(HEADERS) makefile
 
 # Definir o compilador
 CXX = g++
@@ -37,12 +33,8 @@ $(EXEC_NAME): $(OBJECTS)
 %.o: %.cpp
 	$(CXX) $(CXXFLAGS) -MMD -c $< -o $@
 
-# Regra para compilar o arquivo Flex
-lex.yy.cpp: $(LEX_FILE)
-	flex++ -o lex.yy.cpp $(LEX_FILE)
-
 # Incluir dependências geradas automaticamente
--include $(OBJECTS:.o=.d)
+-include $(SOURCES:.cpp=.d)
 
 # run: Compila e roda o programa
 run: $(EXEC_NAME)

@@ -1,94 +1,66 @@
 #include <iostream>
-#include <iomanip>
-#include <vector>
-#include <fstream>
-#include "lexer.hpp"
-#include "stats.hpp"
+#include <string>
+#include <list>
+#include "automato.hpp"
+#include "lexico.hpp"
 
-Stats atual;
-
-void montarTabela(std::vector<Stats> &arquivos)
+using namespace std;
+void createAutomato(Automato &au)
 {
-    // Header
-    std::cout << std::setw(7) << "total"
-              << std::setw(9) << "blank"
-              << std::setw(9) << "lines w/"
-              << std::setw(9) << "nb, nc"
-              << std::setw(9) << "semi-"
-              << std::setw(9) << "preproc."
-              << std::setw(15) << "file" << std::endl;
-
-    std::cout << std::setw(7) << "lines"
-              << std::setw(9) << "lines"
-              << std::setw(9) << "comments"
-              << std::setw(9) << "lines"
-              << std::setw(9) << "colons"
-              << std::setw(9) << "direct."
-              << std::setw(15) << "" << std::endl;
-
-    std::cout << "------+--------+--------+--------+--------+--------+----------------" << std::endl;
-
-    // Table
-    for (const auto &arquivo : arquivos)
-    {
-        std::cout << std::setw(7) << arquivo.total_lines
-                  << std::setw(9) << arquivo.blank_lines
-                  << std::setw(9) << arquivo.lines_with_comments
-                  << std::setw(9) << arquivo.nb_nc_lines
-                  << std::setw(9) << arquivo.semi_colons
-                  << std::setw(9) << arquivo.prepoc_direct
-                  << std::setw(15) << arquivo.file_name << std::endl;
-    }
+    au.addTransitions(1, 2, "i");
+    au.addTransitions(1, 4, "a-h,j-z");
+    au.addTransitions(1, 5, ".");
+    au.addTransitions(1, 7, "0-9");
+    au.addTransitions(1, 9, "-");
+    au.addTransitions(1, 12, " ");
+    au.addTransitions(1, 13, "other");
+    au.addTransitions(2, 3, "f");
+    au.addTransitions(2, 4, "a-e,g-z,0-9");
+    au.addTransitions(3, 4, "0-9,a-z");
+    au.addTransitions(4, 4, "0-9,a-z");
+    au.addTransitions(5, 6, "0-9");
+    au.addTransitions(6, 6, "0-9");
+    au.addTransitions(7,7, "0-9");
+    au.addTransitions(7,8, ".");
+    au.addTransitions(8,8, "0-9");
+    au.addTransitions(9,10, "-");
+    au.addTransitions(10,10, "a-z");
+    au.addTransitions(10,11, "\n");
+    au.addTransitions(12,12, " ");
 }
 
-int main(int argc, char *argv[])
+void createAnalisador(AnalisadorLexico &al)
 {
-    // Se faltar argumentos então retorna um erro
-    if (argc < 2)
+    al.addToken("ID", 2);
+    al.addToken("IF", 3);
+    al.addToken("ID", 4);
+    al.addToken("error", 5);
+    al.addToken("REAL", 6);
+    al.addToken("NUM", 7);
+    al.addToken("REAL", 8);
+    al.addToken("error", 9);
+    al.addToken("comment", 11);
+    al.addToken("white space", 12);
+    al.addToken("error", 13);
+}
+
+int main()
+{
+    Automato a(13);
+    createAutomato(a);
+    AnalisadorLexico al(a);
+    createAnalisador(al);
+    string input;
+    list<recon> tokens_reconhecidos;
+    while (getline(cin, input))
     {
-        std::cerr << "Uso: " << argv[0] << " <arquivo1> <arquivo2> ... <arquivoN>" << std::endl;
-        return 1;
+        input += "\n";
+        list<recon> aux = al.reconhecer(input);
+        tokens_reconhecidos.splice(tokens_reconhecidos.end(), aux);
     }
-
-    // Guarda todos os arquivos num vetor
-    std::vector<Stats> arquivos;
-    arquivos.reserve(argc - 1);
-    for (int i = 1; i < argc; ++i)
+    for (recon &token : tokens_reconhecidos)
     {
-        Stats filestats = {0, 0, 0, 0, 0, 0, argv[i]};
-        arquivos.push_back(filestats);
+        cout << token.cadeia << " " << token.token << endl;
     }
-
-    // Para cada arquivo no vetor obtém as estatísticas dele
-    for (auto &arquivo : arquivos)
-    {
-        atual = arquivo;
-        std::ifstream file(arquivo.file_name);
-        if (!file)
-        {
-            std::cerr << "Erro ao abrir o arquivo: " << arquivo.file_name << std::endl;
-            continue;
-        }
-
-        MyLexer lexer(file, std::cout);
-        Token token;
-        while ((token = lexer.nextToken()) != Token::END_OF_FILE) {}
-        arquivo = atual;
-    }
-
-    // Cálcula o total
-    Stats total = {0, 0, 0, 0, 0, 0, "total"};
-    for (const auto &arquivo : arquivos)
-    {
-        total.total_lines += arquivo.total_lines;
-        total.blank_lines += arquivo.blank_lines;
-        total.lines_with_comments += arquivo.lines_with_comments;
-        total.nb_nc_lines += arquivo.nb_nc_lines;
-        total.semi_colons += arquivo.semi_colons;
-        total.prepoc_direct += arquivo.prepoc_direct;
-    }
-    arquivos.push_back(total);
-
-    montarTabela(arquivos);
     return 0;
 }
