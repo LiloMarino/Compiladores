@@ -54,6 +54,11 @@ public:
      * @return Retorna o número de estados
      */
     int getNumEstados();
+
+    /**
+     * @brief Imprime a tabela de transições do Autômato
+     */
+    void printTransitionTable();
 };
 
 #endif

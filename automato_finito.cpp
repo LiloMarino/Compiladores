@@ -1,8 +1,8 @@
 #include "automato_finito.hpp"
-#include <cstdlib>
-#include <cstdio>
 #include <string>
 #include <stdexcept>
+#include <iostream>
+#include <iomanip>
 
 #define ASCII_SIZE 256
 
@@ -119,4 +119,40 @@ int AutomatoFinito::makeTransition(const int estado_atual, const char letra)
 int AutomatoFinito::getNumEstados()
 {
     return num_estados;
+}
+
+void AutomatoFinito::printTransitionTable()
+{
+    cout << setw(15) << "Estado\\Input";
+    for (int i = 0; i < ASCII_SIZE; ++i)
+    {
+        string rep;
+        if (i < 32 || i == 127 || i >= 128)
+        {
+            // Para caracteres não visíveis ou com problemas na impressão
+            rep = "ASCII " + to_string(i);
+        }
+        else
+        {
+            // Para caracteres visíveis no intervalo ASCII padrão (32 a 126)
+            rep = string(1, static_cast<char>(i));
+        }
+        cout << setw(15) << rep;
+    }
+    cout << endl;
+    if (deterministico)
+    {
+        for (int i = 0; i < num_estados; ++i)
+        {
+            cout << setw(15) << "q" + to_string(i);
+            for (int j = 0; j < ASCII_SIZE; ++j)
+            {
+                cout << setw(15) << matriz[i][j];
+            }
+            cout << endl;
+        }
+    }
+    else
+    {
+    }
 }
