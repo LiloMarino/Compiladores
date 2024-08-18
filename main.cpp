@@ -51,16 +51,14 @@ int main()
     AnalisadorLexico al(a);
     createAnalisador(al);
     string input;
-    list<recon> tokens_reconhecidos;
     while (getline(cin, input))
     {
         input += "\n";
         list<recon> aux = al.reconhecer(input);
-        tokens_reconhecidos.splice(tokens_reconhecidos.end(), aux);
-    }
-    for (recon &token : tokens_reconhecidos)
-    {
-        cout << token.cadeia << " " << token.token << endl;
+        for (recon &token : aux)
+        {
+            cout << token.cadeia << " " << token.token << endl;
+        }
     }
     return 0;
 }

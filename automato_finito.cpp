@@ -8,6 +8,10 @@
 
 using namespace std;
 
+AutomatoFinito::AutomatoFinito() : num_estados(0), matriz(nullptr), deterministico(false), inicial(nullptr)
+{
+}
+
 AutomatoFinito::AutomatoFinito(int num_estados)
 {
     num_estados++; // Adiciona o estado de erro
@@ -17,15 +21,19 @@ AutomatoFinito::AutomatoFinito(int num_estados)
     {
         matriz[i] = new int[ASCII_SIZE]();
     }
+    deterministico = true;
 }
 
 AutomatoFinito::~AutomatoFinito()
 {
-    for (int i = 0; i < num_estados; ++i)
+    if (matriz != nullptr)
     {
-        delete[] matriz[i];
+        for (int i = 0; i < num_estados; ++i)
+        {
+            delete[] matriz[i];
+        }
+        delete[] matriz;
     }
-    delete[] matriz;
 }
 
 void AutomatoFinito::addTransitions(const int estado_inicial, const int estado_final, const string &transitions)
@@ -96,6 +104,10 @@ void AutomatoFinito::addTransitions(const int estado_inicial, const int estado_f
 
 int AutomatoFinito::makeTransition(const int estado_atual, const char letra)
 {
+    if (!this->deterministico)
+    {
+        throw logic_error("O Autômato não é determinístico");
+    }
     if (estado_atual >= num_estados || estado_atual < 0)
     {
         throw length_error("Estado Inválido");

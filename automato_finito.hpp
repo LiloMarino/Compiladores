@@ -2,16 +2,24 @@
 #define AUTOMATO_FINITO_HPP
 
 #include <string>
+#include "state.hpp"
 
 class AutomatoFinito
 {
 private:
     int num_estados; // Linhas da matriz
     int **matriz;
-
+    bool deterministico;
+    State *inicial;
 public:
+
     /**
-     * @brief Construtor de Autômato
+     * @brief Construtor do Autômato Finito Não Determinístico
+     */
+    AutomatoFinito();
+
+    /**
+     * @brief Construtor do Autômato Finito Determinístico
      * @param num_estados Número de estados do autômato
      */
     AutomatoFinito(const int num_estados);

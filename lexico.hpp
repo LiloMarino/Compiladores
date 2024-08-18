@@ -1,5 +1,5 @@
-#ifndef RECONHECEDOR_HPP
-#define RECONHECEDOR_HPP
+#ifndef LEXICO_HPP
+#define LEXICO_HPP
 
 #include "automato_finito.hpp"
 #include <unordered_map>

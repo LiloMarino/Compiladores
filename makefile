@@ -5,7 +5,7 @@ EXEC_NAME = l5e2
 ZIP_NAME = LISTA_5_EXERCICIO_2
 
 # Lista de arquivos fonte
-SOURCES = main.cpp automato_finito.cpp lexico.cpp
+SOURCES = main.cpp automato_finito.cpp lexico.cpp state.cpp
 
 # Gerar lista de headers automaticamente (qualquer .cpp que não seja main.cpp)
 HEADERS = $(patsubst %.cpp,%.hpp,$(filter-out main.cpp,$(SOURCES)))
