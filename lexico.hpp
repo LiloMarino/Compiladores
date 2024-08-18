@@ -2,7 +2,7 @@
 #define RECONHECEDOR_HPP
 
 #include "automato_finito.hpp"
-#include <map>
+#include <unordered_map>
 #include <list>
 
 struct recon
@@ -15,7 +15,7 @@ class AnalisadorLexico
 {
 private:
     AutomatoFinito &automato;
-    std::map<int, std::string> mapa_tokens;
+    std::unordered_map<int, std::string> mapa_tokens;
 
 public:
     AnalisadorLexico(AutomatoFinito &a);
