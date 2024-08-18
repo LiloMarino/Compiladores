@@ -170,3 +170,27 @@ void AutomatoFinito::printTransitionTable()
     {
     }
 }
+
+bool AutomatoFinito::operator==(const AutomatoFinito &outro) const
+{
+    if (num_estados != outro.num_estados)
+    {
+        return false;
+    }
+    if (!deterministico || !outro.deterministico)
+    {
+        // Só compara se os 2 forem determinísticos
+        return false;
+    }
+    for (int i = 0; i < num_estados; ++i)
+    {
+        for (int j = 0; j < ASCII_SIZE; ++j)
+        {
+            if (matriz[i][j] != outro.matriz[i][j])
+            {
+                return false;
+            }
+        }
+    }
+    return true;
+}

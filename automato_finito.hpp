@@ -65,6 +65,14 @@ public:
      * @brief Imprime a tabela de transições do Autômato
      */
     void printTransitionTable();
+
+    /**
+     * @brief Polimorfismo do operador '==', compara 2 autômatos finitos e diz se eles são equivalentes
+     * @param outro Outro Autômato Finito Determinístico
+     * @return Retorna true se foram equivalentes e falso caso contrário
+     * @warning Só é possível comparar Autômatos Finitos se eles forem determinísticos
+     */
+    bool operator==(const AutomatoFinito &outro) const;
 };
 
 #endif
