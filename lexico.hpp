@@ -7,8 +7,8 @@
 
 struct recon
 {
-    std::string cadeia;
     std::string token;
+    std::string cadeia;
 };
 
 class AnalisadorLexico
