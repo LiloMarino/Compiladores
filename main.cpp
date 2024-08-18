@@ -1,11 +1,11 @@
 #include <iostream>
 #include <string>
 #include <list>
-#include "automato.hpp"
+#include "automato_finito.hpp"
 #include "lexico.hpp"
 
 using namespace std;
-void createAutomato(Automato &au)
+void createAutomato(AutomatoFinito &au)
 {
     au.addTransitions(1, 2, "i");
     au.addTransitions(1, 4, "a-h,j-z");
@@ -46,7 +46,7 @@ void createAnalisador(AnalisadorLexico &al)
 
 int main()
 {
-    Automato a(13);
+    AutomatoFinito a(13);
     createAutomato(a);
     AnalisadorLexico al(a);
     createAnalisador(al);

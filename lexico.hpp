@@ -1,7 +1,7 @@
 #ifndef RECONHECEDOR_HPP
 #define RECONHECEDOR_HPP
 
-#include "automato.hpp"
+#include "automato_finito.hpp"
 #include <map>
 #include <list>
 
@@ -14,11 +14,11 @@ struct recon
 class AnalisadorLexico
 {
 private:
-    Automato &automato;
+    AutomatoFinito &automato;
     std::map<int, std::string> mapa_tokens;
 
 public:
-    AnalisadorLexico(Automato &a);
+    AnalisadorLexico(AutomatoFinito &a);
 
     /**
      * @brief Associa o token ao estado final

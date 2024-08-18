@@ -1,4 +1,4 @@
-#include "automato.hpp"
+#include "automato_finito.hpp"
 #include <cstdlib>
 #include <cstdio>
 #include <string>
@@ -8,7 +8,7 @@
 
 using namespace std;
 
-Automato::Automato(int num_estados)
+AutomatoFinito::AutomatoFinito(int num_estados)
 {
     num_estados++; // Adiciona o estado de erro
     this->num_estados = num_estados;
@@ -19,7 +19,7 @@ Automato::Automato(int num_estados)
     }
 }
 
-Automato::~Automato()
+AutomatoFinito::~AutomatoFinito()
 {
     for (int i = 0; i < num_estados; ++i)
     {
@@ -28,7 +28,7 @@ Automato::~Automato()
     delete[] matriz;
 }
 
-void Automato::addTransitions(const int estado_inicial, const int estado_final, const string &transitions)
+void AutomatoFinito::addTransitions(const int estado_inicial, const int estado_final, const string &transitions)
 {
     if ((estado_inicial >= num_estados || estado_inicial < 0) ||
         (estado_final >= num_estados || estado_final < 0))
@@ -94,7 +94,7 @@ void Automato::addTransitions(const int estado_inicial, const int estado_final, 
     }
 }
 
-int Automato::makeTransition(const int estado_atual, const char letra)
+int AutomatoFinito::makeTransition(const int estado_atual, const char letra)
 {
     if (estado_atual >= num_estados || estado_atual < 0)
     {
@@ -104,7 +104,7 @@ int Automato::makeTransition(const int estado_atual, const char letra)
     return estado_destino;
 }
 
-int Automato::getNumEstados()
+int AutomatoFinito::getNumEstados()
 {
     return num_estados;
 }

@@ -3,7 +3,7 @@
 
 using namespace std;
 
-AnalisadorLexico::AnalisadorLexico(Automato &a) : automato(a)
+AnalisadorLexico::AnalisadorLexico(AutomatoFinito &a) : automato(a)
 {
 }
 

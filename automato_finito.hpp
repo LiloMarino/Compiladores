@@ -1,9 +1,9 @@
-#ifndef AUTOMATO_HPP
-#define AUTOMATO_HPP
+#ifndef AUTOMATO_FINITO_HPP
+#define AUTOMATO_FINITO_HPP
 
 #include <string>
 
-class Automato
+class AutomatoFinito
 {
 private:
     int num_estados; // Linhas da matriz
@@ -14,12 +14,12 @@ public:
      * @brief Construtor de Autômato
      * @param num_estados Número de estados do autômato
      */
-    Automato(const int num_estados);
+    AutomatoFinito(const int num_estados);
 
     /**
      * @brief Destrutor do autômato
      */
-    ~Automato();
+    ~AutomatoFinito();
 
     /**
      * @brief Adiciona as transições entre o estado inicial e o estado final
