@@ -8,11 +8,12 @@
 
 using namespace std;
 
-AutomatoFinito::AutomatoFinito() : num_estados(0), matriz(nullptr), deterministico(false), inicial(nullptr)
+AutomatoFinito::AutomatoFinito() : num_estados(0), matriz(nullptr), deterministico(false), afnd(nullptr)
 {
+    afnd = new GenericAutomata();
 }
 
-AutomatoFinito::AutomatoFinito(int num_estados)
+AutomatoFinito::AutomatoFinito(int num_estados) : matriz(nullptr), afnd(nullptr)
 {
     num_estados++; // Adiciona o estado de erro
     this->num_estados = num_estados;
@@ -33,6 +34,10 @@ AutomatoFinito::~AutomatoFinito()
             delete[] matriz[i];
         }
         delete[] matriz;
+    }
+    if (afnd != nullptr)
+    {
+        delete afnd;
     }
 }
 
@@ -100,6 +105,15 @@ void AutomatoFinito::addTransitions(const int estado_inicial, const int estado_f
             matriz[estado_inicial][(int)fim] = estado_final;
         }
     }
+}
+
+void AutomatoFinito::addRegularExpression(const std::string &re)
+{
+    if (this->deterministico)
+    {
+        throw logic_error("O Autômato é determinístico");
+    }
+    this->afnd->addRegularExpression(re);
 }
 
 int AutomatoFinito::makeTransition(const int estado_atual, const char letra)

@@ -3,6 +3,9 @@
 
 #include <vector>
 
+// Define antecipademente para usar na struct
+class State;
+
 struct Transition
 {
     char entrada;
@@ -40,5 +43,6 @@ public:
      */
     std::vector<Transition> getTransitions();
 };
+
 
 #endif

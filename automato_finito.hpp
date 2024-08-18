@@ -2,7 +2,7 @@
 #define AUTOMATO_FINITO_HPP
 
 #include <string>
-#include "state.hpp"
+#include "generic_automata.hpp"
 
 class AutomatoFinito
 {
@@ -10,7 +10,7 @@ private:
     int num_estados; // Linhas da matriz
     int **matriz;
     bool deterministico;
-    State *inicial;
+    GenericAutomata *afnd;
 public:
 
     /**
@@ -38,6 +38,12 @@ public:
      * Outro exemplo: a,b,0-9 ele irá entender como todos os números de 0 até 9 e também as letras 'a' e 'b'
      */
     void addTransitions(const int estado_inicial, const int estado_final, const std::string &transitions);
+
+    /**
+     * @brief Implementa uma expressão regular no autômato
+     * @param re Expressão regular
+     */
+    void addRegularExpression(const std::string &re);
 
     /**
      * @brief Faz a transição dentro do autômato a partir do estado atual para
