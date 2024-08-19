@@ -5,6 +5,8 @@
 #include <string>
 #include <list>
 #include <stack>
+#include <set>
+#include <tuple>
 
 enum ActionType
 {
@@ -84,6 +86,13 @@ private:
      * @return Retorna uma lista de ações
      */
     std::list<Action> decodifyRegularExpression(const std::string &re);
+
+    /**
+     * @brief Obtém os intervalos
+     * @param interval String contendo os intervalos
+     * @return Retorna uma lista de tuplas de intervalos
+     */
+    std::list<std::tuple<int,int>> getIntervals(const std::string &interval);
 };
 
 #endif

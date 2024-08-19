@@ -1,7 +1,5 @@
 #include "generic_automata.hpp"
 #include <iostream>
-#include <set>
-#include <stack>
 
 using namespace std;
 
@@ -39,7 +37,6 @@ void GenericAutomata::addRegularExpression(const std::string &re)
                 {
                     // É a primeira transição
                     first_state->addTransition(c, state);
-                    states_list.push_back(state);
                 }
                 else
                 {
@@ -47,6 +44,7 @@ void GenericAutomata::addRegularExpression(const std::string &re)
                     State *last_state = states_list.back();
                     last_state->addTransition(c, state);
                 }
+                states_list.push_back(state);
             }
             break;
         case OPTION_INTERVAL_SET:
@@ -212,6 +210,19 @@ list<Action> GenericAutomata::decodifyRegularExpression(const string &re)
         aux.clear();
     }
     return actions;
+}
+
+std::list<std::tuple<int, int>> GenericAutomata::getIntervals(const std::string &intervals) {
+    list<tuple<int, int>> intervalos;
+
+    for (size_t i = 0; i < intervals.length(); i += 3) {
+        if (i + 2 < intervals.length() && intervals[i + 1] == '-') {
+            int inicio = static_cast<int>(intervals[i]);
+            int fim = static_cast<int>(intervals[i + 2]);
+            intervalos.push_back(make_tuple(inicio, fim));
+        }
+    }
+    return intervalos;
 }
 
 // Implementação do construtor do iterador
