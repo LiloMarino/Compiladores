@@ -118,7 +118,14 @@
         {
             "cwd": "/home/lilo/Faculdade/Compiladores",
             "binaryPath": "/home/lilo/Faculdade/Compiladores/cstats",
-            "binaryArgs": ["/home/lilo/Faculdade/Compiladores/test.c"]
+            "binaryArgs": [
+                "/home/lilo/Faculdade/Compiladores/test.c"
+            ]
+        },
+        {
+            "cwd": "/home/lilo/Faculdade/Compiladores",
+            "binaryPath": "/home/lilo/Faculdade/Compiladores/l5e2",
+            "binaryArgs": []
         }
     ]
 }

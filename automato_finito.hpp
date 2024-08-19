@@ -46,6 +46,11 @@ public:
     void addRegularExpression(const std::string &re);
 
     /**
+     * @brief Aplica o algoritmo para transformar o AFND-e em AFD
+     */
+    void toAFD();
+
+    /**
      * @brief Faz a transição dentro do autômato a partir do estado atual para
      * um estado de destino determinado pela letra lida
      *
@@ -74,6 +79,9 @@ public:
      * @warning Só é possível comparar Autômatos Finitos se eles forem determinísticos
      */
     bool operator==(const AutomatoFinito &outro) const;
+
+    private:
+        std::set<State*> epsilonClosure(State* estado);
 };
 
 #endif
