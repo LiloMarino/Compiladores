@@ -42,3 +42,7 @@ saida/
 # Txt
 *.txt
 lex.yy.cpp
+
+# Dot
+*.dot
+*.png

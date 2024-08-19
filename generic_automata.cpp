@@ -7,7 +7,7 @@ GenericAutomata::GenericAutomata() : total_estados(1), inicial(1)
 
 GenericAutomata::~GenericAutomata()
 {
-    std::list<State*> estados = this->toList();
+    std::list<State *> estados = this->toList();
     // Pula o primeiro estado
     auto it = estados.begin();
     ++it;
@@ -242,7 +242,7 @@ void GenericAutomata::addRegularExpression(const std::string &re)
     this->inicial.addTransition('\0', first_state); // Transição Lambda
 }
 
-std::list<State*> GenericAutomata::toList()
+std::list<State *> GenericAutomata::toList()
 {
     std::list<State *> estados;
     for (auto it = begin(); it != end(); ++it)
@@ -251,9 +251,8 @@ std::list<State*> GenericAutomata::toList()
         estados.push_back(state);
     }
     // Ordena a lista pelo número de estado usando uma função lambda
-    estados.sort([](State* a, State* b) {
-        return a->getEstado() < b->getEstado();
-    });
+    estados.sort([](State *a, State *b)
+                 { return a->getEstado() < b->getEstado(); });
     return estados;
 }
 

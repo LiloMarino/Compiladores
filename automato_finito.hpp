@@ -4,6 +4,10 @@
 #include <string>
 #include "generic_automata.hpp"
 
+/**
+ * @brief Classe de Autômato Finito
+ * @author Murilo Marino
+ */
 class AutomatoFinito
 {
 private:
@@ -11,8 +15,8 @@ private:
     int **matriz;
     bool deterministico;
     GenericAutomata *afnd;
-public:
 
+public:
     /**
      * @brief Construtor do Autômato Finito Não Determinístico
      */
@@ -72,6 +76,8 @@ public:
      */
     void printTransitionTable(std::ostream &output);
 
+    void printVisualizacaoDOT(const std::string &filename);
+
     /**
      * @brief Polimorfismo do operador '==', compara 2 autômatos finitos e diz se eles são equivalentes
      * @param outro Outro Autômato Finito Determinístico
@@ -80,8 +86,8 @@ public:
      */
     bool operator==(const AutomatoFinito &outro) const;
 
-    private:
-        std::set<State*> epsilonClosure(State* estado);
+private:
+    std::set<State *> epsilonClosure(State *estado);
 };
 
 #endif

@@ -27,6 +27,10 @@ struct Action
     std::string str;
 };
 
+/**
+ * @brief Classe de Autômato Genérico
+ * @author Murilo Marino
+ */
 class GenericAutomata
 {
 private:
@@ -54,7 +58,7 @@ public:
      * @brief Obtém uma lista ordenada dos estados do autômato
      * @return Lista do Autômato
      */
-    std::list<State*> toList();
+    std::list<State *> toList();
 
     /**
      * @brief Iterador interno para usar em for-each,
@@ -98,7 +102,7 @@ private:
      * @param interval String contendo os intervalos
      * @return Retorna uma lista de tuplas de intervalos
      */
-    std::list<std::tuple<int,int>> getIntervals(const std::string &interval);
+    std::list<std::tuple<int, int>> getIntervals(const std::string &interval);
 };
 
 #endif
