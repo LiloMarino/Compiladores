@@ -1,5 +1,8 @@
 #include "generic_automata.hpp"
 #include <iostream>
+#include <set>
+#include <stack>
+
 using namespace std;
 
 GenericAutomata::GenericAutomata() : total_estados(1), inicial(1)
@@ -8,31 +11,15 @@ GenericAutomata::GenericAutomata() : total_estados(1), inicial(1)
 
 GenericAutomata::~GenericAutomata()
 {
-    // Estrutura de dados para rastrear os estados visitados
-    std::stack<State*> states_to_delete;
-
-    // Adiciona todas as transições do estado inicial na pilha
-    for (auto &transition : inicial.getTransitions())
+    // Usando o iterador para percorrer todos os estados
+    for (auto it = begin(); it != end(); ++it)
     {
-        states_to_delete.push(transition.estado_destino);
-    }
-
-    // Itera enquanto houver estados para deletar
-    while (!states_to_delete.empty())
-    {
-        State* current_state = states_to_delete.top();
-        states_to_delete.pop();
-
-        // Adiciona os estados de destino das transições do estado atual na pilha
-        for (auto &transition : current_state->getTransitions())
-        {
-            states_to_delete.push(transition.estado_destino);
-        }
-
-        // Deleta o estado atual
-        delete current_state;
+        State *state = &(*it);
+        // Remove o estado da memória
+        delete state;
     }
 }
+
 
 void GenericAutomata::addRegularExpression(const std::string &re)
 {
@@ -41,16 +28,17 @@ void GenericAutomata::addRegularExpression(const std::string &re)
     State *first_state = new State(++this->total_estados);
     for (auto action : actions)
     {
+        State *state; // Variável auxiliar
         switch (action.tipo)
         {
         case RAW_STRING:
             for (char c : action.str)
             {
-                State *state = new State(++this->total_estados);
+                state = new State(++this->total_estados);
                 if (states_list.empty())
                 {
                     // É a primeira transição
-                    state->addTransition(c, first_state);
+                    first_state->addTransition(c, state);
                     states_list.push_back(state);
                 }
                 else
@@ -76,14 +64,13 @@ void GenericAutomata::addRegularExpression(const std::string &re)
         case PLUS_SET:
             break;
         case SET:
-            State *state = new State(++this->total_estados);
+            state = new State(++this->total_estados);
             for (char c : action.str)
             {
                 if (states_list.empty())
                 {
                     // É a primeira transição
-                    state->addTransition(c, first_state);
-                    states_list.push_back(state);
+                    first_state->addTransition(c, state);
                 }
                 else
                 {
@@ -92,6 +79,7 @@ void GenericAutomata::addRegularExpression(const std::string &re)
                     last_state->addTransition(c, state);
                 }
             }
+            states_list.push_back(state);
             break;
         default:
             cout << "Ação com Tipo Inválido";
@@ -232,6 +220,7 @@ GenericAutomata::Iterator::Iterator(State *root)
     if (root != nullptr)
     {
         stack.push(root);
+        visited.insert(root);
     }
 }
 
@@ -250,11 +239,22 @@ State &GenericAutomata::Iterator::operator*()
 // Operador de incremento para mover para o próximo estado
 GenericAutomata::Iterator &GenericAutomata::Iterator::operator++()
 {
+    if (stack.empty())
+    {
+        return *this;
+    }
+
     State *current = stack.top();
     stack.pop();
+
+    // Adiciona as transições do estado atual à pilha, se não tiver sido visitado
     for (const auto &transition : current->getTransitions())
     {
-        stack.push(transition.estado_destino);
+        if (visited.find(transition.estado_destino) == visited.end())
+        {
+            stack.push(transition.estado_destino);
+            visited.insert(transition.estado_destino);
+        }
     }
     return *this;
 }
