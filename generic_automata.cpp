@@ -1,8 +1,6 @@
 #include "generic_automata.hpp"
 #include <iostream>
 
-using namespace std;
-
 GenericAutomata::GenericAutomata() : total_estados(1), inicial(1)
 {
 }
@@ -18,11 +16,10 @@ GenericAutomata::~GenericAutomata()
     }
 }
 
-
 void GenericAutomata::addRegularExpression(const std::string &re)
 {
-    list<Action> actions = this->decodifyRegularExpression(re);
-    list<State *> states_list;
+    std::list<Action> actions = this->decodifyRegularExpression(re);
+    std::list<State *> states_list;
     State *first_state = new State(++this->total_estados);
     for (auto action : actions)
     {
@@ -48,18 +45,171 @@ void GenericAutomata::addRegularExpression(const std::string &re)
             }
             break;
         case OPTION_INTERVAL_SET:
+            state = new State(++this->total_estados);
+            if (states_list.empty())
+            {
+                // É a primeira transição
+                first_state->addTransition('\0', state);
+                for (const auto &interval : this->getIntervals(action.str))
+                {
+                    for (int i = std::get<0>(interval); i < std::get<1>(interval); ++i)
+                    {
+                        first_state->addTransition(static_cast<char>(i), state);
+                    }
+                }
+            }
+            else
+            {
+                // É uma transição posterior
+                State *last_state = states_list.back();
+                last_state->addTransition('\0', state);
+                for (const auto &interval : this->getIntervals(action.str))
+                {
+                    for (int i = std::get<0>(interval); i < std::get<1>(interval); ++i)
+                    {
+                        last_state->addTransition(static_cast<char>(i), state);
+                    }
+                }
+            }
+            states_list.push_back(state);
             break;
         case KLEENE_INTERVAL_SET:
+            state = new State(++this->total_estados);
+            if (states_list.empty())
+            {
+                // É a primeira transição
+                first_state->addTransition('\0', state);
+            }
+            else
+            {
+                // É uma transição posterior
+                State *last_state = states_list.back();
+                last_state->addTransition('\0', state);
+            }
+            for (const auto &interval : this->getIntervals(action.str))
+            {
+                for (int i = std::get<0>(interval); i < std::get<1>(interval); ++i)
+                {
+                    state->addTransition(static_cast<char>(i), state);
+                }
+            }
+            states_list.push_back(state);
             break;
         case PLUS_INTERVAL_SET:
+            state = new State(++this->total_estados);
+            if (states_list.empty())
+            {
+                // É a primeira transição
+                for (const auto &interval : this->getIntervals(action.str))
+                {
+                    for (int i = std::get<0>(interval); i < std::get<1>(interval); ++i)
+                    {
+                        first_state->addTransition(static_cast<char>(i), state);
+                        state->addTransition(static_cast<char>(i), state);
+                    }
+                }
+            }
+            else
+            {
+                // É uma transição posterior
+                State *last_state = states_list.back();
+                for (const auto &interval : this->getIntervals(action.str))
+                {
+                    for (int i = std::get<0>(interval); i < std::get<1>(interval); ++i)
+                    {
+                        last_state->addTransition(static_cast<char>(i), state);
+                        state->addTransition(static_cast<char>(i), state);
+                    }
+                }
+            }
+            states_list.push_back(state);
             break;
         case INTERVAL_SET:
+            state = new State(++this->total_estados);
+            if (states_list.empty())
+            {
+                // É a primeira transição
+                for (const auto &interval : this->getIntervals(action.str))
+                {
+                    for (int i = std::get<0>(interval); i < std::get<1>(interval); ++i)
+                    {
+                        first_state->addTransition(static_cast<char>(i), state);
+                    }
+                }
+            }
+            else
+            {
+                // É uma transição posterior
+                State *last_state = states_list.back();
+                for (const auto &interval : this->getIntervals(action.str))
+                {
+                    for (int i = std::get<0>(interval); i < std::get<1>(interval); ++i)
+                    {
+                        last_state->addTransition(static_cast<char>(i), state);
+                    }
+                }
+            }
+            states_list.push_back(state);
             break;
         case OPTION_SET:
+            state = new State(++this->total_estados);
+            for (char c : action.str)
+            {
+                if (states_list.empty())
+                {
+                    // É a primeira transição
+                    first_state->addTransition(c, state);
+                    first_state->addTransition('\0', state);
+                }
+                else
+                {
+                    // É uma transição posterior
+                    State *last_state = states_list.back();
+                    last_state->addTransition(c, state);
+                    last_state->addTransition('\0', state);
+                }
+            }
+            states_list.push_back(state);
             break;
         case KLEENE_SET:
+            state = new State(++this->total_estados);
+            for (char c : action.str)
+            {
+                if (states_list.empty())
+                {
+                    // É a primeira transição
+                    first_state->addTransition('\0', state);
+                    state->addTransition(c, state);
+                }
+                else
+                {
+                    // É uma transição posterior
+                    State *last_state = states_list.back();
+                    last_state->addTransition('\0', state);
+                    state->addTransition(c, state);
+                }
+            }
+            states_list.push_back(state);
             break;
         case PLUS_SET:
+            state = new State(++this->total_estados);
+            for (char c : action.str)
+            {
+                if (states_list.empty())
+                {
+                    // É a primeira transição
+                    first_state->addTransition(c, state);
+                    state->addTransition(c, state);
+                }
+                else
+                {
+                    // É uma transição posterior
+                    State *last_state = states_list.back();
+                    last_state->addTransition(c, state);
+                    state->addTransition(c, state);
+                }
+            }
+            states_list.push_back(state);
             break;
         case SET:
             state = new State(++this->total_estados);
@@ -80,7 +230,7 @@ void GenericAutomata::addRegularExpression(const std::string &re)
             states_list.push_back(state);
             break;
         default:
-            cout << "Ação com Tipo Inválido";
+            std::cout << "Ação com Tipo Inválido";
             exit(1);
             break;
         }
@@ -89,10 +239,10 @@ void GenericAutomata::addRegularExpression(const std::string &re)
     this->inicial.addTransition('\0', first_state); // Transição Lambda
 }
 
-list<Action> GenericAutomata::decodifyRegularExpression(const string &re)
+std::list<Action> GenericAutomata::decodifyRegularExpression(const std::string &re)
 {
-    list<Action> actions;
-    string aux;
+    std::list<Action> actions;
+    std::string aux;
     bool set = false;
     bool interval = false;
     char last_char;
@@ -212,14 +362,17 @@ list<Action> GenericAutomata::decodifyRegularExpression(const string &re)
     return actions;
 }
 
-std::list<std::tuple<int, int>> GenericAutomata::getIntervals(const std::string &intervals) {
-    list<tuple<int, int>> intervalos;
+std::list<std::tuple<int, int>> GenericAutomata::getIntervals(const std::string &intervals)
+{
+    std::list<std::tuple<int, int>> intervalos;
 
-    for (size_t i = 0; i < intervals.length(); i += 3) {
-        if (i + 2 < intervals.length() && intervals[i + 1] == '-') {
+    for (size_t i = 0; i < intervals.length(); i += 3)
+    {
+        if (i + 2 < intervals.length() && intervals[i + 1] == '-')
+        {
             int inicio = static_cast<int>(intervals[i]);
             int fim = static_cast<int>(intervals[i + 2]);
-            intervalos.push_back(make_tuple(inicio, fim));
+            intervalos.push_back(std::make_tuple(inicio, fim));
         }
     }
     return intervalos;
