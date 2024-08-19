@@ -7,12 +7,15 @@ GenericAutomata::GenericAutomata() : total_estados(1), inicial(1)
 
 GenericAutomata::~GenericAutomata()
 {
-    // Usando o iterador para percorrer todos os estados
-    for (auto it = begin(); it != end(); ++it)
+    // Pula o primeiro estado
+    auto it = begin();
+    ++it;
+    while(it != end())
     {
         State *state = &(*it);
         // Remove o estado da memória
         delete state;
+        ++it;
     }
 }
 
@@ -245,7 +248,7 @@ std::list<Action> GenericAutomata::decodifyRegularExpression(const std::string &
     std::string aux;
     bool set = false;
     bool interval = false;
-    char last_char;
+    char last_char = '\0';
     for (char c : re)
     {
         switch (c)

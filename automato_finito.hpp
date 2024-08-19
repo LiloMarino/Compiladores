@@ -63,8 +63,9 @@ public:
 
     /**
      * @brief Imprime a tabela de transições do Autômato
+     * @param output Output de saída da tabela
      */
-    void printTransitionTable();
+    void printTransitionTable(std::ostream &output);
 
     /**
      * @brief Polimorfismo do operador '==', compara 2 autômatos finitos e diz se eles são equivalentes

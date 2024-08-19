@@ -1,4 +1,5 @@
 #include <iostream>
+#include <fstream>
 #include <string>
 #include <list>
 #include "automato_finito.hpp"
@@ -36,7 +37,11 @@ int main()
     AutomatoFinito afd(8);
     createAutomato(afd);
     AutomatoFinito af;
+    std::ofstream arquivo("tabela_transicao.txt");
+    af.addRegularExpression("if");
     af.addRegularExpression("[a-z][a-z0-9]*");
+    af.printTransitionTable(arquivo);
+    arquivo.close();
     af.addRegularExpression("+");
     af.addRegularExpression("-");
     af.addRegularExpression("[0-9]+");
@@ -47,7 +52,6 @@ int main()
     string input;
     while (getline(cin, input))
     {
-        input += "\n";
         list<recon> aux = al.reconhecer(input);
         for (recon &token : aux)
         {

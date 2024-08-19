@@ -135,9 +135,9 @@ int AutomatoFinito::getNumEstados()
     return num_estados;
 }
 
-void AutomatoFinito::printTransitionTable()
+void AutomatoFinito::printTransitionTable(std::ostream &output)
 {
-    cout << setw(15) << "Estado\\Input";
+    output << setw(15) << "Estado\\Input";
     for (int i = 0; i < ASCII_SIZE; ++i)
     {
         string rep;
@@ -151,28 +151,28 @@ void AutomatoFinito::printTransitionTable()
             // Para caracteres visíveis no intervalo ASCII padrão (32 a 126)
             rep = string(1, static_cast<char>(i));
         }
-        cout << setw(15) << rep;
+        output << setw(15) << rep;
     }
-    cout << endl;
+    output << endl;
     if (deterministico)
     {
         // Printa a tabela do AFD
         for (int i = 0; i < num_estados; ++i)
         {
-            cout << setw(15) << "q" + to_string(i);
+            output << setw(15) << "q" + to_string(i);
             for (int j = 0; j < ASCII_SIZE; ++j)
             {
-                cout << setw(15) << matriz[i][j];
+                output << setw(15) << matriz[i][j];
             }
-            cout << endl;
-        }
+            output << endl;
+       }
     }
     else
     {
         // Printa a tabela do AFND
         for (auto &state : *afnd)
         {
-            cout << setw(15) << "q" + to_string(state.getEstado());
+            output << setw(15) << "q" + to_string(state.getEstado());
             for (int j = 0; j < ASCII_SIZE; ++j)
             {
                 char input = static_cast<char>(j);
@@ -196,14 +196,14 @@ void AutomatoFinito::printTransitionTable()
                         trans_str.pop_back(); // Remove a última vírgula
                     }
                     trans_str += "}";
-                    cout << setw(15) << trans_str;
+                    output << setw(15) << trans_str;
                 }
                 else
                 {
-                    cout << setw(15) << "-";
+                    output << setw(15) << "-";
                 }
             }
-            cout << endl;
+            output << endl;
         }
     }
 }
