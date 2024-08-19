@@ -156,6 +156,7 @@ void AutomatoFinito::printTransitionTable()
     cout << endl;
     if (deterministico)
     {
+        // Printa a tabela do AFD
         for (int i = 0; i < num_estados; ++i)
         {
             cout << setw(15) << "q" + to_string(i);
@@ -168,6 +169,42 @@ void AutomatoFinito::printTransitionTable()
     }
     else
     {
+        // Printa a tabela do AFND
+        for (auto &state : *afnd)
+        {
+            cout << setw(15) << "q" + to_string(state.getEstado());
+            for (int j = 0; j < ASCII_SIZE; ++j)
+            {
+                char input = static_cast<char>(j);
+                bool transition_found = false;
+                string trans_str = "{";
+
+                // Itera sobre as transições para encontrar as correspondentes ao input
+                for (const auto &transition : state.getTransitions())
+                {
+                    if (transition.entrada == input)
+                    {
+                        transition_found = true;
+                        trans_str += "q" + to_string(transition.estado_destino->getEstado()) + ",";
+                    }
+                }
+
+                if (transition_found)
+                {
+                    if (trans_str.back() == ',')
+                    {
+                        trans_str.pop_back(); // Remove a última vírgula
+                    }
+                    trans_str += "}";
+                    cout << setw(15) << trans_str;
+                }
+                else
+                {
+                    cout << setw(15) << "-";
+                }
+            }
+            cout << endl;
+        }
     }
 }
 

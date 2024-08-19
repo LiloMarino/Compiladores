@@ -4,6 +4,7 @@
 #include "state.hpp"
 #include <string>
 #include <list>
+#include <stack>
 
 enum ActionType{
     RAW_STRING,             // String Literal
@@ -44,6 +45,35 @@ public:
      * @param re Expressão regular
      */
     void addRegularExpression(const std::string &re);
+    
+    
+    /**
+     * @brief Iterador interno para usar em for-each,
+     * @note Percorre o autômato utilizando o Depth-First Search (DFS)
+     */
+    class Iterator
+    {
+    private:
+        std::stack<State*> stack;
+
+    public:
+        Iterator(State* root);
+        bool operator!=(const Iterator& other) const;
+        State& operator*();
+        Iterator& operator++();
+    };
+
+    /**
+     * @brief Obtém um iterador para o primeiro item
+     * @return Retorna o iterador
+     */
+    Iterator begin();
+
+    /**
+     * @brief Obtém um iterador para o último item
+     * @return Retorna o iterador
+     */
+    Iterator end();
 private:
     /**
      * @brief Decodifica a expressão regular em ações para a montagem do autômato

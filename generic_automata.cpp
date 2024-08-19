@@ -13,9 +13,57 @@ GenericAutomata::~GenericAutomata()
 void GenericAutomata::addRegularExpression(const std::string &re)
 {
     list<Action> actions = this->decodifyRegularExpression(re);
+    list<State *> states_list;
+    State *first_state = new State(++this->total_estados);
+    for (auto action : actions)
+    {
+        switch (action.tipo)
+        {
+        case RAW_STRING:
+            for (char c : action.str)
+            {
+                State *state = new State(++this->total_estados);
+                if (states_list.empty())
+                {
+                    // É a primeira transição
+                    state->addTransition(c, first_state);
+                    states_list.push_back(state);
+                }
+                else
+                {
+                    // É uma transição posterior
+                    State *last_state = states_list.back();
+                    last_state->addTransition(c, state);
+                }
+            }
+            break;
+        case OPTION_INTERVAL_SET:
+            break;
+        case KLEENE_INTERVAL_SET:
+            break;
+        case PLUS_INTERVAL_SET:
+            break;
+        case INTERVAL_SET:
+            break;
+        case OPTION_SET:
+            break;
+        case KLEENE_SET:
+            break;
+        case PLUS_SET:
+            break;
+        case SET:
+            break;
+        default:
+            cout << "Ação com Tipo Inválido";
+            exit(1);
+            break;
+        }
+        states_list.clear();
+    }
+    this->inicial.addTransition('\0', first_state); // Transição Lambda
 }
 
-std::list<Action> GenericAutomata::decodifyRegularExpression(const std::string &re)
+list<Action> GenericAutomata::decodifyRegularExpression(const string &re)
 {
     list<Action> actions;
     string aux;
@@ -136,4 +184,47 @@ std::list<Action> GenericAutomata::decodifyRegularExpression(const std::string &
         aux.clear();
     }
     return actions;
+}
+
+// Implementação do construtor do iterador
+GenericAutomata::Iterator::Iterator(State *root)
+{
+    if (root != nullptr)
+    {
+        stack.push(root);
+    }
+}
+
+// Operador de desigualdade para comparação com end()
+bool GenericAutomata::Iterator::operator!=(const Iterator &other) const
+{
+    return !stack.empty();
+}
+
+// Operador de dereferência para acessar o estado atual
+State &GenericAutomata::Iterator::operator*()
+{
+    return *stack.top();
+}
+
+// Operador de incremento para mover para o próximo estado
+GenericAutomata::Iterator &GenericAutomata::Iterator::operator++()
+{
+    State *current = stack.top();
+    stack.pop();
+    for (const auto &transition : current->getTransitions())
+    {
+        stack.push(transition.estado_destino);
+    }
+    return *this;
+}
+
+GenericAutomata::Iterator GenericAutomata::begin()
+{
+    return Iterator(&inicial); // Retorna um iterador para o estado inicial
+}
+
+GenericAutomata::Iterator GenericAutomata::end()
+{
+    return Iterator(nullptr); // Iterador de fim (representando o fim da árvore)
 }
