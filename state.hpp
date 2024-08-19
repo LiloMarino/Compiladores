@@ -32,6 +32,11 @@ public:
     void addTransition(char entrada, State* estado_destino);
 
     /**
+     * @brief Remove todas as transições lambda do estado
+     */
+    void removeLambdaTransitions();
+
+    /**
      * @brief Getter de Estado
      * @return Retorna o número do estado
      */
