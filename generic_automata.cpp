@@ -8,6 +8,30 @@ GenericAutomata::GenericAutomata() : total_estados(1), inicial(1)
 
 GenericAutomata::~GenericAutomata()
 {
+    // Estrutura de dados para rastrear os estados visitados
+    std::stack<State*> states_to_delete;
+
+    // Adiciona todas as transições do estado inicial na pilha
+    for (auto &transition : inicial.getTransitions())
+    {
+        states_to_delete.push(transition.estado_destino);
+    }
+
+    // Itera enquanto houver estados para deletar
+    while (!states_to_delete.empty())
+    {
+        State* current_state = states_to_delete.top();
+        states_to_delete.pop();
+
+        // Adiciona os estados de destino das transições do estado atual na pilha
+        for (auto &transition : current_state->getTransitions())
+        {
+            states_to_delete.push(transition.estado_destino);
+        }
+
+        // Deleta o estado atual
+        delete current_state;
+    }
 }
 
 void GenericAutomata::addRegularExpression(const std::string &re)
@@ -52,6 +76,22 @@ void GenericAutomata::addRegularExpression(const std::string &re)
         case PLUS_SET:
             break;
         case SET:
+            State *state = new State(++this->total_estados);
+            for (char c : action.str)
+            {
+                if (states_list.empty())
+                {
+                    // É a primeira transição
+                    state->addTransition(c, first_state);
+                    states_list.push_back(state);
+                }
+                else
+                {
+                    // É uma transição posterior
+                    State *last_state = states_list.back();
+                    last_state->addTransition(c, state);
+                }
+            }
             break;
         default:
             cout << "Ação com Tipo Inválido";
