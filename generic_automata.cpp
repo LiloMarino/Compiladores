@@ -7,13 +7,13 @@ GenericAutomata::GenericAutomata() : total_estados(1), inicial(1)
 
 GenericAutomata::~GenericAutomata()
 {
+    std::list<State*> estados = this->toList();
     // Pula o primeiro estado
-    auto it = begin();
+    auto it = estados.begin();
     ++it;
-    while(it != end())
+    while (it != estados.end())
     {
-        State *state = &(*it);
-        // Remove o estado da memória
+        State *state = *it;
         delete state;
         ++it;
     }
@@ -240,6 +240,21 @@ void GenericAutomata::addRegularExpression(const std::string &re)
         states_list.clear();
     }
     this->inicial.addTransition('\0', first_state); // Transição Lambda
+}
+
+std::list<State*> GenericAutomata::toList()
+{
+    std::list<State *> estados;
+    for (auto it = begin(); it != end(); ++it)
+    {
+        State *state = &(*it);
+        estados.push_back(state);
+    }
+    // Ordena a lista pelo número de estado usando uma função lambda
+    estados.sort([](State* a, State* b) {
+        return a->getEstado() < b->getEstado();
+    });
+    return estados;
 }
 
 std::list<Action> GenericAutomata::decodifyRegularExpression(const std::string &re)

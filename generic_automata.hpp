@@ -51,6 +51,12 @@ public:
     void addRegularExpression(const std::string &re);
 
     /**
+     * @brief Obtém uma lista ordenada dos estados do autômato
+     * @return Lista do Autômato
+     */
+    std::list<State*> toList();
+
+    /**
      * @brief Iterador interno para usar em for-each,
      * @note Percorre o autômato utilizando o Depth-First Search (DFS)
      */
