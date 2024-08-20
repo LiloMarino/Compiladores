@@ -126,31 +126,25 @@ void AutomatoFinito::toAFD()
 
 void AutomatoFinito::toAFND()
 {
-    // Obtém a lista de estados do AFND-e atual
     std::list<State *> estados = this->afnd->toList();
-
-    // Cria um novo AFND sem transições lambda
     GenericAutomata *novo_afnd = new GenericAutomata();
 
-    // Itera pelos estados do autômato antigo
+    // Para cada estado resolve suas transições lambdas gerando um novo AFND
     for (State *estado_antigo : estados)
     {
-        // Cria um novo estado correspondente no novo AFND
-        State *novo_estado = novo_afnd->createNewState();
-        novo_estado->setEstado(estado_antigo->getEstado()); // Mantém o número do estado
+        State *novo_estado = novo_afnd->createNewState(estado_antigo->getEstado());
 
-        // Elimina as transições lambda e obtém as novas transições
+        // Obtém as novas transições sem as transições lambda
         std::vector<std::tuple<int, char, int>> novasTransicoes = resolveLambdaTransitions(estado_antigo);
 
-        // Adiciona as novas transições ao novo estado
+        // Adiciona as transições ao novo estado
         for (const auto &[origem, entrada, destino] : novasTransicoes)
         {
             State *estado_destino = novo_afnd->findState(destino);
             if (estado_destino == nullptr)
             {
                 // Cria o estado de destino no novo AFND se não existir
-                estado_destino = novo_afnd->createNewState();
-                estado_destino->setEstado(destino);
+                estado_destino = novo_afnd->createNewState(destino);
             }
             novo_estado->addTransition(entrada, estado_destino);
         }
