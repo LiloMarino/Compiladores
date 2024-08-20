@@ -119,119 +119,68 @@ void AutomatoFinito::addRegularExpression(const std::string &re)
 
 void AutomatoFinito::toAFD()
 {
-    // Passo 1: Converte todos os estados do AFND-e em uma lista
-    std::list<State *> estados = this->afnd->toList();
-
-    // Passo 2: Inicializa a lista de estados do AFD
-    std::list<std::set<State *>> estadosAFD;
-
-    // Cria o estado inicial no AFD que corresponde ao ε-fecho do estado inicial do AFND-e
-    std::set<State *> inicialAFD = epsilonClosure(estados.front());
-    estadosAFD.push_back(inicialAFD);
-
-    // Mapeamento de conjuntos de estados do AFND-e para estados do AFD
-    std::map<std::set<State *>, int> mapAFDStates;
-    mapAFDStates[inicialAFD] = 0;
-
-    // Variável para contar o número de estados criados no AFD
-    int novo_num_estados = 1;
-
-    // Estrutura para armazenar temporariamente as transições antes da alocação da matriz
-    std::vector<std::tuple<int, char, int>> transicoesTemporarias;
-
-    // Passo 3: Para cada conjunto de estados no AFD, verifica todas as transições possíveis
-    for (auto it = estadosAFD.begin(); it != estadosAFD.end(); ++it)
-    {
-        for (int j = 0; j < ASCII_SIZE; ++j)
-        {
-            char input = static_cast<char>(j);
-
-            // Determina o conjunto de estados atingidos pelo input
-            std::set<State *> novosEstados;
-            for (State *estado : *it)
-            {
-                auto transicoes = estado->getTransitions();
-                for (const auto &transicao : transicoes)
-                {
-                    if (transicao.entrada == input)
-                    {
-                        auto destino = epsilonClosure(transicao.estado_destino);
-                        novosEstados.insert(destino.begin(), destino.end());
-                    }
-                }
-            }
-
-            // Se esse conjunto de novos estados ainda não foi adicionado ao AFD, adiciona-o
-            if (!novosEstados.empty() &&
-                mapAFDStates.find(novosEstados) == mapAFDStates.end())
-            {
-                estadosAFD.push_back(novosEstados);
-                mapAFDStates[novosEstados] = novo_num_estados++;
-            }
-
-            // Armazena temporariamente a transição (origem, input, destino)
-            if (!novosEstados.empty())
-            {
-                int origem = mapAFDStates[*it];
-                int destino = mapAFDStates[novosEstados];
-                transicoesTemporarias.push_back(std::make_tuple(origem, input, destino));
-            }
-        }
-    }
-
-    // Passo 4: Atualiza os valores finais do AFD
-    num_estados = novo_num_estados;
-    deterministico = true;
-
-    // Passo 5: Desaloca o espaço alocado por afnd
-    delete afnd;
-    afnd = nullptr;
-
-    // Passo 6: Aloca a matriz de transições do AFD
-    matriz = new int *[num_estados];
-    for (int i = 0; i < num_estados; ++i)
-    {
-        matriz[i] = new int[ASCII_SIZE]();
-    }
-
-    // Passo 7: Atribui as transições na matriz alocada
-    for (const auto &transicao : transicoesTemporarias)
-    {
-        int origem, destino;
-        char input;
-        std::tie(origem, input, destino) = transicao;
-        matriz[origem][static_cast<int>(input)] = destino;
-    }
-
-    // Finaliza transformando o AFND-e em um AFD no objeto atual
+    // Passo 1: Converte o AFND-e em um AFND
+    this->toAFND();
+    this->printVisualizacaoDOT("afnd.dot");
 }
 
-std::set<State *> AutomatoFinito::epsilonClosure(State *estado)
-{
-    std::set<State *> fechamento;
-    std::stack<State *> pilha;
-    pilha.push(estado);
+void AutomatoFinito::toAFND() {
+    // Obtém a lista de estados do AFND-e atual
+    std::list<State *> estados = this->afnd->toList();
+    
+    // Cria um novo AFND sem transições lambda
+    GenericAutomata *novo_afnd = new GenericAutomata();
 
-    while (!pilha.empty())
-    {
-        State *atual = pilha.top();
-        pilha.pop();
+    // Itera pelos estados do autômato antigo
+    for (State* estado_antigo : estados) {
+        // Cria um novo estado correspondente no novo AFND
+        State* novo_estado = novo_afnd->createNewState();
+        novo_estado->setEstado(estado_antigo->getEstado()); // Mantém o número do estado
 
-        if (fechamento.find(atual) == fechamento.end())
-        {
-            fechamento.insert(atual);
+        // Elimina as transições lambda e obtém as novas transições
+        std::vector<std::tuple<int, char, int>> novasTransicoes = resolveLambdaTransitions(estado_antigo);
 
-            for (const auto &transicao : atual->getTransitions())
-            {
-                if (transicao.entrada == '\0')
-                { // Transição ε
-                    pilha.push(transicao.estado_destino);
-                }
+        // Adiciona as novas transições ao novo estado
+        for (const auto& [origem, entrada, destino] : novasTransicoes) {
+            State* estado_destino = novo_afnd->findState(destino);
+            if (estado_destino == nullptr) {
+                // Cria o estado de destino no novo AFND se não existir
+                estado_destino = novo_afnd->createNewState();
+                estado_destino->setEstado(destino);
             }
+            novo_estado->addTransition(entrada, estado_destino);
         }
     }
 
-    return fechamento;
+    // Substitui o autômato antigo pelo novo
+    delete afnd;
+    this->afnd = novo_afnd;
+}
+
+std::vector<std::tuple<int, char, int>> AutomatoFinito::resolveLambdaTransitions(State* estado) {
+    std::vector<std::tuple<int, char, int>> novasTransicoes;
+
+    std::function<void(State*, std::set<State*>&)> coletarTransicoes;
+    coletarTransicoes = [&](State* estadoAtual, std::set<State*>& visitados) {
+        if (visitados.find(estadoAtual) != visitados.end()) {
+            return; // Evita loops infinitos em casos de recursão
+        }
+
+        visitados.insert(estadoAtual);
+
+        for (const Transition& transicao : estadoAtual->getTransitions()) {
+            if (transicao.entrada == '\0') { // Transição lambda
+                coletarTransicoes(transicao.estado_destino, visitados);
+            } else { // Transição terminal
+                novasTransicoes.emplace_back(estado->getEstado(), transicao.entrada, transicao.estado_destino->getEstado());
+            }
+        }
+    };
+
+    std::set<State*> visitados;
+    coletarTransicoes(estado, visitados);
+
+    return novasTransicoes;
 }
 
 int AutomatoFinito::makeTransition(const int estado_atual, const char letra)
@@ -377,7 +326,7 @@ void AutomatoFinito::printVisualizacaoDOT(const std::string &filename)
                 {
                     out << "\tq" << estado->getEstado()
                         << " -> q" << transicao.estado_destino->getEstado()
-                        << " [label=\"" << "\u03B5" << "\"];" << std::endl;
+                        << " [label=\"" << "\u03BB" << "\"];" << std::endl;
                 }
             }
         }

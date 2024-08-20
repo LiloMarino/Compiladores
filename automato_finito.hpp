@@ -55,6 +55,11 @@ public:
     void toAFD();
 
     /**
+     * @brief Aplica o algoritmo para transformar o AFND-e em AFND
+     */
+    void toAFND();
+
+    /**
      * @brief Faz a transição dentro do autômato a partir do estado atual para
      * um estado de destino determinado pela letra lida
      *
@@ -76,6 +81,10 @@ public:
      */
     void printTransitionTable(std::ostream &output);
 
+    /**
+     * @brief Cria um arquivo DOT representando o autômato finito
+     * @param filename Nome do arquivo dot
+     */
     void printVisualizacaoDOT(const std::string &filename);
 
     /**
@@ -87,7 +96,19 @@ public:
     bool operator==(const AutomatoFinito &outro) const;
 
 private:
-    std::set<State *> epsilonClosure(State *estado);
+    /**
+     * @brief Para cada transição lambda deste estado
+     * obtém todas as transições terminais de seus filhos-lambda
+     * e se seus filhos-lambda possuirem transições lambda 
+     * então ele também irá obter as transições terminais dos filhos 
+     * de seus filhos-lambda e assim sucessivamente resultando
+     * em um novo conjunto de transições para este estado
+     * @param estado Estado que será eliminado as transições lambda
+     * @return Retorna o novo vetor de tuplas das transições para esse estado 
+     * com as transições lambdas eliminadas 
+     * <int, char, int> são [origem, entrada, destino] respectivamente
+     */
+    std::vector<std::tuple<int, char, int>> resolveLambdaTransitions(State* estado);
 };
 
 #endif
