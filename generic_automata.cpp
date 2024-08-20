@@ -23,7 +23,7 @@ void GenericAutomata::addRegularExpression(const std::string &re)
 {
     std::list<Action> actions = this->decodifyRegularExpression(re);
     std::list<State *> states_list;
-    State *first_state = new State(++this->total_estados);
+    State *first_state = this->createNewState();
     for (auto action : actions)
     {
         State *state; // Variável auxiliar
@@ -32,7 +32,7 @@ void GenericAutomata::addRegularExpression(const std::string &re)
         case RAW_STRING:
             for (char c : action.str)
             {
-                state = new State(++this->total_estados);
+                state = this->createNewState();
                 if (states_list.empty())
                 {
                     // É a primeira transição
@@ -48,7 +48,7 @@ void GenericAutomata::addRegularExpression(const std::string &re)
             }
             break;
         case OPTION_INTERVAL_SET:
-            state = new State(++this->total_estados);
+            state = this->createNewState();
             if (states_list.empty())
             {
                 // É a primeira transição
@@ -77,7 +77,7 @@ void GenericAutomata::addRegularExpression(const std::string &re)
             states_list.push_back(state);
             break;
         case KLEENE_INTERVAL_SET:
-            state = new State(++this->total_estados);
+            state = this->createNewState();
             if (states_list.empty())
             {
                 // É a primeira transição
@@ -99,7 +99,7 @@ void GenericAutomata::addRegularExpression(const std::string &re)
             states_list.push_back(state);
             break;
         case PLUS_INTERVAL_SET:
-            state = new State(++this->total_estados);
+            state = this->createNewState();
             if (states_list.empty())
             {
                 // É a primeira transição
@@ -128,7 +128,7 @@ void GenericAutomata::addRegularExpression(const std::string &re)
             states_list.push_back(state);
             break;
         case INTERVAL_SET:
-            state = new State(++this->total_estados);
+            state = this->createNewState();
             if (states_list.empty())
             {
                 // É a primeira transição
@@ -155,7 +155,7 @@ void GenericAutomata::addRegularExpression(const std::string &re)
             states_list.push_back(state);
             break;
         case OPTION_SET:
-            state = new State(++this->total_estados);
+            state = this->createNewState();
             for (char c : action.str)
             {
                 if (states_list.empty())
@@ -175,7 +175,7 @@ void GenericAutomata::addRegularExpression(const std::string &re)
             states_list.push_back(state);
             break;
         case KLEENE_SET:
-            state = new State(++this->total_estados);
+            state = this->createNewState();
             for (char c : action.str)
             {
                 if (states_list.empty())
@@ -195,7 +195,7 @@ void GenericAutomata::addRegularExpression(const std::string &re)
             states_list.push_back(state);
             break;
         case PLUS_SET:
-            state = new State(++this->total_estados);
+            state = this->createNewState();
             for (char c : action.str)
             {
                 if (states_list.empty())
@@ -215,7 +215,7 @@ void GenericAutomata::addRegularExpression(const std::string &re)
             states_list.push_back(state);
             break;
         case SET:
-            state = new State(++this->total_estados);
+            state = this->createNewState();
             for (char c : action.str)
             {
                 if (states_list.empty())
@@ -240,6 +240,11 @@ void GenericAutomata::addRegularExpression(const std::string &re)
         states_list.clear();
     }
     this->inicial.addTransition('\0', first_state); // Transição Lambda
+}
+
+State *GenericAutomata::createNewState()
+{
+    return new State(++this->total_estados);
 }
 
 std::list<State *> GenericAutomata::toList()

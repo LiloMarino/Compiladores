@@ -55,6 +55,13 @@ public:
     void addRegularExpression(const std::string &re);
 
     /**
+     * @brief Cria um novo estado com a próxima numeração e retorna
+     * @return Retorna o ponteiro para o estado
+     * @warning Se algum estado não for associado a ele terá memory leak
+     */
+    State *createNewState();
+
+    /**
      * @brief Obtém uma lista ordenada dos estados do autômato
      * @return Lista do Autômato
      */
