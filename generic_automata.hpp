@@ -67,6 +67,35 @@ public:
      */
     State* findState(int estadoNum) const;
 
+    /**
+     * @brief Iterador interno para usar em for-each,
+     * @note Percorre o autômato utilizando o Depth-First Search (DFS)
+     */
+    class Iterator
+    {
+    private:
+        std::stack<State *> stack;
+        std::set<State *> visited;
+
+    public:
+        Iterator(State *root);
+        bool operator!=(const Iterator &other) const;
+        State &operator*();
+        Iterator &operator++();
+    };
+
+    /**
+     * @brief Obtém um iterador para o primeiro item
+     * @return Retorna o iterador
+     */
+    Iterator begin();
+
+    /**
+     * @brief Obtém um iterador para o último item
+     * @return Retorna o iterador
+     */
+    Iterator end();
+
 private:
     /**
      * @brief Decodifica a expressão regular em ações para a montagem do autômato

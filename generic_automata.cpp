@@ -400,3 +400,64 @@ std::list<std::tuple<int, int>> GenericAutomata::getIntervals(const std::string 
     }
     return intervalos;
 }
+
+// Implementação do construtor do iterador
+GenericAutomata::Iterator::Iterator(State *root)
+{
+    if (root != nullptr)
+    {
+        stack.push(root);
+        visited.insert(root);
+    }
+}
+
+// Operador de desigualdade para comparação com end()
+bool GenericAutomata::Iterator::operator!=(const Iterator &other) const
+{
+    return !stack.empty();
+}
+
+// Operador de dereferência para acessar o estado atual
+State &GenericAutomata::Iterator::operator*()
+{
+    return *stack.top();
+}
+
+// Operador de incremento para mover para o próximo estado
+GenericAutomata::Iterator &GenericAutomata::Iterator::operator++()
+{
+    if (stack.empty())
+    {
+        return *this;
+    }
+
+    State *current = stack.top();
+    stack.pop();
+
+    // Adiciona as transições do estado atual à pilha, se não tiver sido visitado
+    for (const auto &transition : current->getTransitions())
+    {
+        if (visited.find(transition.estado_destino) == visited.end())
+        {
+            stack.push(transition.estado_destino);
+            visited.insert(transition.estado_destino);
+        }
+    }
+    return *this;
+}
+
+// Método para obter o iterador para o estado inicial (primeiro estado da lista)
+GenericAutomata::Iterator GenericAutomata::begin()
+{
+    if (!estados.empty())
+    {
+        return Iterator(&estados.front());
+    }
+    return end(); // Retorna o iterador end() se a lista estiver vazia
+}
+
+// Método para obter um iterador que represente o fim da lista
+GenericAutomata::Iterator GenericAutomata::end()
+{
+    return Iterator(nullptr); // Iterador de fim (representando o fim da lista)
+}
