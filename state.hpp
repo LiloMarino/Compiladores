@@ -40,13 +40,18 @@ public:
      * @brief Getter de Estado
      * @return Retorna o número do estado
      */
-    int getEstado();
+    int getEstado() const;
 
     /**
      * @brief Getter das Transições
      * @return Retorna o vector de transições
      */
-    std::vector<Transition> getTransitions();
+    std::vector<Transition> getTransitions() const;
+
+    /**
+     * @brief Setter das Transições
+     */
+    void setTransitions(const std::vector<Transition>& newTransitions);
 };
 
 

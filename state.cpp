@@ -26,12 +26,18 @@ void State::removeLambdaTransitions()
 }
 
 
-int State::getEstado()
+int State::getEstado() const
 {
+    
     return this->estado;
 }
 
-std::vector<Transition> State::getTransitions()
+std::vector<Transition> State::getTransitions() const
 {
     return this->transitions;
+}
+
+void State::setTransitions(const std::vector<Transition> &newTransitions)
+{
+    transitions = newTransitions;
 }
