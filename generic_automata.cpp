@@ -1,9 +1,8 @@
 #include "generic_automata.hpp"
 #include <iostream>
 
-GenericAutomata::GenericAutomata() : estados()
+GenericAutomata::GenericAutomata(): inicial(nullptr)
 {
-    estados.emplace_back(1);
 }
 
 void GenericAutomata::addRegularExpression(const std::string &re)
@@ -226,13 +225,18 @@ void GenericAutomata::addRegularExpression(const std::string &re)
         }
         states_list.clear();
     }
-    this->estados.front().addTransition('\0', first_state); // Transição Lambda
+    this->inicial->addTransition('\0', first_state); // Transição Lambda
 }
 
 State* GenericAutomata::createNewState()
 {
+    
     int novoEstadoNum = estados.size() + 1;
     estados.emplace_back(novoEstadoNum); 
+    if (inicial == nullptr)
+    {
+        inicial = &estados.back();
+    }
     return &estados.back();
 }
 

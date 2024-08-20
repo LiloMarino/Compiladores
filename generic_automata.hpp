@@ -35,6 +35,7 @@ class GenericAutomata
 {
 private:
     std::list<State> estados;
+    State * inicial;
 public:
     /**
      * @brief Construtor do autômato genérico
