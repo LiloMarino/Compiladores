@@ -76,6 +76,12 @@ public:
     State *findState(int num_estado) const;
 
     /**
+     * @brief Retorna o total de estados do autômato
+     * @return Total de estados
+     */
+    size_t getNumEstados();
+
+    /**
      * @brief Remove todos estados que não são possíveis
      * de se obter a partir do estado inicial
      */

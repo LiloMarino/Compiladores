@@ -279,6 +279,11 @@ State *GenericAutomata::findState(int num_estado) const
     return nullptr; // Retorna nullptr se o estado não for encontrado
 }
 
+size_t GenericAutomata::getNumEstados()
+{
+    return this->estados.size();
+}
+
 void GenericAutomata::removeInutileStates()
 {
     std::set<int> estados_visitados;

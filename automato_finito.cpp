@@ -281,7 +281,33 @@ std::vector<std::tuple<int, char, int>> AutomatoFinito::resolveLambdaTransitions
 
 void AutomatoFinito::transposeAFD()
 {
+    this->num_estados = this->afnd->getNumEstados() + 1; // Adiciona o estado de erro
+    std::list<State *> estados = this->afnd->toList();
+    
+    matriz = new int *[num_estados]();
+    for (int i = 0; i < num_estados; ++i)
+    {
+        matriz[i] = new int[ASCII_SIZE]();
+    }
+
+    // Preenche a matriz com as transições existentes
+    for (State *estado : estados)
+    {
+        int origem = estado->getEstado();
+        for (const Transition &transicao : estado->getTransitions())
+        {
+            int input = static_cast<int>(transicao.entrada);
+            int destino = transicao.estado_destino->getEstado();
+            matriz[origem][input] = destino;
+        }
+    }
+
+    // Remove o AFD original já que o AFD foi transposto
+    delete afnd;
+    afnd = nullptr;
+    deterministico = true;
 }
+
 
 int AutomatoFinito::makeTransition(const int estado_atual, const char letra)
 {
