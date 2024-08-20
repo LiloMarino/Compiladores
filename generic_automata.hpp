@@ -59,6 +59,13 @@ public:
      */
     std::list<State*> toList();
 
+    /**
+     * @brief Encontra um estado na lista de estados
+     * @param estadoNum Número do estado a ser encontrado
+     * @return Retorna um ponteiro para o estado correspondente ou nullptr se não encontrado
+     */
+    State* findState(int estadoNum) const;
+
 private:
     /**
      * @brief Decodifica a expressão regular em ações para a montagem do autômato

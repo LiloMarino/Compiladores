@@ -249,6 +249,15 @@ std::list<State*> GenericAutomata::toList()
     return estadoList;
 }
 
+State* GenericAutomata::findState(int estadoNum) const {
+    for (const State& estado : estados) {
+        if (estado.getEstado() == estadoNum) {
+            return const_cast<State*>(&estado); // Retorna um ponteiro não-const para o estado
+        }
+    }
+    return nullptr; // Retorna nullptr se o estado não for encontrado
+}
+
 std::list<Action> GenericAutomata::decodifyRegularExpression(const std::string &re)
 {
     std::list<Action> actions;
