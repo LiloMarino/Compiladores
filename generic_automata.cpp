@@ -279,6 +279,31 @@ State *GenericAutomata::findState(int num_estado) const
     return nullptr; // Retorna nullptr se o estado não for encontrado
 }
 
+void GenericAutomata::removeInutileStates()
+{
+    std::set<int> estados_visitados;
+
+    // Itera sobre os estados e armazena o número dos estados visitados
+    for (auto it = this->begin(); it != this->end(); ++it)
+    {
+        estados_visitados.insert((*it).getEstado());
+    }
+
+    // Remove os estados que não foram visitados
+    for (auto it = estados.begin(); it != estados.end();)
+    {
+        if (estados_visitados.find(it->getEstado()) == estados_visitados.end())
+        {
+            it = estados.erase(it); // Remove o estado não visitado e avança o iterador
+        }
+        else
+        {
+            ++it; // Apenas avança o iterador se o estado não for removido
+        }
+    }
+}
+
+
 std::list<Action> GenericAutomata::decodifyRegularExpression(const std::string &re)
 {
     std::list<Action> actions;

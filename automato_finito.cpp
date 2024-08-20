@@ -150,6 +150,9 @@ void AutomatoFinito::toAFND()
         }
     }
 
+    // Remove os estados inúteis
+    novo_afnd->removeInutileStates();
+
     // Substitui o autômato antigo pelo novo
     delete afnd;
     this->afnd = novo_afnd;

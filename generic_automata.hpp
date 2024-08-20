@@ -76,6 +76,12 @@ public:
     State *findState(int num_estado) const;
 
     /**
+     * @brief Remove todos estados que não são possíveis
+     * de se obter a partir do estado inicial
+     */
+    void removeInutileStates();
+
+    /**
      * @brief Iterador interno para usar em for-each,
      * @note Percorre o autômato utilizando o Depth-First Search (DFS)
      */
