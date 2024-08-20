@@ -120,8 +120,96 @@ void AutomatoFinito::addRegularExpression(const std::string &re)
 void AutomatoFinito::toAFD()
 {
     // Passo 1: Converte o AFND-e em um AFND
+    this->printVisualizacaoDOT("afnd-e.dot");
     this->toAFND();
     this->printVisualizacaoDOT("afnd.dot");
+
+    // Passo 2: Define as variáveis essenciais
+    std::map<std::string, State *> mapa_assinaturas;
+    std::stack<std::string> estados_restantes;
+    auto getEstadosAssinatura = [](const std::string &assinatura) -> std::set<int>
+    {
+        std::set<int> estados;
+        std::stringstream ss(assinatura);
+        std::string item;
+
+        while (std::getline(ss, item, ','))
+        {
+            estados.insert(std::stoi(item));
+        }
+
+        return estados;
+    };
+
+    // Passo 3: Realiza a conversão criando um novo autômato (AFD)
+    GenericAutomata *afd = new GenericAutomata();
+
+    // Inicializa com o estado inicial
+    State *inicial = afd->createNewState();
+    mapa_assinaturas[std::to_string(inicial->getEstado())] = inicial;
+    estados_restantes.push(std::to_string(inicial->getEstado()));
+
+    while (!estados_restantes.empty())
+    {
+        // Obtém a assinatura e os estados destino
+        std::string assinatura = estados_restantes.top();
+        estados_restantes.pop();
+        State *atual = mapa_assinaturas[assinatura];
+        std::set<int> estados_assinatura = getEstadosAssinatura(assinatura);
+
+        // Mapa para agrupar transições por símbolo
+        std::map<char, std::set<int>> transicoes_por_simbolo;
+
+        // Percorre todos os estados representados pela assinatura atual
+        for (int estado : estados_assinatura)
+        {
+            State *estado_antigo = afnd->findState(estado);
+
+            // Agrupa transições por símbolo
+            for (const auto &transicao : estado_antigo->getTransitions())
+            {
+                transicoes_por_simbolo[transicao.entrada].insert(transicao.estado_destino->getEstado());
+            }
+        }
+
+        // Para cada símbolo, cria novas transições no AFD
+        for (const auto &[simbolo, destinos] : transicoes_por_simbolo)
+        {
+            // Cria uma nova assinatura para o conjunto de destinos
+            std::string nova_assinatura;
+            for (int destino : destinos)
+            {
+                if (!nova_assinatura.empty())
+                {
+                    nova_assinatura += ",";
+                }
+                nova_assinatura += std::to_string(destino);
+            }
+
+            // Se a nova assinatura não existe no mapa, cria um novo estado
+            if (mapa_assinaturas.find(nova_assinatura) == mapa_assinaturas.end())
+            {
+                State *novo_estado = afd->createNewState();
+                mapa_assinaturas[nova_assinatura] = novo_estado;
+                estados_restantes.push(nova_assinatura);
+            }
+
+            // Adiciona a transição no estado atual
+            State *estado_destino = mapa_assinaturas[nova_assinatura];
+            atual->addTransition(simbolo, estado_destino);
+        }
+    }
+    // Remove estados inúteis do novo AFD
+    afd->removeInutileStates();
+
+    // Substitui o autômato antigo pelo novo
+    delete this->afnd;
+    this->afnd = afd;
+    this->printVisualizacaoDOT("afd.dot");
+
+    // Passo 3: Transpõe para a estrutura do AFD
+    this->transposeAFD();
+    this->printVisualizacaoDOT("afd-trans.dot");
 }
 
 void AutomatoFinito::toAFND()
@@ -189,6 +277,10 @@ std::vector<std::tuple<int, char, int>> AutomatoFinito::resolveLambdaTransitions
     coletarTransicoes(estado, visitados);
 
     return novasTransicoes;
+}
+
+void AutomatoFinito::transposeAFD()
+{
 }
 
 int AutomatoFinito::makeTransition(const int estado_atual, const char letra)

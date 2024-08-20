@@ -109,6 +109,12 @@ private:
      * <int, char, int> são [origem, entrada, destino] respectivamente
      */
     std::vector<std::tuple<int, char, int>> resolveLambdaTransitions(State* estado);
+
+    /**
+     * @brief Transpõe para a estrutura de matriz o elemento afnd
+     */
+    void transposeAFD();
+    
 };
 
 #endif
