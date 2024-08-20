@@ -422,14 +422,62 @@ void AutomatoFinito::printVisualizacaoDOT(const std::string &filename)
         // Geração do arquivo DOT para o AFD
         for (int i = 0; i < num_estados; ++i)
         {
+            std::map<int, std::string> transicoesAgrupadas;
+
             for (int j = 0; j < ASCII_SIZE; ++j)
             {
                 if (matriz[i][j] != 0)
                 {
-                    out << "\tq" << std::to_string(i)
-                        << " -> q" << matriz[i][j]
-                        << " [label=\"" << static_cast<char>(j) << "\"];" << std::endl;
+                    int destino = matriz[i][j];
+                    char input = static_cast<char>(j);
+
+                    // Adiciona o input ao mapa, agrupando por destino
+                    if (transicoesAgrupadas.find(destino) != transicoesAgrupadas.end())
+                    {
+                        transicoesAgrupadas[destino] += input;
+                    }
+                    else
+                    {
+                        transicoesAgrupadas[destino] = std::string(1, input);
+                    }
                 }
+            }
+
+            // Para cada destino, processa a string de inputs para compactar sequências
+            for (const auto &pair : transicoesAgrupadas)
+            {
+                int destino = pair.first;
+                std::string inputs = pair.second;
+                std::string label;
+
+                // Ordena os inputs
+                std::sort(inputs.begin(), inputs.end());
+
+                // Compacta as sequências
+                for (size_t k = 0; k < inputs.size(); ++k)
+                {
+                    char inicio = inputs[k];
+                    char fim = inicio;
+
+                    // Enquanto o próximo caractere formar uma sequência, continue
+                    while (k + 1 < inputs.size() && inputs[k + 1] == fim + 1)
+                    {
+                        fim = inputs[++k];
+                    }
+
+                    if (inicio == fim)
+                    {
+                        label += inicio;
+                    }
+                    else
+                    {
+                        label += inicio + std::string("-") + fim;
+                    }
+                }
+
+                out << "\tq" << i
+                    << " -> q" << destino
+                    << " [label=\"" << label << "\"];" << std::endl;
             }
         }
     }
@@ -440,20 +488,68 @@ void AutomatoFinito::printVisualizacaoDOT(const std::string &filename)
 
         for (State *estado : estados)
         {
+            std::map<State *, std::string> transicoesAgrupadas;
+
             for (const auto &transicao : estado->getTransitions())
             {
-                if (transicao.entrada != '\0')
+                char input = transicao.entrada;
+                State *destino = transicao.estado_destino;
+
+                if (input != '\0')
                 {
-                    out << "\tq" << estado->getEstado()
-                        << " -> q" << transicao.estado_destino->getEstado()
-                        << " [label=\"" << transicao.entrada << "\"];" << std::endl;
+                    // Adiciona o input ao mapa, agrupando por destino
+                    if (transicoesAgrupadas.find(destino) != transicoesAgrupadas.end())
+                    {
+                        transicoesAgrupadas[destino] += input;
+                    }
+                    else
+                    {
+                        transicoesAgrupadas[destino] = std::string(1, input);
+                    }
                 }
                 else
                 {
                     out << "\tq" << estado->getEstado()
-                        << " -> q" << transicao.estado_destino->getEstado()
+                        << " -> q" << destino->getEstado()
                         << " [label=\"" << "\u03BB" << "\"];" << std::endl;
                 }
+            }
+
+            // Para cada destino, processa a string de inputs para compactar sequências
+            for (const auto &pair : transicoesAgrupadas)
+            {
+                State *destino = pair.first;
+                std::string inputs = pair.second;
+                std::string label;
+
+                // Ordena os inputs
+                std::sort(inputs.begin(), inputs.end());
+
+                // Compacta as sequências
+                for (size_t k = 0; k < inputs.size(); ++k)
+                {
+                    char inicio = inputs[k];
+                    char fim = inicio;
+
+                    // Enquanto o próximo caractere formar uma sequência, continue
+                    while (k + 1 < inputs.size() && inputs[k + 1] == fim + 1)
+                    {
+                        fim = inputs[++k];
+                    }
+
+                    if (inicio == fim)
+                    {
+                        label += inicio;
+                    }
+                    else
+                    {
+                        label += inicio + std::string("-") + fim;
+                    }
+                }
+
+                out << "\tq" << estado->getEstado()
+                    << " -> q" << destino->getEstado()
+                    << " [label=\"" << label << "\"];" << std::endl;
             }
         }
     }
