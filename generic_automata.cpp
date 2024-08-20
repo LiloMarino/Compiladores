@@ -1,22 +1,9 @@
 #include "generic_automata.hpp"
 #include <iostream>
 
-GenericAutomata::GenericAutomata() : total_estados(1), inicial(1)
+GenericAutomata::GenericAutomata() : estados()
 {
-}
-
-GenericAutomata::~GenericAutomata()
-{
-    std::list<State *> estados = this->toList();
-    // Pula o primeiro estado
-    auto it = estados.begin();
-    ++it;
-    while (it != estados.end())
-    {
-        State *state = *it;
-        delete state;
-        ++it;
-    }
+    estados.emplace_back(1);
 }
 
 void GenericAutomata::addRegularExpression(const std::string &re)
@@ -239,26 +226,27 @@ void GenericAutomata::addRegularExpression(const std::string &re)
         }
         states_list.clear();
     }
-    this->inicial.addTransition('\0', first_state); // Transição Lambda
+    this->estados.front().addTransition('\0', first_state); // Transição Lambda
 }
 
-State *GenericAutomata::createNewState()
+State* GenericAutomata::createNewState()
 {
-    return new State(++this->total_estados);
+    int novoEstadoNum = estados.size() + 1;
+    estados.emplace_back(novoEstadoNum); 
+    return &estados.back();
 }
 
-std::list<State *> GenericAutomata::toList()
+std::list<State*> GenericAutomata::toList()
 {
-    std::list<State *> estados;
-    for (auto it = begin(); it != end(); ++it)
+    std::list<State*> estadoList;
+    for (auto& estado : estados)
     {
-        State *state = &(*it);
-        estados.push_back(state);
+        estadoList.push_back(&estado);
     }
-    // Ordena a lista pelo número de estado usando uma função lambda
-    estados.sort([](State *a, State *b)
-                 { return a->getEstado() < b->getEstado(); });
-    return estados;
+    // Ordena a lista pelo número do estado
+    estadoList.sort([](State* a, State* b)
+                    { return a->getEstado() < b->getEstado(); });
+    return estadoList;
 }
 
 std::list<Action> GenericAutomata::decodifyRegularExpression(const std::string &re)
@@ -398,59 +386,4 @@ std::list<std::tuple<int, int>> GenericAutomata::getIntervals(const std::string 
         }
     }
     return intervalos;
-}
-
-// Implementação do construtor do iterador
-GenericAutomata::Iterator::Iterator(State *root)
-{
-    if (root != nullptr)
-    {
-        stack.push(root);
-        visited.insert(root);
-    }
-}
-
-// Operador de desigualdade para comparação com end()
-bool GenericAutomata::Iterator::operator!=(const Iterator &other) const
-{
-    return !stack.empty();
-}
-
-// Operador de dereferência para acessar o estado atual
-State &GenericAutomata::Iterator::operator*()
-{
-    return *stack.top();
-}
-
-// Operador de incremento para mover para o próximo estado
-GenericAutomata::Iterator &GenericAutomata::Iterator::operator++()
-{
-    if (stack.empty())
-    {
-        return *this;
-    }
-
-    State *current = stack.top();
-    stack.pop();
-
-    // Adiciona as transições do estado atual à pilha, se não tiver sido visitado
-    for (const auto &transition : current->getTransitions())
-    {
-        if (visited.find(transition.estado_destino) == visited.end())
-        {
-            stack.push(transition.estado_destino);
-            visited.insert(transition.estado_destino);
-        }
-    }
-    return *this;
-}
-
-GenericAutomata::Iterator GenericAutomata::begin()
-{
-    return Iterator(&inicial); // Retorna um iterador para o estado inicial
-}
-
-GenericAutomata::Iterator GenericAutomata::end()
-{
-    return Iterator(nullptr); // Iterador de fim (representando o fim da árvore)
 }

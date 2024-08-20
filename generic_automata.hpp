@@ -34,19 +34,12 @@ struct Action
 class GenericAutomata
 {
 private:
-    int total_estados;
-    State inicial;
-
+    std::list<State> estados;
 public:
     /**
      * @brief Construtor do autômato genérico
      */
     GenericAutomata();
-
-    /**
-     * @brief Destrutor do autômato genérico
-     */
-    ~GenericAutomata();
 
     /**
      * @brief Implementa uma expressão regular no autômato
@@ -56,45 +49,15 @@ public:
 
     /**
      * @brief Cria um novo estado com a próxima numeração e retorna
-     * @return Retorna o ponteiro para o estado
-     * @warning Se algum estado não for associado a ele terá memory leak
+     * @return Retorna o estado
      */
-    State *createNewState();
+    State* createNewState();
 
     /**
      * @brief Obtém uma lista ordenada dos estados do autômato
      * @return Lista do Autômato
      */
-    std::list<State *> toList();
-
-    /**
-     * @brief Iterador interno para usar em for-each,
-     * @note Percorre o autômato utilizando o Depth-First Search (DFS)
-     */
-    class Iterator
-    {
-    private:
-        std::stack<State *> stack;
-        std::set<State *> visited;
-
-    public:
-        Iterator(State *root);
-        bool operator!=(const Iterator &other) const;
-        State &operator*();
-        Iterator &operator++();
-    };
-
-    /**
-     * @brief Obtém um iterador para o primeiro item
-     * @return Retorna o iterador
-     */
-    Iterator begin();
-
-    /**
-     * @brief Obtém um iterador para o último item
-     * @return Retorna o iterador
-     */
-    Iterator end();
+    std::list<State*> toList();
 
 private:
     /**
@@ -111,5 +74,6 @@ private:
      */
     std::list<std::tuple<int, int>> getIntervals(const std::string &interval);
 };
+
 
 #endif
