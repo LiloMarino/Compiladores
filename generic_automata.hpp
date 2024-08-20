@@ -35,7 +35,8 @@ class GenericAutomata
 {
 private:
     std::list<State> estados;
-    State * inicial;
+    State *inicial;
+
 public:
     /**
      * @brief Construtor do autômato genérico
@@ -52,20 +53,27 @@ public:
      * @brief Cria um novo estado com a próxima numeração e retorna
      * @return Retorna o estado
      */
-    State* createNewState();
+    State *createNewState();
+
+    /**
+     * @brief Cria um novo estado com a numeração especificada,
+     * se ele já existir então retorna o existente
+     * @return Retorna o estado
+     */
+    State *createNewState(int num_estado);
 
     /**
      * @brief Obtém uma lista ordenada dos estados do autômato
      * @return Lista do Autômato
      */
-    std::list<State*> toList();
+    std::list<State *> toList();
 
     /**
      * @brief Encontra um estado na lista de estados
-     * @param estadoNum Número do estado a ser encontrado
+     * @param num_estado Número do estado a ser encontrado
      * @return Retorna um ponteiro para o estado correspondente ou nullptr se não encontrado
      */
-    State* findState(int estadoNum) const;
+    State *findState(int num_estado) const;
 
     /**
      * @brief Iterador interno para usar em for-each,
@@ -111,6 +119,5 @@ private:
      */
     std::list<std::tuple<int, int>> getIntervals(const std::string &interval);
 };
-
 
 #endif

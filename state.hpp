@@ -43,12 +43,6 @@ public:
     int getEstado() const;
 
     /**
-     * @brief Setter de Estado
-     * @param newEstado Novo número do estado
-     */
-    void setEstado(int newEstado); 
-
-    /**
      * @brief Getter das Transições
      * @return Retorna o vector de transições
      */

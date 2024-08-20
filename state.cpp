@@ -32,11 +32,6 @@ int State::getEstado() const
     return this->estado;
 }
 
-void State::setEstado(int newEstado)
-{
-    this->estado = newEstado;
-}
-
 std::vector<Transition> State::getTransitions() const
 {
     return this->transitions;

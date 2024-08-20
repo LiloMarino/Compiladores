@@ -1,7 +1,7 @@
 #include "generic_automata.hpp"
 #include <iostream>
 
-GenericAutomata::GenericAutomata(): inicial(nullptr)
+GenericAutomata::GenericAutomata() : inicial(nullptr)
 {
 }
 
@@ -228,11 +228,11 @@ void GenericAutomata::addRegularExpression(const std::string &re)
     this->inicial->addTransition('\0', first_state); // Transição Lambda
 }
 
-State* GenericAutomata::createNewState()
+State *GenericAutomata::createNewState()
 {
-    
+
     int novoEstadoNum = estados.size() + 1;
-    estados.emplace_back(novoEstadoNum); 
+    estados.emplace_back(novoEstadoNum);
     if (inicial == nullptr)
     {
         inicial = &estados.back();
@@ -240,23 +240,40 @@ State* GenericAutomata::createNewState()
     return &estados.back();
 }
 
-std::list<State*> GenericAutomata::toList()
+State *GenericAutomata::createNewState(int num_estado)
 {
-    std::list<State*> estadoList;
-    for (auto& estado : estados)
+    State *estado = this->findState(num_estado);
+    if (estado == nullptr)
+    {
+        estados.emplace_back(num_estado);
+        return &estados.back();
+    }
+    else
+    {
+        return estado;
+    }
+}
+
+std::list<State *> GenericAutomata::toList()
+{
+    std::list<State *> estadoList;
+    for (auto &estado : estados)
     {
         estadoList.push_back(&estado);
     }
     // Ordena a lista pelo número do estado
-    estadoList.sort([](State* a, State* b)
+    estadoList.sort([](State *a, State *b)
                     { return a->getEstado() < b->getEstado(); });
     return estadoList;
 }
 
-State* GenericAutomata::findState(int estadoNum) const {
-    for (const State& estado : estados) {
-        if (estado.getEstado() == estadoNum) {
-            return const_cast<State*>(&estado); // Retorna um ponteiro não-const para o estado
+State *GenericAutomata::findState(int num_estado) const
+{
+    for (const State &estado : estados)
+    {
+        if (estado.getEstado() == num_estado)
+        {
+            return const_cast<State *>(&estado); // Retorna um ponteiro não-const para o estado
         }
     }
     return nullptr; // Retorna nullptr se o estado não for encontrado
