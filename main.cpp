@@ -9,18 +9,12 @@ using namespace std;
 
 void createAutomato(AutomatoFinito &au)
 {
-    au.addTransitions(1, 2, "a-z");
-    au.addTransitions(1, 3, "+");
-    au.addTransitions(1, 4, "-");
-    au.addTransitions(1, 5, "0-9");
-    au.addTransitions(2, 2, "a-z");
-    au.addTransitions(2, 2, "0-9");
-    au.addTransitions(5, 5, "0-9");
-    au.addTransitions(5, 6, "e");
-    au.addTransitions(6, 8, "0-9");
-    au.addTransitions(6, 7, "+,-");
-    au.addTransitions(7, 8, "0-9");
-    au.addTransitions(8, 8, "0-9");
+    au.addTransitions(1, 2, "c");
+    au.addTransitions(2, 3, "a");
+    au.addTransitions(3, 4, "t");
+    au.addTransitions(3, 5, "r");
+    au.addTransitions(4, 6, "s");
+    au.addTransitions(5, 7, "s");
 }
 
 void createAnalisador(AnalisadorLexico &al)
@@ -38,17 +32,22 @@ int main()
     createAutomato(afd);
     AutomatoFinito af;
     std::ofstream arquivo("tabela_transicao.txt");
-    af.addRegularExpression("[a-z][a-z0-9]*");
-    af.addRegularExpression("+");
-    af.addRegularExpression("-");
-    af.addRegularExpression("[0-9]+");
-    af.addRegularExpression("[0-9]+e[+-]?[0-9]+");
+    af.addRegularExpression("cat");
+    af.addRegularExpression("cats");
+    af.addRegularExpression("car");
+    af.addRegularExpression("cars");
     af.printTransitionTable(arquivo);
+    af.printVisualizacaoDOT("arq1.dot");
     arquivo.close();
-    std::ofstream arquivo2("tabela_transicao2.txt");
+    arquivo.open("tabela_transicao2.txt");
     af.toAFD();
-    af.printTransitionTable(arquivo2);
-    arquivo2.close();
+    af.printTransitionTable(arquivo);
+    af.printVisualizacaoDOT("arq2.dot");
+    arquivo.close();
+    arquivo.open("tabela_transicao3.txt");
+    afd.printTransitionTable(arquivo);
+    afd.printVisualizacaoDOT("arq3.dot");
+    arquivo.close();
     cout << (af == afd);
     AnalisadorLexico al(afd);
     createAnalisador(al);

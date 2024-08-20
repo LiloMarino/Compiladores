@@ -77,7 +77,8 @@
         "sstream": "cpp",
         "cfenv": "cpp",
         "cinttypes": "cpp",
-        "typeindex": "cpp"
+        "typeindex": "cpp",
+        "codecvt": "cpp"
     },
     "makefile.launchConfigurations": [
         {
