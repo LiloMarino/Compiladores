@@ -124,26 +124,30 @@ void AutomatoFinito::toAFD()
     this->printVisualizacaoDOT("afnd.dot");
 }
 
-void AutomatoFinito::toAFND() {
+void AutomatoFinito::toAFND()
+{
     // Obtém a lista de estados do AFND-e atual
     std::list<State *> estados = this->afnd->toList();
-    
+
     // Cria um novo AFND sem transições lambda
     GenericAutomata *novo_afnd = new GenericAutomata();
 
     // Itera pelos estados do autômato antigo
-    for (State* estado_antigo : estados) {
+    for (State *estado_antigo : estados)
+    {
         // Cria um novo estado correspondente no novo AFND
-        State* novo_estado = novo_afnd->createNewState();
+        State *novo_estado = novo_afnd->createNewState();
         novo_estado->setEstado(estado_antigo->getEstado()); // Mantém o número do estado
 
         // Elimina as transições lambda e obtém as novas transições
         std::vector<std::tuple<int, char, int>> novasTransicoes = resolveLambdaTransitions(estado_antigo);
 
         // Adiciona as novas transições ao novo estado
-        for (const auto& [origem, entrada, destino] : novasTransicoes) {
-            State* estado_destino = novo_afnd->findState(destino);
-            if (estado_destino == nullptr) {
+        for (const auto &[origem, entrada, destino] : novasTransicoes)
+        {
+            State *estado_destino = novo_afnd->findState(destino);
+            if (estado_destino == nullptr)
+            {
                 // Cria o estado de destino no novo AFND se não existir
                 estado_destino = novo_afnd->createNewState();
                 estado_destino->setEstado(destino);
@@ -157,27 +161,34 @@ void AutomatoFinito::toAFND() {
     this->afnd = novo_afnd;
 }
 
-std::vector<std::tuple<int, char, int>> AutomatoFinito::resolveLambdaTransitions(State* estado) {
+std::vector<std::tuple<int, char, int>> AutomatoFinito::resolveLambdaTransitions(State *estado)
+{
     std::vector<std::tuple<int, char, int>> novasTransicoes;
 
-    std::function<void(State*, std::set<State*>&)> coletarTransicoes;
-    coletarTransicoes = [&](State* estadoAtual, std::set<State*>& visitados) {
-        if (visitados.find(estadoAtual) != visitados.end()) {
+    std::function<void(State *, std::set<State *> &)> coletarTransicoes;
+    coletarTransicoes = [&](State *estadoAtual, std::set<State *> &visitados)
+    {
+        if (visitados.find(estadoAtual) != visitados.end())
+        {
             return; // Evita loops infinitos em casos de recursão
         }
 
         visitados.insert(estadoAtual);
 
-        for (const Transition& transicao : estadoAtual->getTransitions()) {
-            if (transicao.entrada == '\0') { // Transição lambda
+        for (const Transition &transicao : estadoAtual->getTransitions())
+        {
+            if (transicao.entrada == '\0')
+            { // Transição lambda
                 coletarTransicoes(transicao.estado_destino, visitados);
-            } else { // Transição terminal
+            }
+            else
+            { // Transição terminal
                 novasTransicoes.emplace_back(estado->getEstado(), transicao.entrada, transicao.estado_destino->getEstado());
             }
         }
     };
 
-    std::set<State*> visitados;
+    std::set<State *> visitados;
     coletarTransicoes(estado, visitados);
 
     return novasTransicoes;
@@ -237,9 +248,9 @@ void AutomatoFinito::printTransitionTable(std::ostream &output)
     else
     {
         // Printa a tabela do AFND
-        for (auto &state : *afnd)
+        for (auto state : afnd->toList())
         {
-            output << std::setw(15) << "q" + std::to_string(state.getEstado());
+            output << std::setw(15) << "q" + std::to_string(state->getEstado());
             for (int j = 0; j < ASCII_SIZE; ++j)
             {
                 char input = static_cast<char>(j);
@@ -247,7 +258,7 @@ void AutomatoFinito::printTransitionTable(std::ostream &output)
                 std::string trans_str = "{";
 
                 // Itera sobre as transições para encontrar as correspondentes ao input
-                for (const auto &transition : state.getTransitions())
+                for (const auto &transition : state->getTransitions())
                 {
                     if (transition.entrada == input)
                     {
