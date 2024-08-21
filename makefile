@@ -1,8 +1,8 @@
 # Nome do executável
-EXEC_NAME = l5e2
+EXEC_NAME = l9e1
 
 # Nome do zip
-ZIP_NAME = LISTA_5_EXERCICIO_2
+ZIP_NAME = LISTA_9_EXERCICIO_1
 
 # Lista de arquivos fonte
 SOURCES = main.cpp automato_finito.cpp lexico.cpp state.cpp generic_automata.cpp token_manager.cpp
