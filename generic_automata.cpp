@@ -5,7 +5,7 @@ GenericAutomata::GenericAutomata() : inicial(nullptr)
 {
 }
 
-void GenericAutomata::addRegularExpression(const std::string &re)
+int GenericAutomata::addRegularExpression(const std::string &re)
 {
     std::list<Action> actions = this->decodifyRegularExpression(re);
     std::list<State *> states_list;
@@ -225,6 +225,7 @@ void GenericAutomata::addRegularExpression(const std::string &re)
         }
     }
     this->inicial->addTransition('\0', first_state); // Transição Lambda
+    return states_list.back()->getEstado();
 }
 
 State *GenericAutomata::createNewState()

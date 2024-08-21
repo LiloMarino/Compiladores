@@ -3,6 +3,7 @@
 
 #include <string>
 #include "generic_automata.hpp"
+#include "token_manager.hpp"
 
 /**
  * @brief Classe de Autômato Finito
@@ -15,7 +16,7 @@ private:
     int **matriz;
     bool deterministico;
     GenericAutomata *afnd;
-
+    TokenManager tokens;
 public:
     /**
      * @brief Construtor do Autômato Finito Não Determinístico
@@ -46,8 +47,9 @@ public:
     /**
      * @brief Implementa uma expressão regular no autômato
      * @param re Expressão regular
+     * @param token Token reconhecido
      */
-    void addRegularExpression(const std::string &re);
+    void addRegularExpression(const std::string &re, const std::string &token);
 
     /**
      * @brief Aplica o algoritmo para transformar o AFND-e em AFD

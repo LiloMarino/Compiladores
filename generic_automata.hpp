@@ -46,8 +46,9 @@ public:
     /**
      * @brief Implementa uma expressão regular no autômato
      * @param re Expressão regular
+     * @return Retorna o número do estado final
      */
-    void addRegularExpression(const std::string &re);
+    int addRegularExpression(const std::string &re);
 
     /**
      * @brief Cria um novo estado com a próxima numeração e retorna

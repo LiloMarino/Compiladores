@@ -108,13 +108,15 @@ void AutomatoFinito::addTransitions(const int estado_inicial, const int estado_f
     }
 }
 
-void AutomatoFinito::addRegularExpression(const std::string &re)
+void AutomatoFinito::addRegularExpression(const std::string &re, const std::string &token)
 {
     if (this->deterministico)
     {
         throw std::logic_error("O Autômato é determinístico");
     }
-    this->afnd->addRegularExpression(re);
+    int estado_final = this->afnd->addRegularExpression(re);
+    this->tokens.addToken(token);
+    this->tokens.setFinalState(token, estado_final);
 }
 
 void AutomatoFinito::toAFD()
@@ -283,7 +285,7 @@ void AutomatoFinito::transposeAFD()
 {
     this->num_estados = this->afnd->getNumEstados() + 1; // Adiciona o estado de erro
     std::list<State *> estados = this->afnd->toList();
-    
+
     matriz = new int *[num_estados]();
     for (int i = 0; i < num_estados; ++i)
     {
@@ -307,7 +309,6 @@ void AutomatoFinito::transposeAFD()
     afnd = nullptr;
     deterministico = true;
 }
-
 
 int AutomatoFinito::makeTransition(const int estado_atual, const char letra)
 {
@@ -416,6 +417,37 @@ void AutomatoFinito::printVisualizacaoDOT(const std::string &filename)
     out << "digraph AF {" << std::endl;
     out << "\trankdir=LR;" << std::endl; // Alinha os estados da esquerda para a direita
     out << "\tnode [shape=circle];" << std::endl;
+
+    // Mapa de estados finais por token
+    auto finalStatesByToken = this->tokens.getAllTokens();
+    std::set<int> finalStates; // Conjunto de todos os estados finais
+
+    // Adiciona os estados finais ao conjunto e os formata
+    for (const auto &tokenPair : finalStatesByToken)
+    {
+        const std::string &tokenName = tokenPair.first;
+        const std::vector<int> &states = tokenPair.second;
+
+        for (int state : states)
+        {
+            finalStates.insert(state);
+            out << "subgraph cluster" << state << " {" << std::endl
+                << "\t\tlabelloc=\"b\";" << std::endl
+                << "\t\tlabel=\"" << tokenName << "\";" << std::endl
+                << "\t\tcolor=transparent;" << std::endl
+                << "\t\tq" << state 
+                << " [shape=doublecircle, label=\"q" << state << "\"];}" << std::endl;
+        }
+    }
+
+    // // Adiciona os estados não finais
+    // for (int i = 0; i < num_estados; ++i)
+    // {
+    //     if (finalStates.find(i) == finalStates.end())
+    //     {
+    //         out << "\tq" << i << " [shape=circle, label=\"q" << i << "\"];" << std::endl;
+    //     }
+    // }
 
     if (this->deterministico)
     {
