@@ -23,18 +23,16 @@ void createAutomato(AutomatoFinito &au)
     au.addTransitions(8, 8, "0-9");
 }
 
-void createAnalisador(AnalisadorLexico &al)
-{
-    al.addToken("2", 2);
-    al.addToken("3", 3);
-    al.addToken("4", 4);
-    al.addToken("5", 5);
-}
-
 int main()
 {
     AutomatoFinito afd(8);
     createAutomato(afd);
+    afd.setFinalState("ID", 2);
+    afd.setFinalState("PLUS", 3);
+    afd.setFinalState("MINUS", 4);
+    afd.setFinalState("NUMBER", 5);
+    afd.setFinalState("REAL", 8);
+    afd.printVisualizacaoDOT("afd-o.dot");
     AutomatoFinito af;
     af.addRegularExpression("[a-z][a-z0-9]*", "ID");
     af.addRegularExpression("+", "PLUS");
@@ -42,15 +40,7 @@ int main()
     af.addRegularExpression("[0-9]+", "NUMBER");
     af.addRegularExpression("[0-9]+e[+-]?[0-9]+", "REAL");
     af.toAFD();
-    afd.setFinalState("ID", 2);
-    afd.setFinalState("PLUS", 3);
-    afd.setFinalState("MINUS", 4);
-    afd.setFinalState("NUMBER", 5);
-    afd.setFinalState("REAL", 8);
-    afd.printVisualizacaoDOT("afd-o.dot");
-    cout << (af == afd);
-    AnalisadorLexico al(afd);
-    createAnalisador(al);
+    AnalisadorLexico al(af);
     string input;
     while (getline(cin, input))
     {

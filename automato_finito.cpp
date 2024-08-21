@@ -357,6 +357,7 @@ bool AutomatoFinito::setFinalState(const std::string &token, int final_state)
     {
         throw std::length_error("Estado Inválido");
     }
+    tokens.addToken(token);
     return tokens.setFinalState(token, final_state);
 }
 
