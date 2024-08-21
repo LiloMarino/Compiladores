@@ -41,7 +41,7 @@ void GenericAutomata::addRegularExpression(const std::string &re)
                 first_state->addTransition('\0', state);
                 for (const auto &interval : this->getIntervals(action.str))
                 {
-                    for (int i = std::get<0>(interval); i < std::get<1>(interval); ++i)
+                    for (int i = std::get<0>(interval); i <= std::get<1>(interval); ++i)
                     {
                         first_state->addTransition(static_cast<char>(i), state);
                     }
@@ -54,7 +54,7 @@ void GenericAutomata::addRegularExpression(const std::string &re)
                 last_state->addTransition('\0', state);
                 for (const auto &interval : this->getIntervals(action.str))
                 {
-                    for (int i = std::get<0>(interval); i < std::get<1>(interval); ++i)
+                    for (int i = std::get<0>(interval); i <= std::get<1>(interval); ++i)
                     {
                         last_state->addTransition(static_cast<char>(i), state);
                     }
@@ -77,7 +77,7 @@ void GenericAutomata::addRegularExpression(const std::string &re)
             }
             for (const auto &interval : this->getIntervals(action.str))
             {
-                for (int i = std::get<0>(interval); i < std::get<1>(interval); ++i)
+                for (int i = std::get<0>(interval); i <= std::get<1>(interval); ++i)
                 {
                     state->addTransition(static_cast<char>(i), state);
                 }
@@ -91,7 +91,7 @@ void GenericAutomata::addRegularExpression(const std::string &re)
                 // É a primeira transição
                 for (const auto &interval : this->getIntervals(action.str))
                 {
-                    for (int i = std::get<0>(interval); i < std::get<1>(interval); ++i)
+                    for (int i = std::get<0>(interval); i <= std::get<1>(interval); ++i)
                     {
                         first_state->addTransition(static_cast<char>(i), state);
                         state->addTransition(static_cast<char>(i), state);
@@ -104,7 +104,7 @@ void GenericAutomata::addRegularExpression(const std::string &re)
                 State *last_state = states_list.back();
                 for (const auto &interval : this->getIntervals(action.str))
                 {
-                    for (int i = std::get<0>(interval); i < std::get<1>(interval); ++i)
+                    for (int i = std::get<0>(interval); i <= std::get<1>(interval); ++i)
                     {
                         last_state->addTransition(static_cast<char>(i), state);
                         state->addTransition(static_cast<char>(i), state);
@@ -120,7 +120,7 @@ void GenericAutomata::addRegularExpression(const std::string &re)
                 // É a primeira transição
                 for (const auto &interval : this->getIntervals(action.str))
                 {
-                    for (int i = std::get<0>(interval); i < std::get<1>(interval); ++i)
+                    for (int i = std::get<0>(interval); i <= std::get<1>(interval); ++i)
                     {
                         first_state->addTransition(static_cast<char>(i), state);
                     }
@@ -132,7 +132,7 @@ void GenericAutomata::addRegularExpression(const std::string &re)
                 State *last_state = states_list.back();
                 for (const auto &interval : this->getIntervals(action.str))
                 {
-                    for (int i = std::get<0>(interval); i < std::get<1>(interval); ++i)
+                    for (int i = std::get<0>(interval); i <= std::get<1>(interval); ++i)
                     {
                         last_state->addTransition(static_cast<char>(i), state);
                     }
@@ -223,7 +223,6 @@ void GenericAutomata::addRegularExpression(const std::string &re)
             exit(1);
             break;
         }
-        states_list.clear();
     }
     this->inicial->addTransition('\0', first_state); // Transição Lambda
 }
