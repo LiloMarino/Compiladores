@@ -15,17 +15,9 @@ class AnalisadorLexico
 {
 private:
     AutomatoFinito &automato;
-    std::unordered_map<int, std::string> mapa_tokens;
 
 public:
     AnalisadorLexico(AutomatoFinito &a);
-
-    /**
-     * @brief Associa o token ao estado final
-     * @param token Token
-     * @param estado_final Estado final do autômato
-     */
-    void addToken(const std::string &token, const int estado_final);
 
     /**
      * @brief Reconhece a string de entrada e transforma-a em tokens
@@ -33,6 +25,18 @@ public:
      * @return Retorna a lista de tokens
      */
     std::list<recon> reconhecer(const std::string &entrada);
+
+    /**
+     * @brief Obtém a referência ao autômato finito.
+     * @return Referência ao autômato finito.
+     */
+    AutomatoFinito &getAutomato() const;
+
+    /**
+     * @brief Define a referência ao autômato finito.
+     * @param a Nova referência ao autômato finito.
+     */
+    void setAutomato(AutomatoFinito &a);
 };
 
 #endif
