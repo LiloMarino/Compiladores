@@ -11,6 +11,28 @@ int TokenManager::addToken(const std::string &token_name)
     return token_map[token_name];
 }
 
+std::string TokenManager::getToken(int token_id) const
+{
+    for (const auto &[name, id] : token_map)
+    {
+        if (id == token_id)
+        {
+            return name;
+        }
+    }
+    return ""; // Retorna uma string vazia se o ID não for encontrado
+}
+
+std::string TokenManager::getTokenByFinalState(int final_state) const
+{
+    int token_id = getTokenIdByFinalState(final_state);
+    if (token_id != -1)
+    {
+        return getToken(token_id);
+    }
+    return ""; // Retorna uma string vazia se o estado não for final
+}
+
 int TokenManager::getTokenId(const std::string &token_name) const
 {
     auto it = token_map.find(token_name);
@@ -21,15 +43,16 @@ int TokenManager::getTokenId(const std::string &token_name) const
     return -1; // Token não encontrado
 }
 
-bool TokenManager::setFinalState(const std::string &token_name, int final_state)
+int TokenManager::getTokenIdByFinalState(int final_state) const
 {
-    int token_id = getTokenId(token_name);
-    if (token_id != -1)
+    for (const auto &[token_id, estados_finais] : final_state_map)
     {
-        final_state_map[token_id].insert(final_state);
-        return true;
+        if (estados_finais.find(final_state) != estados_finais.end())
+        {
+            return token_id;
+        }
     }
-    return false;
+    return -1; // Token não encontrado
 }
 
 std::vector<int> TokenManager::getFinalStates(const std::string &token_name) const
@@ -50,39 +73,37 @@ std::vector<int> TokenManager::getFinalStates(const std::string &token_name) con
 std::unordered_map<std::string, std::vector<int>> TokenManager::getAllTokens() const
 {
     std::unordered_map<std::string, std::vector<int>> all_tokens;
-    for (const auto &pair : token_map)
+    for (const auto &[token_name, token_id] : token_map)
     {
-        all_tokens[pair.first] = getFinalStates(pair.first);
+        all_tokens[token_name] = getFinalStates(token_name);
     }
     return all_tokens;
 }
 
-std::string TokenManager::getTokenByFinalState(int final_state) const
+bool TokenManager::setFinalState(const std::string &token_name, int final_state)
 {
-    for (const auto &pair : final_state_map)
+    int token_id = getTokenId(token_name);
+    if (token_id != -1)
     {
-        if (pair.second.find(final_state) != pair.second.end())
-        {
-            for (const auto &token_pair : token_map)
-            {
-                if (token_pair.second == pair.first)
-                {
-                    return token_pair.first;
-                }
-            }
-        }
+        final_state_map[token_id].insert(final_state);
+        return true;
     }
-    return "";
+    return false;
 }
 
 bool TokenManager::isFinalState(int state) const
 {
-    for (const auto &pair : final_state_map)
+    for (const auto &[token_id, estados_finais] : final_state_map)
     {
-        if (pair.second.find(state) != pair.second.end())
+        if (estados_finais.find(state) != estados_finais.end())
         {
             return true;
         }
     }
     return false;
+}
+
+void TokenManager::replaceFinalStateMap(std::unordered_map<int, std::unordered_set<int>> new_map)
+{
+    final_state_map = std::move(new_map);
 }
