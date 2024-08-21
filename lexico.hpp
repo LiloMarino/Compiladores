@@ -15,6 +15,7 @@ class AnalisadorLexico
 {
 private:
     AutomatoFinito &automato;
+    std::unordered_set<char> ignore_symbols;
 
 public:
     AnalisadorLexico(AutomatoFinito &a);
@@ -25,6 +26,12 @@ public:
      * @return Retorna a lista de tokens
      */
     std::list<recon> reconhecer(const std::string &entrada);
+
+    /**
+     * @brief Adiciona um símbolo a ser ignorado
+     * @param symbol Símbolo a ser ignorado
+     */
+    void addIgnoreSymbol(char symbol);
 
     /**
      * @brief Obtém a referência ao autômato finito.

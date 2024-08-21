@@ -26,6 +26,7 @@ int main()
     AutomatoFinito af;
     createAutomato(af);
     AnalisadorLexico al(af);
+    al.addIgnoreSymbol(' ');
     string input;
     while (getline(cin, input))
     {

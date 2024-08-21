@@ -23,6 +23,9 @@ list<recon> AnalisadorLexico::reconhecer(const string &entrada)
         for (size_t i = index; i < entrada.size(); ++i)
         {
             char c = entrada[i];
+            if (ignore_symbols.find(c) != ignore_symbols.end()) {
+                continue; // Ignora o símbolo
+            }
             int novo_estado = automato.makeTransition(estado_atual, c);
             if (novo_estado == 0)
             {
@@ -63,6 +66,11 @@ list<recon> AnalisadorLexico::reconhecer(const string &entrada)
         estado_atual = 1; // Reseta para o estado inicial
     }
     return lista_tokens;
+}
+
+void AnalisadorLexico::addIgnoreSymbol(char symbol)
+{
+    ignore_symbols.insert(symbol);
 }
 
 AutomatoFinito &AnalisadorLexico::getAutomato() const
