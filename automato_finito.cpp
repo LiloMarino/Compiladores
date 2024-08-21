@@ -151,6 +151,9 @@ void AutomatoFinito::toAFD()
     mapa_assinaturas[std::to_string(inicial->getEstado())] = inicial;
     estados_restantes.push(std::to_string(inicial->getEstado()));
 
+    // Estrutura temporária para armazenar novos estados finais
+    std::unordered_map<int, std::unordered_set<int>> novos_final_state_map;
+
     while (!estados_restantes.empty())
     {
         // Obtém a assinatura e os estados destino
@@ -167,7 +170,14 @@ void AutomatoFinito::toAFD()
         {
             State *estado_antigo = afnd->findState(estado);
 
-            // Agrupa transições por símbolo
+            // Se o estado antigo na assinatura for um estado final
+            if (tokens.isFinalState(estado_antigo->getEstado()))
+            {
+                // Adiciona o estado atual ao novo final_state_map
+                int token_id = this->tokens.getTokenIdByFinalState(estado_antigo->getEstado());
+                novos_final_state_map[token_id].insert(atual->getEstado());
+            }
+
             for (const auto &transicao : estado_antigo->getTransitions())
             {
                 transicoes_por_simbolo[transicao.entrada].insert(transicao.estado_destino->getEstado());
@@ -201,15 +211,20 @@ void AutomatoFinito::toAFD()
             atual->addTransition(simbolo, estado_destino);
         }
     }
+
     // Remove estados inúteis do novo AFD
     afd->removeInutileStates();
 
     // Substitui o autômato antigo pelo novo
     delete this->afnd;
     this->afnd = afd;
+
+    // Passo 4: Atualiza o final_state_map do TokenManager existente
+    this->tokens.replaceFinalStateMap(std::move(novos_final_state_map));
+
     this->printVisualizacaoDOT("afd.dot");
 
-    // Passo 3: Transpõe para a estrutura do AFD
+    // Passo 5: Transpõe para a estrutura do AFD
     this->transposeAFD();
     this->printVisualizacaoDOT("afd-trans.dot");
 }

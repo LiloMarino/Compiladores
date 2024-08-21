@@ -11,12 +11,13 @@
  */
 class AutomatoFinito
 {
+public:
+    TokenManager tokens;
 private:
     int num_estados; // Linhas da matriz
     int **matriz;
     bool deterministico;
     GenericAutomata *afnd;
-    TokenManager tokens;
 public:
     /**
      * @brief Construtor do Autômato Finito Não Determinístico
