@@ -25,10 +25,10 @@ std::string TokenManager::getToken(int token_id) const
 
 std::string TokenManager::getTokenByFinalState(int final_state) const
 {
-    int token_id = getTokenIdByFinalState(final_state);
-    if (token_id != -1)
+    auto it = state_to_token_map.find(final_state);
+    if (it != state_to_token_map.end())
     {
-        return getToken(token_id);
+        return getToken(it->second);
     }
     return ""; // Retorna uma string vazia se o estado não for final
 }
@@ -45,14 +45,12 @@ int TokenManager::getTokenId(const std::string &token_name) const
 
 int TokenManager::getTokenIdByFinalState(int final_state) const
 {
-    for (const auto &[token_id, estados_finais] : final_state_map)
+    auto it = state_to_token_map.find(final_state);
+    if (it != state_to_token_map.end())
     {
-        if (estados_finais.find(final_state) != estados_finais.end())
-        {
-            return token_id;
-        }
+        return it->second;
     }
-    return -1; // Token não encontrado
+    return -1; // Estado não encontrado
 }
 
 std::vector<int> TokenManager::getFinalStates(const std::string &token_name) const
@@ -86,6 +84,7 @@ bool TokenManager::setFinalState(const std::string &token_name, int final_state)
     if (token_id != -1)
     {
         final_state_map[token_id].insert(final_state);
+        state_to_token_map[final_state] = token_id;
         return true;
     }
     return false;
@@ -93,17 +92,20 @@ bool TokenManager::setFinalState(const std::string &token_name, int final_state)
 
 bool TokenManager::isFinalState(int state) const
 {
-    for (const auto &[token_id, estados_finais] : final_state_map)
-    {
-        if (estados_finais.find(state) != estados_finais.end())
-        {
-            return true;
-        }
-    }
-    return false;
+    return state_to_token_map.find(state) != state_to_token_map.end();
 }
 
 void TokenManager::replaceFinalStateMap(std::unordered_map<int, std::unordered_set<int>> new_map)
 {
     final_state_map = std::move(new_map);
+    state_to_token_map.clear();
+
+    // Reconstituir o mapa state_to_token_map com base no novo final_state_map
+    for (const auto &[token_id, states] : final_state_map)
+    {
+        for (int state : states)
+        {
+            state_to_token_map[state] = token_id;
+        }   
+    }
 }

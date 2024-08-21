@@ -9,12 +9,16 @@
 /**
  * @class TokenManager
  * @brief Gerencia tokens, seus identificadores únicos e estados finais.
+ * @note Se o Id do Token não for utilizado é melhor otimizar a classe para 2 maps
+ * std::unordered_map<std::string, std::unordered_set<int>> token_map;
+ * std::unordered_map<int, std::string> final_to_token_map;
  */
 class TokenManager
 {
 private:
     std::unordered_map<std::string, int> token_map;
     std::unordered_map<int, std::unordered_set<int>> final_state_map;
+    std::unordered_map<int, int> state_to_token_map;
     int next_id;
 
 public:
@@ -35,14 +39,14 @@ public:
      * @param token_id Id do token a ser obtido o identificador
      * @return Nome do token
      */
-    std::string getToken(const int token_id) const;
+    std::string getToken(int token_id) const;
 
     /**
      * @brief Obtém o token associado a um estado final específico.
      * @param final_state O estado final para o qual se deseja obter o token.
      * @return O nome do token associado ao estado final ou uma string vazia se nenhum token for encontrado.
      */
-    std::string TokenManager::getTokenByFinalState(int final_state) const;
+    std::string getTokenByFinalState(int final_state) const;
 
     /**
      * @brief Obtém o identificador de um token existente.
