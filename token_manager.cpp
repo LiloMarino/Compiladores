@@ -56,3 +56,33 @@ std::unordered_map<std::string, std::vector<int>> TokenManager::getAllTokens() c
     }
     return all_tokens;
 }
+
+std::string TokenManager::getTokenByFinalState(int final_state) const
+{
+    for (const auto &pair : final_state_map)
+    {
+        if (pair.second.find(final_state) != pair.second.end())
+        {
+            for (const auto &token_pair : token_map)
+            {
+                if (token_pair.second == pair.first)
+                {
+                    return token_pair.first;
+                }
+            }
+        }
+    }
+    return "";
+}
+
+bool TokenManager::isFinalState(int state) const
+{
+    for (const auto &pair : final_state_map)
+    {
+        if (pair.second.find(state) != pair.second.end())
+        {
+            return true;
+        }
+    }
+    return false;
+}

@@ -267,6 +267,13 @@ std::vector<std::tuple<int, char, int>> AutomatoFinito::resolveLambdaTransitions
             if (transicao.entrada == '\0')
             { // Transição lambda
                 coletarTransicoes(transicao.estado_destino, visitados);
+                // Verifica se o estado de destino é final e obtém o token associado
+                std::string token_name = this->tokens.getTokenByFinalState(transicao.estado_destino->getEstado());
+                if (!token_name.empty())
+                {
+                    // Se o estado de destino for final, associe o mesmo token ao estado atual
+                    this->tokens.setFinalState(token_name, estadoAtual->getEstado());
+                }
             }
             else
             { // Transição terminal
@@ -448,15 +455,6 @@ void AutomatoFinito::printVisualizacaoDOT(const std::string &filename)
                 << " [shape=doublecircle, label=\"q" << state << "\"];}" << std::endl;
         }
     }
-
-    // // Adiciona os estados não finais
-    // for (int i = 0; i < num_estados; ++i)
-    // {
-    //     if (finalStates.find(i) == finalStates.end())
-    //     {
-    //         out << "\tq" << i << " [shape=circle, label=\"q" << i << "\"];" << std::endl;
-    //     }
-    // }
 
     if (this->deterministico)
     {

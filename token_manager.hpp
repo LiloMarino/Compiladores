@@ -45,19 +45,32 @@ public:
      */
     bool setFinalState(const std::string &token_name, int final_state);
 
-
     /**
      * @brief Obtém todos os estados finais associados a um token.
      * @param token_name O nome do token.
      * @return Um vetor com todos os estados finais do token ou um vetor vazio se o token não for encontrado.
      */
-    std::vector<int> getFinalStates(const std::string& token_name) const;
+    std::vector<int> getFinalStates(const std::string &token_name) const;
 
     /**
      * @brief Obtém todos os tokens e seus estados finais.
      * @return Um mapa onde a chave é o nome do token e o valor é um vetor de estados finais.
      */
     std::unordered_map<std::string, std::vector<int>> getAllTokens() const;
+
+    /**
+     * @brief Obtém o token associado a um estado final específico.
+     * @param final_state O estado final para o qual se deseja obter o token.
+     * @return O nome do token associado ao estado final ou uma string vazia se nenhum token for encontrado.
+     */
+    std::string getTokenByFinalState(int final_state) const;
+
+    /**
+     * @brief Verifica se um estado específico é um estado final.
+     * @param state O estado a ser verificado.
+     * @return true se o estado for final, false caso contrário.
+     */
+    bool isFinalState(int state) const;
 };
 
 #endif
