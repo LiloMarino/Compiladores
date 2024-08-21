@@ -16,22 +16,25 @@ int GenericAutomata::addRegularExpression(const std::string &re)
         switch (action.tipo)
         {
         case RAW_STRING:
-            for (char c : action.str)
+            state = this->createNewState();
+            if (states_list.empty())
             {
-                state = this->createNewState();
-                if (states_list.empty())
+                // É a primeira transição
+                for (char c : action.str)
                 {
-                    // É a primeira transição
                     first_state->addTransition(c, state);
                 }
-                else
+            }
+            else
+            {
+                // É uma transição posterior
+                State *last_state = states_list.back();
+                for (char c : action.str)
                 {
-                    // É uma transição posterior
-                    State *last_state = states_list.back();
                     last_state->addTransition(c, state);
                 }
-                states_list.push_back(state);
             }
+            states_list.push_back(state);
             break;
         case OPTION_INTERVAL_SET:
             state = this->createNewState();
@@ -142,39 +145,45 @@ int GenericAutomata::addRegularExpression(const std::string &re)
             break;
         case OPTION_SET:
             state = this->createNewState();
-            for (char c : action.str)
+            if (states_list.empty())
             {
-                if (states_list.empty())
+                // É a primeira transição
+                for (char c : action.str)
                 {
-                    // É a primeira transição
                     first_state->addTransition(c, state);
-                    first_state->addTransition('\0', state);
                 }
-                else
+                first_state->addTransition('\0', state);
+            }
+            else
+            {
+                // É uma transição posterior
+                State *last_state = states_list.back();
+                for (char c : action.str)
                 {
-                    // É uma transição posterior
-                    State *last_state = states_list.back();
                     last_state->addTransition(c, state);
-                    last_state->addTransition('\0', state);
                 }
+                last_state->addTransition('\0', state);
             }
             states_list.push_back(state);
             break;
         case KLEENE_SET:
             state = this->createNewState();
-            for (char c : action.str)
+            if (states_list.empty())
             {
-                if (states_list.empty())
+                // É a primeira transição
+                first_state->addTransition('\0', state);
+                for (char c : action.str)
                 {
-                    // É a primeira transição
-                    first_state->addTransition('\0', state);
                     state->addTransition(c, state);
                 }
-                else
+            }
+            else
+            {
+                // É uma transição posterior
+                State *last_state = states_list.back();
+                last_state->addTransition('\0', state);
+                for (char c : action.str)
                 {
-                    // É uma transição posterior
-                    State *last_state = states_list.back();
-                    last_state->addTransition('\0', state);
                     state->addTransition(c, state);
                 }
             }
@@ -182,18 +191,21 @@ int GenericAutomata::addRegularExpression(const std::string &re)
             break;
         case PLUS_SET:
             state = this->createNewState();
-            for (char c : action.str)
+            if (states_list.empty())
             {
-                if (states_list.empty())
+                // É a primeira transição
+                for (char c : action.str)
                 {
-                    // É a primeira transição
                     first_state->addTransition(c, state);
                     state->addTransition(c, state);
                 }
-                else
+            }
+            else
+            {
+                // É uma transição posterior
+                State *last_state = states_list.back();
+                for (char c : action.str)
                 {
-                    // É uma transição posterior
-                    State *last_state = states_list.back();
                     last_state->addTransition(c, state);
                     state->addTransition(c, state);
                 }
@@ -202,17 +214,20 @@ int GenericAutomata::addRegularExpression(const std::string &re)
             break;
         case SET:
             state = this->createNewState();
-            for (char c : action.str)
+            if (states_list.empty())
             {
-                if (states_list.empty())
+                // É a primeira transição
+                for (char c : action.str)
                 {
-                    // É a primeira transição
                     first_state->addTransition(c, state);
                 }
-                else
+            }
+            else
+            {
+                // É uma transição posterior
+                State *last_state = states_list.back();
+                for (char c : action.str)
                 {
-                    // É uma transição posterior
-                    State *last_state = states_list.back();
                     last_state->addTransition(c, state);
                 }
             }
@@ -308,7 +323,6 @@ void GenericAutomata::removeInutileStates()
     }
 }
 
-
 std::list<Action> GenericAutomata::decodifyRegularExpression(const std::string &re)
 {
     std::list<Action> actions;
@@ -347,7 +361,7 @@ std::list<Action> GenericAutomata::decodifyRegularExpression(const std::string &
             // Termina um set ou um intervalo
             if (set)
             {
-                if (interval)
+                if (interval && aux.length() > 2)
                 {
                     // Salva o intervalo
                     actions.push_back({INTERVAL_SET, aux});
