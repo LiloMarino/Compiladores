@@ -78,6 +78,14 @@ public:
     int getNumEstados();
 
     /**
+     * @brief Associa um estado final a um token.
+     * @param token_name O nome do token.
+     * @param final_state O estado final a ser associado.
+     * @return true se a associação foi bem-sucedida, false se o token não foi encontrado.
+     */
+    bool setFinalState(const std::string &token, int final_state);
+
+    /**
      * @brief Imprime a tabela de transições do Autômato
      * @param output Output de saída da tabela
      */

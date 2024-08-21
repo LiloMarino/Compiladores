@@ -329,6 +329,15 @@ int AutomatoFinito::getNumEstados()
     return num_estados;
 }
 
+bool AutomatoFinito::setFinalState(const std::string &token, int final_state)
+{
+    if (final_state >= num_estados || final_state < 0)
+    {
+        throw std::length_error("Estado Inválido");
+    }
+    return tokens.setFinalState(token, final_state);
+}
+
 void AutomatoFinito::printTransitionTable(std::ostream &output)
 {
     output << std::setw(15) << "Estado\\Input";
@@ -435,7 +444,7 @@ void AutomatoFinito::printVisualizacaoDOT(const std::string &filename)
                 << "\t\tlabelloc=\"b\";" << std::endl
                 << "\t\tlabel=\"" << tokenName << "\";" << std::endl
                 << "\t\tcolor=transparent;" << std::endl
-                << "\t\tq" << state 
+                << "\t\tq" << state
                 << " [shape=doublecircle, label=\"q" << state << "\"];}" << std::endl;
         }
     }
