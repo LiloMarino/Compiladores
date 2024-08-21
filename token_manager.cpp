@@ -26,22 +26,33 @@ bool TokenManager::setFinalState(const std::string &token_name, int final_state)
     int token_id = getTokenId(token_name);
     if (token_id != -1)
     {
-        final_state_map[token_id] = final_state;
+        final_state_map[token_id].insert(final_state);
         return true;
     }
     return false;
 }
 
-int TokenManager::getFinalState(const std::string &token_name) const
+std::vector<int> TokenManager::getFinalStates(const std::string &token_name) const
 {
     int token_id = getTokenId(token_name);
+    std::vector<int> states;
     if (token_id != -1)
     {
         auto it = final_state_map.find(token_id);
         if (it != final_state_map.end())
         {
-            return it->second;
+            states.assign(it->second.begin(), it->second.end());
         }
     }
-    return -1; // Token ou estado final não encontrado
+    return states;
+}
+
+std::unordered_map<std::string, std::vector<int>> TokenManager::getAllTokens() const
+{
+    std::unordered_map<std::string, std::vector<int>> all_tokens;
+    for (const auto &pair : token_map)
+    {
+        all_tokens[pair.first] = getFinalStates(pair.first);
+    }
+    return all_tokens;
 }

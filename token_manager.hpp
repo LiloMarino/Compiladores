@@ -2,7 +2,9 @@
 #define TOKEN_MANAGER_HPP
 
 #include <unordered_map>
+#include <unordered_set>
 #include <string>
+#include <vector>
 
 /**
  * @class TokenManager
@@ -12,7 +14,7 @@ class TokenManager
 {
 private:
     std::unordered_map<std::string, int> token_map;
-    std::unordered_map<int, int> final_state_map;
+    std::unordered_map<int, std::unordered_set<int>> final_state_map;
     int next_id;
 
 public:
@@ -43,12 +45,19 @@ public:
      */
     bool setFinalState(const std::string &token_name, int final_state);
 
+
     /**
-     * @brief Obtém o estado final associado a um token.
+     * @brief Obtém todos os estados finais associados a um token.
      * @param token_name O nome do token.
-     * @return O estado final do token ou -1 se o token não for encontrado.
+     * @return Um vetor com todos os estados finais do token ou um vetor vazio se o token não for encontrado.
      */
-    int getFinalState(const std::string &token_name) const;
+    std::vector<int> getFinalStates(const std::string& token_name) const;
+
+    /**
+     * @brief Obtém todos os tokens e seus estados finais.
+     * @return Um mapa onde a chave é o nome do token e o valor é um vetor de estados finais.
+     */
+    std::unordered_map<std::string, std::vector<int>> getAllTokens() const;
 };
 
 #endif
