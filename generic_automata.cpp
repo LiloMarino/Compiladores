@@ -17,24 +17,22 @@ int GenericAutomata::addRegularExpression(const std::string &re)
         {
         case RAW_STRING:
             state = this->createNewState();
-            if (states_list.empty())
+            for (char c : action.str)
             {
-                // É a primeira transição
-                for (char c : action.str)
+                state = this->createNewState();
+                if (states_list.empty())
                 {
+                    // É a primeira transição
                     first_state->addTransition(c, state);
                 }
-            }
-            else
-            {
-                // É uma transição posterior
-                State *last_state = states_list.back();
-                for (char c : action.str)
+                else
                 {
+                    // É uma transição posterior
+                    State *last_state = states_list.back();
                     last_state->addTransition(c, state);
                 }
+                states_list.push_back(state);
             }
-            states_list.push_back(state);
             break;
         case OPTION_INTERVAL_SET:
             state = this->createNewState();
