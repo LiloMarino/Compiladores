@@ -19,28 +19,38 @@ list<recon> AnalisadorLexico::reconhecer(const string &entrada)
     {
         termo.clear();
         ultimo_estado_valido = 0;
+        estado_atual = 1; // Reseta para o estado inicial para cada novo token
 
         for (size_t i = index; i < entrada.size(); ++i)
         {
             char c = entrada[i];
+
+            // Se o caractere atual é um símbolo a ser ignorado
             if (ignore_symbols.find(c) != ignore_symbols.end()) {
-                continue; // Ignora o símbolo
+                if (!termo.empty() && ultimo_estado_valido != 0) {
+                    // Adiciona o token atual à lista antes de ignorar o símbolo
+                    lista_tokens.push_back({this->automato.tokens.getTokenByFinalState(ultimo_estado_valido), termo});
+                }
+                // Avança o index para começar um novo token depois do símbolo ignorado
+                index = i + 1;
+                break;
             }
+
             int novo_estado = automato.makeTransition(estado_atual, c);
             if (novo_estado == 0)
             {
                 // Estado inválido, então verifica se algum token foi reconhecido
                 if (ultimo_estado_valido != 0)
                 {
-                    // Token Válido dado pelo último estado final válido
+                    // Token válido dado pelo último estado final válido
                     lista_tokens.push_back({this->automato.tokens.getTokenByFinalState(ultimo_estado_valido), termo});
                     index = i;
                 }
                 else
                 {
-                    // Token Inválido
+                    // Token inválido
                     lista_tokens.push_back({"ERRO", termo + c});
-                    ++index;
+                    index = i + 1;
                 }
                 break;
             }
@@ -49,10 +59,9 @@ list<recon> AnalisadorLexico::reconhecer(const string &entrada)
             estado_atual = novo_estado;
 
             // Verifica se o estado atual é final
-
             if (this->automato.tokens.isFinalState(estado_atual))
             {
-                // O estado atual é final então salva
+                // O estado atual é final, então salva
                 ultimo_estado_valido = estado_atual;
             }
 
@@ -63,7 +72,11 @@ list<recon> AnalisadorLexico::reconhecer(const string &entrada)
                 index = i + 1;
             }
         }
-        estado_atual = 1; // Reseta para o estado inicial
+
+        // Caso não tenha encontrado um símbolo ignorado e o loop interno terminou
+        if (index == entrada.size()) {
+            break;
+        }
     }
     return lista_tokens;
 }
