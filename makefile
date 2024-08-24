@@ -1,11 +1,11 @@
 # Nome do executável
-EXEC_NAME = l9e1
+EXEC_NAME = l10e4
 
 # Nome do zip
-ZIP_NAME = LISTA_9_EXERCICIO_1
+ZIP_NAME = LISTA_10_EXERCICIO_4
 
 # Lista de arquivos fonte
-SOURCES = main.cpp automato_finito.cpp lexico.cpp state.cpp generic_automata.cpp token_manager.cpp
+SOURCES = main.cpp automato_finito.cpp lexico.cpp state.cpp generic_automata.cpp token_manager.cpp sintatico.cpp
 
 # Gerar lista de headers automaticamente (qualquer .cpp que não seja main.cpp)
 HEADERS = $(patsubst %.cpp,%.hpp,$(filter-out main.cpp,$(SOURCES)))
