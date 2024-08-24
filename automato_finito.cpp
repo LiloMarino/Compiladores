@@ -226,7 +226,6 @@ void AutomatoFinito::toAFD()
 
     // Passo 5: Transpõe para a estrutura do AFD
     this->transposeAFD();
-    this->printVisualizacaoDOT("afd-trans.dot");
 }
 
 void AutomatoFinito::toAFND()
