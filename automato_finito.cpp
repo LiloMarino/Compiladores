@@ -7,35 +7,24 @@
 #include <fstream>
 #include <map>
 
-#define ASCII_SIZE 256
-
-AutomatoFinito::AutomatoFinito() : num_estados(0), matriz(nullptr), deterministico(false), afnd(nullptr)
+AutomatoFinito::AutomatoFinito() : num_estados(0), deterministico(false), afnd(nullptr)
 {
     afnd = new GenericAutomata();
 }
 
-AutomatoFinito::AutomatoFinito(int num_estados) : matriz(nullptr), afnd(nullptr)
+AutomatoFinito::AutomatoFinito(int num_estados) : deterministico(true), afnd(nullptr)
 {
     num_estados++; // Adiciona o estado de erro
     this->num_estados = num_estados;
-    matriz = new int *[num_estados]();
-    for (int i = 0; i < num_estados; ++i)
+    matriz.resize(num_estados);
+    for (auto &linha : matriz)
     {
-        matriz[i] = new int[ASCII_SIZE]();
+        linha.fill(0);
     }
-    deterministico = true;
 }
 
 AutomatoFinito::~AutomatoFinito()
 {
-    if (matriz != nullptr)
-    {
-        for (int i = 0; i < num_estados; ++i)
-        {
-            delete[] matriz[i];
-        }
-        delete[] matriz;
-    }
     if (afnd != nullptr)
     {
         delete afnd;
@@ -117,6 +106,14 @@ void AutomatoFinito::addRegularExpression(const std::string &re, const std::stri
     int estado_final = this->afnd->addRegularExpression(re);
     this->tokens.addToken(token);
     this->tokens.setFinalState(token, estado_final);
+}
+
+void AutomatoFinito::minimizeAFD()
+{
+    if (!this->deterministico)
+    {
+        throw std::logic_error("O Autômato não é determinístico");
+    }
 }
 
 void AutomatoFinito::toAFD()
@@ -307,10 +304,11 @@ void AutomatoFinito::transposeAFD()
     this->num_estados = this->afnd->getNumEstados() + 1; // Adiciona o estado de erro
     std::list<State *> estados = this->afnd->toList();
 
-    matriz = new int *[num_estados]();
-    for (int i = 0; i < num_estados; ++i)
+    // Redimensiona a matriz para o novo número de estados
+    matriz.resize(num_estados);
+    for (auto& linha : matriz)
     {
-        matriz[i] = new int[ASCII_SIZE]();
+        linha.fill(0); // Inicializa todas as posições da linha com 0
     }
 
     // Preenche a matriz com as transições existentes

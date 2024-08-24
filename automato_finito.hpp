@@ -5,6 +5,8 @@
 #include "generic_automata.hpp"
 #include "token_manager.hpp"
 
+#define ASCII_SIZE 256
+
 /**
  * @brief Classe de Autômato Finito
  * @author Murilo Marino
@@ -15,7 +17,7 @@ public:
     TokenManager tokens;
 private:
     int num_estados; // Linhas da matriz
-    int **matriz;
+    std::vector<std::array<int, ASCII_SIZE>> matriz;
     bool deterministico;
     GenericAutomata *afnd;
 public:
@@ -51,6 +53,8 @@ public:
      * @param token Token reconhecido
      */
     void addRegularExpression(const std::string &re, const std::string &token);
+
+    void minimizeAFD();
 
     /**
      * @brief Aplica o algoritmo para transformar o AFND-e em AFD
