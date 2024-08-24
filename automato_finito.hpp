@@ -54,6 +54,9 @@ public:
      */
     void addRegularExpression(const std::string &re, const std::string &token);
 
+    /**
+     * @brief Aplica o algoritmo para minimizar o AFD
+     */
     void minimizeAFD();
 
     /**
@@ -124,6 +127,13 @@ private:
      * <int, char, int> são [origem, entrada, destino] respectivamente
      */
     std::vector<std::tuple<int, char, int>> resolveLambdaTransitions(State* estado);
+
+    /**
+     * @brief Percorre a matriz marcando todos os estados não triviais que não são equivalentes
+     * @param tamanho Tamanho da matriz de equivalência
+     * @param equivalencia Matriz de equivalência
+     */
+    void resolveEquivalencies(const size_t tamanho, std::vector<std::vector<bool>> &equivalencia);
 
     /**
      * @brief Transpõe para a estrutura de matriz o elemento afnd

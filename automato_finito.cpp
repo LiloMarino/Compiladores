@@ -108,11 +108,148 @@ void AutomatoFinito::addRegularExpression(const std::string &re, const std::stri
     this->tokens.setFinalState(token, estado_final);
 }
 
+// Função lambda para imprimir a matriz de equivalência
+auto imprimirMatrizEquivalencia = [](const std::vector<std::vector<bool>> &equivalencia, size_t tamanho)
+{
+    // Imprimir cabeçalho das colunas
+    std::cout << std::setw(3) << " ";
+    for (size_t i = 0; i < tamanho; ++i)
+    {
+        std::cout << std::setw(3) << "q" + std::to_string(i);
+    }
+    std::cout << std::endl;
+
+    // Imprimir a matriz de equivalência
+    for (size_t i = 0; i < tamanho; ++i)
+    {
+        std::cout << std::setw(3) << "q" + std::to_string(i);
+        for (size_t j = 0; j < tamanho; ++j)
+        {
+            std::cout << std::setw(3) << (equivalencia[i][j] ? "E" : "X");
+        }
+        std::cout << std::endl;
+    }
+};
+
 void AutomatoFinito::minimizeAFD()
 {
     if (!this->deterministico)
     {
         throw std::logic_error("O Autômato não é determinístico");
+    }
+
+    const size_t tamanho = static_cast<size_t>(num_estados);
+
+    // São equivalentes até que se prove o contrário
+    std::vector<std::vector<bool>> equivalencia(tamanho, std::vector<bool>(tamanho, true));
+
+    // Para cada estado final marque como não equivalente a quem não é estado final
+    // E para cada estado final marque como não equivalente aqueles que reconhecem tokens diferentes
+    for (size_t i = 1; i < tamanho; ++i)
+    {
+        if (this->tokens.isFinalState(i))
+        {
+            for (size_t j = 0; j < i; ++j)
+            {
+                if (!this->tokens.isFinalState(j))
+                {
+                    equivalencia[i][j] = false;
+                    equivalencia[j][i] = false;
+                }
+                else
+                {
+                    // Verifica se reconhecem o mesmo token
+                    if (this->tokens.getTokenIdByFinalState(i) != this->tokens.getTokenIdByFinalState(j))
+                    {
+                        equivalencia[i][j] = false;
+                        equivalencia[j][i] = false;
+                    }
+                }
+            }
+        }
+    }
+
+    imprimirMatrizEquivalencia(equivalencia, tamanho);
+    this->resolveEquivalencies(tamanho, equivalencia);
+    imprimirMatrizEquivalencia(equivalencia, tamanho);
+}
+
+void AutomatoFinito::resolveEquivalencies(const size_t tamanho, std::vector<std::vector<bool>> &equivalencia)
+{
+    std::vector<std::vector<std::stack<std::pair<int, int>>>> dependencia(tamanho, std::vector<std::stack<std::pair<int, int>>>(tamanho));
+
+    // Função lambda nomeada para processar a equivalência e dependências
+    std::function<void(size_t, size_t)> processarDependencia;
+    processarDependencia = [&](size_t i, size_t j)
+    {
+        // Não são equivalentes
+        equivalencia[i][j] = false;
+        equivalencia[j][i] = false;
+
+        imprimirMatrizEquivalencia(equivalencia, tamanho);
+
+        // Todo mundo que dependia também não é
+        while (!dependencia[i][j].empty())
+        {
+            auto [estado_i, estado_j] = dependencia[i][j].top();
+            dependencia[i][j].pop();
+            processarDependencia(estado_i, estado_j);
+        }
+        while (!dependencia[j][i].empty())
+        {
+            auto [estado_i, estado_j] = dependencia[j][i].top();
+            dependencia[j][i].pop();
+            processarDependencia(estado_i, estado_j);
+        }
+    };
+
+    // Percorrer a parte triangular inferior da matriz e verificar as transições
+    for (size_t i = 1; i < tamanho; ++i)
+    {
+        for (size_t j = 0; j < i; ++j)
+        {
+            if (equivalencia[i][j])
+            {
+                // Para cada transição nos estados
+                for (size_t k = 0; k < ASCII_SIZE; k++)
+                {
+                    size_t destino_i = matriz[i][k];
+                    size_t destino_j = matriz[j][k];
+
+                    // Se são diferentes então tem que verificar
+                    if (destino_i != destino_j)
+                    {
+                        // Verifica se já foi percorrido
+                        if (i > destino_i || (i == destino_i && j > destino_j))
+                        {
+                            // Foi percorrido
+                            if (!equivalencia[destino_i][destino_j])
+                            {
+                                // Não são equivalentes e todo mundo que dependia também não é
+                                processarDependencia(i, j);
+                                break;
+                            }
+                        }
+                        else
+                        {
+                            // Não foi percorrido
+                            if (equivalencia[destino_i][destino_j])
+                            {
+                                // Não foi percorrido e está marcado como equivalente
+                                dependencia[destino_i][destino_j].push({i, j});
+                            }
+                            else
+                            {
+                                // Não foi percorrido, mas não é equivalente, então eles não são equivalentes
+                                // Todo mundo que dependia também não é
+                                processarDependencia(i, j);
+                                break;
+                            }
+                        }
+                    }
+                }
+            }
+        }
     }
 }
 
@@ -306,7 +443,7 @@ void AutomatoFinito::transposeAFD()
 
     // Redimensiona a matriz para o novo número de estados
     matriz.resize(num_estados);
-    for (auto& linha : matriz)
+    for (auto &linha : matriz)
     {
         linha.fill(0); // Inicializa todas as posições da linha com 0
     }

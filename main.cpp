@@ -16,6 +16,7 @@ void createAutomato(AutomatoFinito &af)
     af.addRegularExpression(")", ")");
     af.addRegularExpression("$", "$");
     af.toAFD();
+    af.minimizeAFD();
 }
 
 int main()
