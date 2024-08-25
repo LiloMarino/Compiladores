@@ -1,6 +1,7 @@
 #include "sintatico.hpp"
 #include <iostream>
 #include <iomanip>
+#include <map>
 
 AnalisadorSintatico::AnalisadorSintatico(std::string simbolo_inicial) : simbolo_inicial(simbolo_inicial)
 {
@@ -14,35 +15,113 @@ void AnalisadorSintatico::addProduction(const std::string &nao_terminal, const s
     int row = nao_terminais[nao_terminal];
     int col = terminais[terminal];
 
-    parsing_table[row][col] = SintaticGroup(nao_terminal, produto);
+    std::deque<std::string> simbols;
+
+    // Dividindo a produção em símbolos separados
+    std::stringstream ss(produto);
+    std::string symbol;
+    while (ss >> symbol)
+    {
+        simbols.push_back(symbol);
+    }
+
+    parsing_table[row][col] = SintaticGroup(nao_terminal, simbols);
 }
 
 void AnalisadorSintatico::analisar(const std::list<LexicalGroup> &tokens)
 {
     std::stack<std::string> pilha;
     pilha.push(simbolo_inicial);
+    for (auto &[token, str] : tokens)
+    {
+        bool obtido_token = false;
+        while (!obtido_token)
+        {
+            std::string n_terminal = pilha.top();
+            pilha.pop();
+            if (n_terminal != token)
+            {
+                // Não terminal obtido então deriva
+                SintaticGroup production = this->getProduction(n_terminal, token);
+                if (production.isEmpty())
+                {
+                    std::string expected = getExpected(n_terminal);
+                    throw SintaticError(token, expected);
+                }
+                for (auto it = production.simbols.rbegin(); it != production.simbols.rend(); ++it)
+                {
+                    pilha.push(std::move(*it));
+                }
+            }
+            else
+            {
+                // Token obtido
+                obtido_token = true;
+            }
+        }
+    }
+    if (!pilha.empty())
+    {
+        // Throw Sintax Error
+    }
+}
+
+std::string AnalisadorSintatico::getExpected(std::string &n_terminal)
+{
+    std::string expected;
+    int row = nao_terminais[n_terminal];
+
+    // Iterador para a linha da tabela
+    auto it_producoes = parsing_table[row].begin();
+    // Iterador para o map de terminais
+    auto it_terminais = terminais.begin();
+
+    for (; it_producoes != parsing_table[row].end() && it_terminais != terminais.end(); ++it_producoes, ++it_terminais)
+    {
+        // Se a produção não está vazia
+        if (!it_producoes->isEmpty())
+        {
+            if (expected.empty())
+            {
+                expected = it_terminais->first; // String do terminal
+            }
+            else
+            {
+                expected += ", " + it_terminais->first; // String do terminal
+            }
+        }
+    }
+    return expected;
 }
 
 void AnalisadorSintatico::exibirTabela(std::ostream &output) const
 {
+    // Ordena os não-terminais e terminais
+    std::map<std::string, int> ordenado_nao_terminais(nao_terminais.begin(), nao_terminais.end());
+    std::map<std::string, int> ordenado_terminais(terminais.begin(), terminais.end());
+
     // Cabeçalho com terminais
     output << std::setw(2) << " ";
-    for (const auto &[terminal, index] : terminais)
+    for (const auto &[terminal, index] : ordenado_terminais)
     {
         output << std::setw(15) << terminal;
     }
     output << std::endl;
 
     // Linhas com não-terminais e produções
-    for (const auto &[nao_terminal, row] : nao_terminais)
+    for (const auto &[nao_terminal, row] : ordenado_nao_terminais)
     {
         output << std::setw(2) << nao_terminal;
-        for (size_t col = 0; col < terminais.size(); ++col)
+        for (const auto &[terminal, col] : ordenado_terminais)
         {
             const SintaticGroup &producao = parsing_table[row][col];
             if (!producao.isEmpty())
             {
-                std::string producaoStr = producao.pop + " -> " + producao.push;
+                std::string producaoStr = producao.pop + " -> ";
+                for (const auto &simbol : producao.simbols)
+                {
+                    producaoStr += simbol;
+                }
                 output << std::setw(15) << producaoStr;
             }
             else
@@ -96,6 +175,16 @@ void AnalisadorSintatico::adicionarTerminal(const std::string &terminal)
             row.resize(terminais.size());
         }
     }
+}
+
+AnalisadorSintatico::SintaticError::SintaticError(const std::string &token, const std::string &expected)
+{
+    std::string erro;
+    erro += "ERRO SINTATICO EM: ";
+    erro += token;
+    erro += " ESPERADO: ";
+    erro += expected;
+    this->mensagem = std::move(erro);
 }
 
 const char *AnalisadorSintatico::SintaticError::what() const noexcept

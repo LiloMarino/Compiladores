@@ -22,17 +22,17 @@ void createAutomato(AutomatoFinito &af)
 
 void createParseTable(AnalisadorSintatico &as)
 {
-    as.addProduction("E", "id", "TE'");
-    as.addProduction("T", "id", "FT'");
+    as.addProduction("E", "id", "T E'");
+    as.addProduction("T", "id", "F T'");
     as.addProduction("F", "id", "id");
-    as.addProduction("S", "id", "E$");
-    as.addProduction("E'", "+", "+TE'");
+    as.addProduction("S", "id", "E $");
+    as.addProduction("E'", "+", "+ T E'");
     as.addProduction("T'", "+", "");
-    as.addProduction("T'", "*", "*FT'");
-    as.addProduction("E", "(", "TE'");
-    as.addProduction("T", "(", "FT'");
-    as.addProduction("F", "(", "(E)");
-    as.addProduction("S", "(", "E$");
+    as.addProduction("T'", "*", "* F T'");
+    as.addProduction("E", "(", "T E'");
+    as.addProduction("T", "(", "F T'");
+    as.addProduction("F", "(", "( E )");
+    as.addProduction("S", "(", "E $");
     as.addProduction("E'", ")", "");
     as.addProduction("T'", ")", "");
     as.addProduction("E'", "$", "");
@@ -54,6 +54,7 @@ int main()
         {
             list<LexicalGroup> tokens = lexic.reconhecer(input);
             sintatic.analisar(tokens);
+            std::cout << "CADEIA ACEITA";
         }
         catch(const AnalisadorSintatico::SintaticError& e)
         {

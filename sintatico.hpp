@@ -3,24 +3,24 @@
 
 #include "lexico.hpp"
 #include <stack>
+#include <deque>
 
 // Estrutura que representa uma produção na tabela LL(1)
 struct SintaticGroup
 {
     std::string pop;
-    std::string push;
+    std::deque<std::string> simbols;
 
-    // Construtor padrão
-    SintaticGroup() : pop(""), push("") {}
+    SintaticGroup() = default;
 
     // Construtor com parâmetros
-    SintaticGroup(const std::string &p_pop, const std::string &p_push)
-        : pop(p_pop), push(p_push) {}
+    SintaticGroup(const std::string &p_pop, const std::deque<std::string> &p_push)
+        : pop(p_pop), simbols(p_push) {}
 
     // Método para verificar se a produção é vazia
     bool isEmpty() const
     {
-        return pop.empty() && push.empty();
+        return pop.empty() && simbols.empty();
     }
 };
 
@@ -74,6 +74,8 @@ public:
      */
     void analisar(const std::list<LexicalGroup> &entrada);
 
+    
+
     /**
      * @brief Printa a tabela LL(1)
      */
@@ -88,10 +90,17 @@ public:
         std::string mensagem;
 
     public:
-        explicit SintaticError(const std::string &msg) : mensagem(msg) {}
-
+        explicit SintaticError(const std::string &token, const std::string &expected);
         virtual const char *what() const noexcept override;
     };
+
+private:
+    /**
+     * @brief Obtém todos os tokens esperados de não terminal
+     * @param n_terminal Não terminal
+     * @return String contendo os tokens esperados separados por vírgula
+     */
+    std::string getExpected(std::string &n_terminal);
 };
 
 #endif
