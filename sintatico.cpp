@@ -30,15 +30,22 @@ void AnalisadorSintatico::addProduction(const std::string &nao_terminal, const s
 
 void AnalisadorSintatico::analisar(const std::list<LexicalGroup> &tokens)
 {
-    std::stack<std::string> pilha;
-    pilha.push(simbolo_inicial);
+    std::deque<std::string> pilha;
+    pilha.push_back(simbolo_inicial);
+    std::string debug;
     for (auto &[token, str] : tokens)
     {
         bool obtido_token = false;
         while (!obtido_token)
         {
-            std::string n_terminal = pilha.top();
-            pilha.pop();
+            debug.clear();
+            for (auto it = pilha.rbegin(); it != pilha.rend(); ++it)
+            {
+                debug += *it;
+            }
+            std::cout << debug << std::endl;
+            std::string n_terminal = pilha.back();
+            pilha.pop_back();
             if (n_terminal != token)
             {
                 // Não terminal obtido então deriva
@@ -50,7 +57,7 @@ void AnalisadorSintatico::analisar(const std::list<LexicalGroup> &tokens)
                 }
                 for (auto it = production.simbols.rbegin(); it != production.simbols.rend(); ++it)
                 {
-                    pilha.push(std::move(*it));
+                    pilha.push_back(std::move(*it));
                 }
             }
             else
@@ -60,26 +67,27 @@ void AnalisadorSintatico::analisar(const std::list<LexicalGroup> &tokens)
             }
         }
     }
+    debug.clear();
+    for (auto it = pilha.rbegin(); it != pilha.rend(); ++it)
+    {
+        debug += *it;
+    }
+    std::cout << debug << std::endl;
     if (!pilha.empty())
     {
-        throw SintaticError("CADEIA INCOMPLETA");
+        std::string expected = getExpected(pilha.back());
+        throw SintaticError("", expected);
     }
 }
 
 std::string AnalisadorSintatico::getExpected(std::string &n_terminal)
 {
     std::string expected;
-    int row = nao_terminais[n_terminal];
 
-    // Iterador para a linha da tabela
-    auto it_producoes = parsing_table[row].begin();
-    // Iterador para o map de terminais
-    auto it_terminais = terminais.begin();
-
-    for (; it_producoes != parsing_table[row].end() && it_terminais != terminais.end(); ++it_producoes, ++it_terminais)
+    for (auto it_terminais = terminais.begin(); it_terminais != terminais.end(); ++it_terminais)
     {
         // Se a produção não está vazia
-        if (!it_producoes->isEmpty())
+        if (!this->getProduction(n_terminal, it_terminais->first).isEmpty())
         {
             if (expected.empty())
             {

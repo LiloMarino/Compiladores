@@ -48,21 +48,37 @@ int main()
     AnalisadorSintatico sintatic("S");
     createParseTable(sintatic);
     string input;
+    bool first_line = true;
     while (getline(cin, input))
     {
         try
         {
             list<LexicalGroup> tokens = lexic.reconhecer(input);
             sintatic.analisar(tokens);
-            std::cout << "CADEIA ACEITA" << std::endl;
+            if (!first_line)
+            {
+                std::cout << std::endl;
+            }
+            std::cout << "CADEIA ACEITA";
+            first_line = false;
         }
-        catch(const AnalisadorSintatico::SintaticError& e)
+        catch (const AnalisadorSintatico::SintaticError &e)
         {
-            std::cerr << e.what() << std::endl;
+            if (!first_line)
+            {
+                std::cout << std::endl;
+            }
+            std::cout << e.what() << std::endl;
+            first_line = false;
         }
-        catch(const AnalisadorLexico::LexicalError& e)
+        catch (const AnalisadorLexico::LexicalError &e)
         {
-            std::cerr << e.what() << std::endl;
+            if (!first_line)
+            {
+                std::cout << std::endl;
+            }
+            std::cout << e.what() << std::endl;
+            first_line = false;
         }
     }
     return 0;
