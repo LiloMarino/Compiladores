@@ -36,7 +36,7 @@ def compare_files(output_folder, expected_folder):
     return identical_count, total_files, differences
 
 def main():
-    executable = './l9e1'
+    executable = './l10e4'
     input_folder = 'entrada'
     output_folder = 'saida'
     expected_folder = 'saida_esperada'

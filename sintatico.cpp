@@ -148,7 +148,7 @@ SintaticGroup AnalisadorSintatico::getProduction(const std::string &nao_terminal
     }
     else
     {
-        throw std::runtime_error("Não-terminal ou terminal não encontrado na tabela.");
+        throw SintaticError(terminal, nao_terminal);
     }
 }
 
@@ -184,7 +184,11 @@ AnalisadorSintatico::SintaticError::SintaticError(const std::string &token, cons
     std::string erro;
     erro += "ERRO SINTATICO EM: ";
     erro += token;
-    erro += " ESPERADO: ";
+    if (!token.empty())
+    {
+        erro += " ";
+    }
+    erro += "ESPERADO: ";
     erro += expected;
     this->mensagem = std::move(erro);
 }

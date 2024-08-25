@@ -68,7 +68,7 @@ int main()
             {
                 std::cout << std::endl;
             }
-            std::cout << e.what() << std::endl;
+            std::cout << e.what();
             first_line = false;
         }
         catch (const AnalisadorLexico::LexicalError &e)
@@ -77,7 +77,7 @@ int main()
             {
                 std::cout << std::endl;
             }
-            std::cout << e.what() << std::endl;
+            std::cout << e.what();
             first_line = false;
         }
     }
