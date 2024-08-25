@@ -16,6 +16,8 @@ class AnalisadorLexico
 private:
     AutomatoFinito &automato;
     std::unordered_set<char> ignore_symbols;
+    bool multiline_comment = false;
+    std::pair<std::string, std::string> multiline_tokens;
 
 public:
     AnalisadorLexico(AutomatoFinito &a);
@@ -46,6 +48,13 @@ public:
     void setAutomato(AutomatoFinito &a);
 
     /**
+     * @brief Define os tokens de um comentário multilinha
+     * @param token_start Token de início do comentário multilinha
+     * @param token_end Token de fim do comentário multilinha
+     */
+    void setMultilineComment(const std::string &token_start, const std::string &token_end);
+
+    /**
      * @brief Exceção do AnalisadorLéxico
      */
     class LexicalError : public std::exception
@@ -58,6 +67,14 @@ public:
 
         virtual const char *what() const noexcept override;
     };
+private:
+    /**
+     * @brief Faz as verificações necessárias de comentário e adiciona a lista de tokens caso não seja um
+     * @param ultimo_estado_valido Último estado válido
+     * @param lista_tokens Lista de tokens
+     * @param termo Termo reconhecido
+     */
+    void verifyComment(int ultimo_estado_valido, std::list<LexicalGroup> &lista_tokens, std::string &termo);
 };
 
 #endif

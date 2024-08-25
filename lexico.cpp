@@ -31,7 +31,7 @@ list<LexicalGroup> AnalisadorLexico::reconhecer(const string &entrada)
                 if (!termo.empty() && ultimo_estado_valido != 0)
                 {
                     // Adiciona o token atual à lista antes de ignorar o símbolo
-                    lista_tokens.push_back({this->automato.tokens.getTokenByFinalState(ultimo_estado_valido), termo});
+                    verifyComment(ultimo_estado_valido, lista_tokens, termo);
                 }
                 // Avança o index para começar um novo token depois do símbolo ignorado
                 index = i + 1;
@@ -45,7 +45,7 @@ list<LexicalGroup> AnalisadorLexico::reconhecer(const string &entrada)
                 if (ultimo_estado_valido != 0)
                 {
                     // Token válido dado pelo último estado final válido
-                    lista_tokens.push_back({this->automato.tokens.getTokenByFinalState(ultimo_estado_valido), termo});
+                    verifyComment(ultimo_estado_valido, lista_tokens, termo);
                     index = i;
                 }
                 else
@@ -71,7 +71,7 @@ list<LexicalGroup> AnalisadorLexico::reconhecer(const string &entrada)
             // Se chegou ao final sem estado inválido, processa o termo restante
             if (i == entrada.size() - 1 && ultimo_estado_valido != 0)
             {
-                lista_tokens.push_back({this->automato.tokens.getTokenByFinalState(ultimo_estado_valido), termo});
+                verifyComment(ultimo_estado_valido, lista_tokens, termo);
                 index = i + 1;
             }
         }
@@ -83,6 +83,23 @@ list<LexicalGroup> AnalisadorLexico::reconhecer(const string &entrada)
         }
     }
     return lista_tokens;
+}
+
+void AnalisadorLexico::verifyComment(int ultimo_estado_valido, std::__cxx11::list<LexicalGroup> &lista_tokens, std::string &termo)
+{
+    std::string token = this->automato.tokens.getTokenByFinalState(ultimo_estado_valido);
+    if (token == multiline_tokens.first)
+    {
+        multiline_comment = true;
+    }
+    else if (token == multiline_tokens.second)
+    {
+        multiline_comment = false;
+    }
+    else if (!multiline_comment)
+    {
+        lista_tokens.push_back({std::move(token), termo});
+    }
 }
 
 void AnalisadorLexico::addIgnoreSymbol(char symbol)
@@ -98,6 +115,12 @@ AutomatoFinito &AnalisadorLexico::getAutomato() const
 void AnalisadorLexico::setAutomato(AutomatoFinito &a)
 {
     automato = a;
+}
+
+void AnalisadorLexico::setMultilineComment(const std::string &token_start, const std::string &token_end)
+{
+    multiline_tokens.first = token_start;
+    multiline_tokens.second = token_end;
 }
 
 AnalisadorLexico::LexicalError::LexicalError(const std::string &token)

@@ -15,6 +15,8 @@ void createAutomato(AutomatoFinito &af)
     af.addRegularExpression("[0-9]+\\.[0-9]+", "real");
     af.addRegularExpression("\"[a-zA-Z0-9_-_]*\"", "string");
     af.addRegularExpression("//.*", "comment");
+    af.addRegularExpression("{", "multiline start");
+    af.addRegularExpression("}", "multiline end");
     af.toAFD();
 }
 
@@ -28,6 +30,7 @@ int main()
     createAutomato(af);
     AnalisadorLexico lexic(af);
     lexic.addIgnoreSymbol(' ');
+    lexic.setMultilineComment("multiline start", "multiline end");
     AnalisadorSintatico sintatic("S");
     createParseTable(sintatic);
     string input;
@@ -41,7 +44,7 @@ int main()
             {
                 std::cout << token << " " << cadeia << std::endl;
             }
-            
+
             // sintatic.analisar(tokens);
             // if (!first_line)
             // {
