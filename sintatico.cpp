@@ -30,22 +30,15 @@ void AnalisadorSintatico::addProduction(const std::string &nao_terminal, const s
 
 void AnalisadorSintatico::analisar(const std::list<LexicalGroup> &tokens)
 {
-    std::deque<std::string> pilha;
-    pilha.push_back(simbolo_inicial);
-    std::string debug;
+    std::stack<std::string> pilha;
+    pilha.push(simbolo_inicial);
     for (auto &[token, str] : tokens)
     {
         bool obtido_token = false;
         while (!obtido_token)
         {
-            debug.clear();
-            for (auto it = pilha.rbegin(); it != pilha.rend(); ++it)
-            {
-                debug += *it;
-            }
-            std::cout << debug << std::endl;
-            std::string n_terminal = pilha.back();
-            pilha.pop_back();
+            std::string n_terminal = pilha.top();
+            pilha.pop();
             if (n_terminal != token)
             {
                 // Não terminal obtido então deriva
@@ -57,7 +50,7 @@ void AnalisadorSintatico::analisar(const std::list<LexicalGroup> &tokens)
                 }
                 for (auto it = production.simbols.rbegin(); it != production.simbols.rend(); ++it)
                 {
-                    pilha.push_back(std::move(*it));
+                    pilha.push(std::move(*it));
                 }
             }
             else
@@ -67,15 +60,9 @@ void AnalisadorSintatico::analisar(const std::list<LexicalGroup> &tokens)
             }
         }
     }
-    debug.clear();
-    for (auto it = pilha.rbegin(); it != pilha.rend(); ++it)
-    {
-        debug += *it;
-    }
-    std::cout << debug << std::endl;
     if (!pilha.empty())
     {
-        std::string expected = getExpected(pilha.back());
+        std::string expected = getExpected(pilha.top());
         throw SintaticError("", expected);
     }
 }
