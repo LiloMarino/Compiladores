@@ -5,7 +5,7 @@
 #include <unordered_map>
 #include <list>
 
-struct recon
+struct LexicalGroup
 {
     std::string token;
     std::string cadeia;
@@ -25,7 +25,7 @@ public:
      * @param entrada String de Entrada
      * @return Retorna a lista de tokens
      */
-    std::list<recon> reconhecer(const std::string &entrada);
+    std::list<LexicalGroup> reconhecer(const std::string &entrada);
 
     /**
      * @brief Adiciona um símbolo a ser ignorado

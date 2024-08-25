@@ -7,9 +7,9 @@ AnalisadorLexico::AnalisadorLexico(AutomatoFinito &a) : automato(a)
 {
 }
 
-list<recon> AnalisadorLexico::reconhecer(const string &entrada)
+list<LexicalGroup> AnalisadorLexico::reconhecer(const string &entrada)
 {
-    list<recon> lista_tokens;
+    list<LexicalGroup> lista_tokens;
     string termo;
     int estado_atual = 1; // Estado inicial
     int ultimo_estado_valido = 0;
