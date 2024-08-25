@@ -2,6 +2,7 @@
 #include <iostream>
 #include <iomanip>
 #include <map>
+#include <algorithm>
 
 AnalisadorSintatico::AnalisadorSintatico(std::string simbolo_inicial) : simbolo_inicial(simbolo_inicial)
 {
@@ -71,18 +72,24 @@ std::string AnalisadorSintatico::getExpected(std::string &n_terminal)
 {
     std::string expected;
 
-    for (auto it_terminais = terminais.begin(); it_terminais != terminais.end(); ++it_terminais)
+    // Copia e ordena o map pelo index (int)
+    std::vector<std::pair<std::string, int>> terminais_ordenados(terminais.begin(), terminais.end());
+    std::sort(terminais_ordenados.begin(), terminais_ordenados.end(),
+              [](const auto &a, const auto &b) { return a.second < b.second; });
+
+    // Itera sobre o vetor ordenado
+    for (const auto &it_terminais : terminais_ordenados)
     {
         // Se a produção não está vazia
-        if (!this->getProduction(n_terminal, it_terminais->first).isEmpty())
+        if (!this->getProduction(n_terminal, it_terminais.first).isEmpty())
         {
             if (expected.empty())
             {
-                expected = it_terminais->first; // String do terminal
+                expected = it_terminais.first; // String do terminal
             }
             else
             {
-                expected += ", " + it_terminais->first; // String do terminal
+                expected += ", " + it_terminais.first; // String do terminal
             }
         }
     }
