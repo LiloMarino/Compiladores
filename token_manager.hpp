@@ -91,6 +91,12 @@ public:
     bool isFinalState(int state) const;
 
     /**
+     * @brief Remove o estado final
+     * @param final_state Número do estado final
+     */
+    void removeFinalState(int final_state);
+
+    /**
      * @brief Sobrescreve o mapa de estados finais
      * @param new_map Novo mapa de estados finais
      */

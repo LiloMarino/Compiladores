@@ -95,6 +95,33 @@ bool TokenManager::isFinalState(int state) const
     return state_to_token_map.find(state) != state_to_token_map.end();
 }
 
+void TokenManager::removeFinalState(int final_state)
+{
+    // Verifica se o estado final existe
+    auto it = state_to_token_map.find(final_state);
+    if (this->isFinalState(final_state))
+    {
+        // Obtém o token ID associado ao estado final
+        int token_id = it->second;
+
+        // Remove o estado final do mapa de estados finais para o token correspondente
+        auto final_state_it = final_state_map.find(token_id);
+        if (final_state_it != final_state_map.end())
+        {
+            final_state_it->second.erase(final_state);
+
+            // Se não houver mais estados finais associados ao token, remova a entrada do mapa
+            if (final_state_it->second.empty())
+            {
+                final_state_map.erase(final_state_it);
+            }
+        }
+
+        // Remove o estado final do mapa state_to_token_map
+        state_to_token_map.erase(it);
+    }
+}
+
 void TokenManager::replaceFinalStateMap(std::unordered_map<int, std::unordered_set<int>> new_map)
 {
     final_state_map = std::move(new_map);

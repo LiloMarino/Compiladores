@@ -108,29 +108,6 @@ void AutomatoFinito::addRegularExpression(const std::string &re, const std::stri
     this->tokens.setFinalState(token, estado_final);
 }
 
-// Função lambda para imprimir a matriz de equivalência
-auto imprimirMatrizEquivalencia = [](const std::vector<std::vector<bool>> &equivalencia, size_t tamanho)
-{
-    // Imprimir cabeçalho das colunas
-    std::cout << std::setw(3) << " ";
-    for (size_t i = 0; i < tamanho; ++i)
-    {
-        std::cout << std::setw(3) << "q" + std::to_string(i);
-    }
-    std::cout << std::endl;
-
-    // Imprimir a matriz de equivalência
-    for (size_t i = 0; i < tamanho; ++i)
-    {
-        std::cout << std::setw(3) << "q" + std::to_string(i);
-        for (size_t j = 0; j < tamanho; ++j)
-        {
-            std::cout << std::setw(3) << (equivalencia[i][j] ? "E" : "X");
-        }
-        std::cout << std::endl;
-    }
-};
-
 void AutomatoFinito::minimizeAFD()
 {
     if (!this->deterministico)
@@ -140,11 +117,10 @@ void AutomatoFinito::minimizeAFD()
 
     const size_t tamanho = static_cast<size_t>(num_estados);
 
-    // São equivalentes até que se prove o contrário
+    // Inicializa a matriz de equivalência
     std::vector<std::vector<bool>> equivalencia(tamanho, std::vector<bool>(tamanho, true));
 
-    // Para cada estado final marque como não equivalente a quem não é estado final
-    // E para cada estado final marque como não equivalente aqueles que reconhecem tokens diferentes
+    // Marca estados não equivalentes com base nos estados finais e tokens
     for (size_t i = 1; i < tamanho; ++i)
     {
         if (this->tokens.isFinalState(i))
@@ -169,9 +145,64 @@ void AutomatoFinito::minimizeAFD()
         }
     }
 
-    imprimirMatrizEquivalencia(equivalencia, tamanho);
+    // Resolve as equivalências não triviais
     this->resolveEquivalencies(tamanho, equivalencia);
-    imprimirMatrizEquivalencia(equivalencia, tamanho);
+
+    // Mapeia os estados antigos para os novos estados minimizados
+    std::vector<int> estado_minimizado(tamanho, -1);
+    int estado_atual = 0;
+
+    // Atualiza o mapeamento de estados
+    for (size_t i = 0; i < tamanho; ++i)
+    {
+        if (estado_minimizado[i] == -1)
+        {
+            // Atribui o novo estado minimizado ao grupo de estados equivalentes
+            estado_minimizado[i] = estado_atual;
+            for (size_t j = 0; j < tamanho; ++j)
+            {
+                if (equivalencia[i][j] && estado_minimizado[j] == -1)
+                {
+                    estado_minimizado[j] = estado_atual;
+                }
+            }
+            ++estado_atual;
+        }
+    }
+
+    // Cria uma nova matriz para os estados minimizados
+    std::vector<std::array<int, ASCII_SIZE>> nova_matriz(estado_atual, std::array<int, ASCII_SIZE>{});
+
+    // Atualiza a nova matriz com os estados minimizados
+    for (size_t i = 0; i < tamanho; ++i)
+    {
+        int novo_estado = estado_minimizado[i];
+        if (novo_estado != -1)
+        {
+            for (size_t k = 0; k < ASCII_SIZE; ++k)
+            {
+                nova_matriz[novo_estado][k] = estado_minimizado[matriz[i][k]];
+            }
+        }
+    }
+
+    // Substitui a matriz original pela nova matriz minimizada
+    this->matriz = std::move(nova_matriz);
+    this->num_estados = estado_atual;
+
+    // Remover estados antigos dos tokens
+    for (size_t i = 0; i < tamanho; ++i)
+    {
+        // Verifica se o estado foi removido (não está mapeado no novo automato)
+        if (estado_minimizado[i] != i)
+        {
+            // Remove o estado do TokenManager
+            this->tokens.removeFinalState(i);
+        }
+    }
+
+    // Atualiza a visualização
+    this->printVisualizacaoDOT("afd-min.dot");
 }
 
 void AutomatoFinito::resolveEquivalencies(const size_t tamanho, std::vector<std::vector<bool>> &equivalencia)
@@ -185,8 +216,6 @@ void AutomatoFinito::resolveEquivalencies(const size_t tamanho, std::vector<std:
         // Não são equivalentes
         equivalencia[i][j] = false;
         equivalencia[j][i] = false;
-
-        imprimirMatrizEquivalencia(equivalencia, tamanho);
 
         // Todo mundo que dependia também não é
         while (!dependencia[i][j].empty())
