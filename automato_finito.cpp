@@ -695,7 +695,7 @@ void AutomatoFinito::printVisualizacaoDOT(const std::string &filename)
 
                 out << "\tq" << i
                     << " -> q" << destino
-                    << " [label=\"" << label << "\"];" << std::endl;
+                    << " [label=\"" << ((label == "\"") ? "\\\"" : label)  << "\"];" << std::endl;
             }
         }
     }
@@ -767,7 +767,7 @@ void AutomatoFinito::printVisualizacaoDOT(const std::string &filename)
 
                 out << "\tq" << estado->getEstado()
                     << " -> q" << destino->getEstado()
-                    << " [label=\"" << label << "\"];" << std::endl;
+                    << " [label=\"" << ((label == "\"") ? "\\\"" : label) << "\"];" << std::endl;
             }
         }
     }

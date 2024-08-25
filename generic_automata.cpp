@@ -231,6 +231,50 @@ int GenericAutomata::addRegularExpression(const std::string &re)
             }
             states_list.push_back(state);
             break;
+        case DOT:
+            state = this->createNewState();
+            if (states_list.empty())
+            {
+                // É a primeira transição
+                for (char c = 32; c < 127; ++c)
+                {
+                    first_state->addTransition(c, state);
+                }
+            }
+            else
+            {
+                // É uma transição posterior
+                State *last_state = states_list.back();
+                for (char c = 32; c < 127; ++c)
+                {
+                    last_state->addTransition(c, state);
+                }
+            }
+            states_list.push_back(state);
+            break;
+        case DOT_KLEENE:
+            state = this->createNewState();
+            if (states_list.empty())
+            {
+                // É a primeira transição
+                first_state->addTransition('\0', state);
+                for (char c = 32; c < 127; ++c)
+                {
+                    state->addTransition(c, state);
+                }
+            }
+            else
+            {
+                // É uma transição posterior
+                State *last_state = states_list.back();
+                last_state->addTransition('\0', state);
+                for (char c = 32; c < 127; ++c)
+                {
+                    state->addTransition(c, state);
+                }
+            }
+            states_list.push_back(state);
+            break;
         default:
             std::cout << "Ação com Tipo Inválido";
             exit(1);
@@ -406,6 +450,13 @@ std::list<Action> GenericAutomata::decodifyRegularExpression(const std::string &
                     actions.back().tipo = KLEENE_SET;
                 }
             }
+            else if (last_char == '.')
+            {
+                if (actions.back().tipo == DOT)
+                {
+                    actions.back().tipo = DOT_KLEENE;
+                }
+            }
             else
             {
                 aux += c;
@@ -428,7 +479,25 @@ std::list<Action> GenericAutomata::decodifyRegularExpression(const std::string &
                 aux += c;
             }
             break;
-
+        case '.':
+            if (last_char != '\\')
+            {
+                if (aux.length() > 0)
+                {
+                    // Salva a raw string
+                    actions.push_back({RAW_STRING, aux});
+                    aux.clear();
+                }
+                actions.push_back({DOT, ""});
+            }
+            else
+            {
+                aux += c;
+            }
+            break;
+        case '\\':
+            // Ignora, pois é especial
+            break;
         default:
             aux += c;
             break;

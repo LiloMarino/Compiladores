@@ -19,6 +19,8 @@ enum ActionType
     KLEENE_SET,          // []*
     PLUS_SET,            // []+
     SET,                 // []
+    DOT_KLEENE,          // .*
+    DOT,                 // .
 };
 
 struct Action

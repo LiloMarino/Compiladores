@@ -10,33 +10,16 @@ using namespace std;
 
 void createAutomato(AutomatoFinito &af)
 {
-    af.addRegularExpression("[a-z][a-z0-9]*", "id");
-    af.addRegularExpression("+", "+");
-    af.addRegularExpression("*", "*");
-    af.addRegularExpression("(", "(");
-    af.addRegularExpression(")", ")");
-    af.addRegularExpression("$", "$");
+    af.addRegularExpression("[a-zA-Z_-_][a-zA-Z0-9_-_]*", "identificador");
+    af.addRegularExpression("[0-9]+", "inteiro");
+    af.addRegularExpression("[0-9]+\\.[0-9]+", "real");
+    af.addRegularExpression("\"[a-zA-Z0-9_-_]*\"", "string");
+    af.addRegularExpression("//.*", "comment");
     af.toAFD();
-    af.minimizeAFD();
 }
 
 void createParseTable(AnalisadorSintatico &as)
 {
-    as.addProduction("E", "id", "T E'");
-    as.addProduction("T", "id", "F T'");
-    as.addProduction("F", "id", "id");
-    as.addProduction("S", "id", "E $");
-    as.addProduction("E'", "+", "+ T E'");
-    as.addProduction("T'", "+", "");
-    as.addProduction("T'", "*", "* F T'");
-    as.addProduction("E", "(", "T E'");
-    as.addProduction("T", "(", "F T'");
-    as.addProduction("F", "(", "( E )");
-    as.addProduction("S", "(", "E $");
-    as.addProduction("E'", ")", "");
-    as.addProduction("T'", ")", "");
-    as.addProduction("E'", "$", "");
-    as.addProduction("T'", "$", "");
 }
 
 int main()
@@ -54,12 +37,17 @@ int main()
         try
         {
             list<LexicalGroup> tokens = lexic.reconhecer(input);
-            sintatic.analisar(tokens);
-            if (!first_line)
+            for (auto &&[token, cadeia] : tokens)
             {
-                std::cout << std::endl;
+                std::cout << token << " " << cadeia << std::endl;
             }
-            std::cout << "CADEIA ACEITA";
+            
+            // sintatic.analisar(tokens);
+            // if (!first_line)
+            // {
+            //     std::cout << std::endl;
+            // }
+            // std::cout << "CADEIA ACEITA";
             first_line = false;
         }
         catch (const AnalisadorSintatico::SintaticError &e)
