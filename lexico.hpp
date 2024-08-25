@@ -15,7 +15,7 @@ class AnalisadorLexico
 {
 private:
     AutomatoFinito &automato;
-    std::unordered_set<char> ignore_symbols;
+    std::unordered_set<std::string> ignore_tokens;
     bool multiline_comment = false;
     std::pair<std::string, std::string> multiline_tokens;
 
@@ -30,10 +30,10 @@ public:
     std::list<LexicalGroup> reconhecer(const std::string &entrada);
 
     /**
-     * @brief Adiciona um símbolo a ser ignorado
-     * @param symbol Símbolo a ser ignorado
+     * @brief Adiciona um token a ser ignorado
+     * @param token Token a ser ignorado
      */
-    void addIgnoreSymbol(char symbol);
+    void addIgnoreToken(const std::string &token);
 
     /**
      * @brief Obtém a referência ao autômato finito.
@@ -69,12 +69,13 @@ public:
     };
 private:
     /**
-     * @brief Faz as verificações necessárias de comentário e adiciona a lista de tokens caso não seja um
+     * @brief Faz as verificações necessárias para o token e adiciona a lista de tokens caso não seja um comentário ou
+     * um token ignorado
      * @param ultimo_estado_valido Último estado válido
      * @param lista_tokens Lista de tokens
      * @param termo Termo reconhecido
      */
-    void verifyComment(int ultimo_estado_valido, std::list<LexicalGroup> &lista_tokens, std::string &termo);
+    void verifyToken(int ultimo_estado_valido, std::list<LexicalGroup> &lista_tokens, std::string &termo);
 };
 
 #endif

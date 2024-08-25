@@ -25,19 +25,6 @@ list<LexicalGroup> AnalisadorLexico::reconhecer(const string &entrada)
         {
             char c = entrada[i];
 
-            // Se o caractere atual é um símbolo a ser ignorado
-            if (ignore_symbols.find(c) != ignore_symbols.end())
-            {
-                if (!termo.empty() && ultimo_estado_valido != 0)
-                {
-                    // Adiciona o token atual à lista antes de ignorar o símbolo
-                    verifyComment(ultimo_estado_valido, lista_tokens, termo);
-                }
-                // Avança o index para começar um novo token depois do símbolo ignorado
-                index = i + 1;
-                break;
-            }
-
             int novo_estado = automato.makeTransition(estado_atual, c);
             if (novo_estado == 0)
             {
@@ -45,7 +32,7 @@ list<LexicalGroup> AnalisadorLexico::reconhecer(const string &entrada)
                 if (ultimo_estado_valido != 0)
                 {
                     // Token válido dado pelo último estado final válido
-                    verifyComment(ultimo_estado_valido, lista_tokens, termo);
+                    verifyToken(ultimo_estado_valido, lista_tokens, termo);
                     index = i;
                 }
                 else
@@ -71,7 +58,7 @@ list<LexicalGroup> AnalisadorLexico::reconhecer(const string &entrada)
             // Se chegou ao final sem estado inválido, processa o termo restante
             if (i == entrada.size() - 1 && ultimo_estado_valido != 0)
             {
-                verifyComment(ultimo_estado_valido, lista_tokens, termo);
+                verifyToken(ultimo_estado_valido, lista_tokens, termo);
                 index = i + 1;
             }
         }
@@ -85,26 +72,32 @@ list<LexicalGroup> AnalisadorLexico::reconhecer(const string &entrada)
     return lista_tokens;
 }
 
-void AnalisadorLexico::verifyComment(int ultimo_estado_valido, std::__cxx11::list<LexicalGroup> &lista_tokens, std::string &termo)
+void AnalisadorLexico::verifyToken(int ultimo_estado_valido, std::__cxx11::list<LexicalGroup> &lista_tokens, std::string &termo)
 {
     std::string token = this->automato.tokens.getTokenByFinalState(ultimo_estado_valido);
-    if (token == multiline_tokens.first)
+    // Verifica se não é um token ignorado
+    if (ignore_tokens.find(token) == ignore_tokens.end())
     {
-        multiline_comment = true;
-    }
-    else if (token == multiline_tokens.second)
-    {
-        multiline_comment = false;
-    }
-    else if (!multiline_comment)
-    {
-        lista_tokens.push_back({std::move(token), termo});
+        // Não é um token ignorado, então verifica se é um comentário multilinha
+        if (token == multiline_tokens.first)
+        {
+            multiline_comment = true;
+        }
+        else if (token == multiline_tokens.second)
+        {
+            multiline_comment = false;
+        }
+        else if (!multiline_comment)
+        {
+            // Token válido então adiciona na lista
+            lista_tokens.push_back({std::move(token), termo});
+        }
     }
 }
 
-void AnalisadorLexico::addIgnoreSymbol(char symbol)
+void AnalisadorLexico::addIgnoreToken(const std::string &token)
 {
-    ignore_symbols.insert(symbol);
+    ignore_tokens.insert(token);
 }
 
 AutomatoFinito &AnalisadorLexico::getAutomato() const

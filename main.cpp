@@ -17,6 +17,7 @@ void createAutomato(AutomatoFinito &af)
     af.addRegularExpression("//.*", "comment");
     af.addRegularExpression("{", "multiline start");
     af.addRegularExpression("}", "multiline end");
+    af.addRegularExpression("[ ]+", "whitespace");
     af.toAFD();
 }
 
@@ -29,7 +30,8 @@ int main()
     AutomatoFinito af;
     createAutomato(af);
     AnalisadorLexico lexic(af);
-    lexic.addIgnoreSymbol(' ');
+    lexic.addIgnoreToken("whitespace");
+    lexic.addIgnoreToken("comment");
     lexic.setMultilineComment("multiline start", "multiline end");
     AnalisadorSintatico sintatic("S");
     createParseTable(sintatic);
