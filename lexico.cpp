@@ -26,8 +26,10 @@ list<LexicalGroup> AnalisadorLexico::reconhecer(const string &entrada)
             char c = entrada[i];
 
             // Se o caractere atual é um símbolo a ser ignorado
-            if (ignore_symbols.find(c) != ignore_symbols.end()) {
-                if (!termo.empty() && ultimo_estado_valido != 0) {
+            if (ignore_symbols.find(c) != ignore_symbols.end())
+            {
+                if (!termo.empty() && ultimo_estado_valido != 0)
+                {
                     // Adiciona o token atual à lista antes de ignorar o símbolo
                     lista_tokens.push_back({this->automato.tokens.getTokenByFinalState(ultimo_estado_valido), termo});
                 }
@@ -74,7 +76,8 @@ list<LexicalGroup> AnalisadorLexico::reconhecer(const string &entrada)
         }
 
         // Caso não tenha encontrado um símbolo ignorado e o loop interno terminou
-        if (index == entrada.size()) {
+        if (index == entrada.size())
+        {
             break;
         }
     }
@@ -94,4 +97,9 @@ AutomatoFinito &AnalisadorLexico::getAutomato() const
 void AnalisadorLexico::setAutomato(AutomatoFinito &a)
 {
     automato = a;
+}
+
+const char *AnalisadorLexico::LexicalError::what() const noexcept
+{
+    return mensagem.c_str();
 }

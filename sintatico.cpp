@@ -2,7 +2,7 @@
 #include <iostream>
 #include <iomanip>
 
-AnalisadorSintatico::AnalisadorSintatico(char simbolo_inicial) : simbolo_inicial(simbolo_inicial)
+AnalisadorSintatico::AnalisadorSintatico(std::string simbolo_inicial) : simbolo_inicial(simbolo_inicial)
 {
 }
 
@@ -17,9 +17,10 @@ void AnalisadorSintatico::addProduction(const std::string &nao_terminal, const s
     parsing_table[row][col] = SintaticGroup(nao_terminal, produto);
 }
 
-bool AnalisadorSintatico::reconhecer(const std::list<LexicalGroup> &entrada)
+void AnalisadorSintatico::analisar(const std::list<LexicalGroup> &tokens)
 {
-    return false;
+    std::stack<std::string> pilha;
+    pilha.push(simbolo_inicial);
 }
 
 void AnalisadorSintatico::exibirTabela(std::ostream &output) const
@@ -95,4 +96,9 @@ void AnalisadorSintatico::adicionarTerminal(const std::string &terminal)
             row.resize(terminais.size());
         }
     }
+}
+
+const char *AnalisadorSintatico::SintaticError::what() const noexcept
+{
+    return mensagem.c_str();
 }

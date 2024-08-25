@@ -45,16 +45,24 @@ int main()
     createAutomato(af);
     AnalisadorLexico lexic(af);
     lexic.addIgnoreSymbol(' ');
+    AnalisadorSintatico sintatic("S");
+    createParseTable(sintatic);
     string input;
     while (getline(cin, input))
     {
-        list<LexicalGroup> aux = lexic.reconhecer(input);
-        for (LexicalGroup &token : aux)
+        try
         {
-            cout << token.cadeia << " " << token.token << endl;
+            list<LexicalGroup> tokens = lexic.reconhecer(input);
+            sintatic.analisar(tokens);
+        }
+        catch(const AnalisadorSintatico::SintaticError& e)
+        {
+            std::cerr << e.what() << std::endl;
+        }
+        catch(const AnalisadorLexico::LexicalError& e)
+        {
+            std::cerr << e.what() << std::endl;
         }
     }
-    AnalisadorSintatico sintatic('S');
-    createParseTable(sintatic);
     return 0;
 }

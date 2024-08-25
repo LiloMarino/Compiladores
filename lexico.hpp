@@ -44,6 +44,20 @@ public:
      * @param a Nova referência ao autômato finito.
      */
     void setAutomato(AutomatoFinito &a);
+
+    /**
+     * @brief Exceção do AnalisadorLéxico
+     */
+    class LexicalError : public std::exception
+    {
+    private:
+        std::string mensagem;
+
+    public:
+        explicit LexicalError(const std::string &msg) : mensagem(msg) {}
+
+        virtual const char *what() const noexcept override;
+    };
 };
 
 #endif

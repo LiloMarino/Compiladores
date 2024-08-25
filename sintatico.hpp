@@ -27,8 +27,7 @@ struct SintaticGroup
 class AnalisadorSintatico
 {
 private:
-    char simbolo_inicial;
-    std::stack<char> pilha;
+    std::string simbolo_inicial;
     std::unordered_map<std::string, int> nao_terminais;    // Mapeamento de não terminais para índices
     std::unordered_map<std::string, int> terminais;        // Mapeamento de terminais/tokens para índices
     std::vector<std::vector<SintaticGroup>> parsing_table; // Tabela LL(1)
@@ -37,7 +36,7 @@ public:
      * @brief Construtor do AnalisadorSintatico
      * @param simbolo_inicial Primeiro não terminal da gramática
      */
-    AnalisadorSintatico(char simbolo_inicial);
+    AnalisadorSintatico(std::string simbolo_inicial);
 
     /**
      * @brief Adiciona uma produção a tabela
@@ -73,12 +72,26 @@ public:
      * @param entrada Sequência de tokens reconhecidos pelo AnalisadorLexico
      * @return Verdadeiro se pertence e falso caso não pertença a linguagem
      */
-    bool reconhecer(const std::list<LexicalGroup> &entrada);
+    void analisar(const std::list<LexicalGroup> &entrada);
 
     /**
      * @brief Printa a tabela LL(1)
      */
     void exibirTabela(std::ostream &output) const;
+
+    /**
+     * @brief Exceção do AnalisadorSintático
+     */
+    class SintaticError : public std::exception
+    {
+    private:
+        std::string mensagem;
+
+    public:
+        explicit SintaticError(const std::string &msg) : mensagem(msg) {}
+
+        virtual const char *what() const noexcept override;
+    };
 };
 
 #endif
