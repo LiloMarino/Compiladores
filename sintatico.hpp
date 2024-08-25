@@ -91,6 +91,7 @@ public:
 
     public:
         explicit SintaticError(const std::string &token, const std::string &expected);
+        explicit SintaticError(const std::string &msg);
         virtual const char *what() const noexcept override;
     };
 

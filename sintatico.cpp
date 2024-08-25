@@ -62,7 +62,7 @@ void AnalisadorSintatico::analisar(const std::list<LexicalGroup> &tokens)
     }
     if (!pilha.empty())
     {
-        // Throw Sintax Error
+        throw SintaticError("CADEIA INCOMPLETA");
     }
 }
 
@@ -184,6 +184,14 @@ AnalisadorSintatico::SintaticError::SintaticError(const std::string &token, cons
     erro += token;
     erro += " ESPERADO: ";
     erro += expected;
+    this->mensagem = std::move(erro);
+}
+
+AnalisadorSintatico::SintaticError::SintaticError(const std::string &msg)
+{
+    std::string erro;
+    erro += "ERRO SINTATICO: ";
+    erro += msg;
     this->mensagem = std::move(erro);
 }
 

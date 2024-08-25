@@ -54,7 +54,7 @@ int main()
         {
             list<LexicalGroup> tokens = lexic.reconhecer(input);
             sintatic.analisar(tokens);
-            std::cout << "CADEIA ACEITA";
+            std::cout << "CADEIA ACEITA" << std::endl;
         }
         catch(const AnalisadorSintatico::SintaticError& e)
         {

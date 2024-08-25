@@ -51,8 +51,9 @@ list<LexicalGroup> AnalisadorLexico::reconhecer(const string &entrada)
                 else
                 {
                     // Token inválido
-                    lista_tokens.push_back({"ERRO", termo + c});
-                    index = i + 1;
+                    throw LexicalError(termo + c);
+                    // lista_tokens.push_back({"ERRO", termo + c});
+                    // index = i + 1;
                 }
                 break;
             }
@@ -97,6 +98,14 @@ AutomatoFinito &AnalisadorLexico::getAutomato() const
 void AnalisadorLexico::setAutomato(AutomatoFinito &a)
 {
     automato = a;
+}
+
+AnalisadorLexico::LexicalError::LexicalError(const std::string &token)
+{
+    std::string erro;
+    erro += "ERRO LEXICO: ";
+    erro += token;
+    this->mensagem = std::move(erro);
 }
 
 const char *AnalisadorLexico::LexicalError::what() const noexcept
