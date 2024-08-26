@@ -397,17 +397,39 @@ void AutomatoFinito::toAFD()
     delete this->afnd;
     this->afnd = afd;
 
-    // Passo 4: Resolve duplicações no final_state_map garantindo que apenas o estado final com maior prioridade seja mantido
-    for (auto &[token_id, estados] : novos_final_state_map)
+    // Passo 4: Remove duplicações garantindo que apenas o estado final com menor token_id seja mantido
+    std::unordered_map<int, int> estado_para_token; // Mapeia estados finais para o token_id com a menor prioridade
+
+    for (auto &[token_id, estados_finais] : novos_final_state_map)
     {
-        if (estados.size() > 1)
+        std::unordered_set<int> estados_a_remover;
+
+        for (int estado : estados_finais)
         {
-            // Encontrar o estado com menor valor numérico (maior prioridade)
-            int priority_id = *std::min_element(estados.begin(), estados.end());
-            
-            // Limpar e inserir apenas o estado prioritário
-            estados.clear();
-            estados.insert(priority_id);
+            auto it = estado_para_token.find(estado);
+
+            if (it == estado_para_token.end())
+            {
+                // Se o estado não está mapeado, adiciona-o ao mapa
+                estado_para_token[estado] = token_id;
+            }
+            else if (it->second > token_id)
+            {
+                // Se o estado está mapeado para um token_id maior, atualiza o token_id no mapa e marca para remoção
+                novos_final_state_map[it->second].erase(estado);
+                estado_para_token[estado] = token_id;
+            }
+            else
+            {
+                // Se o estado já está mapeado para um token_id menor ou igual, marca para remoção
+                estados_a_remover.insert(estado);
+            }
+        }
+
+        // Remove os estados que foram duplicados em tokens de menor prioridade
+        for (int estado : estados_a_remover)
+        {
+            estados_finais.erase(estado);
         }
     }
 
@@ -724,7 +746,7 @@ void AutomatoFinito::printVisualizacaoDOT(const std::string &filename)
 
                 out << "\tq" << i
                     << " -> q" << destino
-                    << " [label=\"" << ((label == "\"") ? "\\\"" : label)  << "\"];" << std::endl;
+                    << " [label=\"" << ((label == "\"") ? "\\\"" : label) << "\"];" << std::endl;
             }
         }
     }
