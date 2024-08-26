@@ -1,10 +1,12 @@
 #include "gramatica.hpp"
 #include <iostream>
 #include <iomanip>
+#include <stdexcept>
+#include <deque>
 
 Gramatica::Gramatica() : last_id(0) {}
 
-void Gramatica::addProduction(const std::string &nao_terminal, const std::string &production)
+void Gramatica::addProduction(const std::string &nao_terminal, const std::string &produto)
 {
     int id;
     // Verifica se o não-terminal já existe
@@ -22,14 +24,57 @@ void Gramatica::addProduction(const std::string &nao_terminal, const std::string
         id = it->second;
     }
 
+    std::deque<std::string> symbols;
+    std::stringstream ss(produto);
+    std::string symbol;
+
+    // Divide a produção em símbolos
+    while (ss >> symbol)
+    {
+        symbols.push_back(symbol);
+    }
+
     // Adiciona a produção à lista de produções associada ao id
-    productions[id].push_back(production);
+    productions[id].emplace_back(std::move(symbols));
 }
 
 void Gramatica::toParsingTable(AnalisadorSintatico &sintatico)
 {
     getGramaticaGroups();
     printGramaticaGroups();
+
+    for (const auto &[id, prods] : productions)
+    {
+        const auto &n_terminal = getNaoTerminalById(id);
+
+        for (auto &production : prods)
+        {
+            std::unordered_set<std::string> first = getFirst(production);
+            for (auto &&token : first)
+            {
+                sintatico.addProduction(n_terminal, token, production);
+            }
+        }
+    }
+}
+
+std::unordered_set<std::string> Gramatica::getFirst(const std::deque<std::string> &production) const
+{
+    std::unordered_set<std::string> first_set;
+
+    return first_set;
+}
+
+std::string Gramatica::getNaoTerminalById(int id) const
+{
+    for (const auto &[nao_terminal, nao_terminal_id] : nao_terminais)
+    {
+        if (nao_terminal_id == id)
+        {
+            return nao_terminal;
+        }
+    }
+    throw std::runtime_error("Erro de consistência nos dados da gramática");
 }
 
 bool Gramatica::isNonTerminal(const std::string &nao_terminal)
@@ -46,19 +91,19 @@ void Gramatica::getGramaticaGroups()
     {
         changed = false;
 
-        // Para cada produção X -> Y1Y2...Yk
+        // Para cada produção X -> Y1 Y2 ... Yk
         for (auto &[id, prods] : productions)
         {
             auto &group = groups[id];
 
-            for (const auto &production : prods)
+            for (const auto &symbols : prods)
             {
                 bool all_nullable = true;
 
                 // Verifica Nullable e atualiza FIRST
-                for (size_t i = 0; i < production.size(); ++i)
+                for (size_t i = 0; i < symbols.size(); ++i)
                 {
-                    std::string symbol(1, production[i]);
+                    const std::string &symbol = symbols[i];
 
                     if (!isNonTerminal(symbol))
                     {
@@ -100,9 +145,9 @@ void Gramatica::getGramaticaGroups()
                 }
 
                 // Atualiza FOLLOW
-                for (size_t i = 0; i < production.size(); ++i)
+                for (size_t i = 0; i < symbols.size(); ++i)
                 {
-                    std::string symbol(1, production[i]);
+                    const std::string &symbol = symbols[i];
 
                     if (isNonTerminal(symbol))
                     {
@@ -111,9 +156,9 @@ void Gramatica::getGramaticaGroups()
 
                         // FOLLOW[Yi] ← FOLLOW[Yi] U FOLLOW[X] se Yi+1 ... Yk são todos Nullable
                         bool nullable_suffix = true;
-                        for (size_t j = i + 1; j < production.size(); ++j)
+                        for (size_t j = i + 1; j < symbols.size(); ++j)
                         {
-                            std::string next_symbol(1, production[j]);
+                            const std::string &next_symbol = symbols[j];
 
                             if (!isNonTerminal(next_symbol))
                             {

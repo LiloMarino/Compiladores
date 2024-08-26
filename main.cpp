@@ -76,7 +76,7 @@ void createParseTable(AnalisadorSintatico &as)
 {
     Gramatica grammar;
     grammar.addProduction("Z","d");
-    grammar.addProduction("Z","XYZ");
+    grammar.addProduction("Z","X Y Z");
     grammar.addProduction("Y","");
     grammar.addProduction("Y","c");
     grammar.addProduction("X","Y");

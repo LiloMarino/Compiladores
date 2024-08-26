@@ -22,9 +22,9 @@ struct GramaticaGroup
 class Gramatica
 {
 private:
-    std::unordered_map<std::string, int> nao_terminais;            // Não terminal -> ID
-    std::unordered_map<int, std::vector<std::string>> productions; // ID -> Produções
-    std::unordered_map<int, GramaticaGroup> groups;                // ID -> (nullable,first,follow)
+    std::unordered_map<std::string, int> nao_terminais;                        // Não terminal -> ID
+    std::unordered_map<int, std::vector<std::deque<std::string>>> productions; // ID -> Produções
+    std::unordered_map<int, GramaticaGroup> groups;                            // ID -> (nullable,first,follow)
     int last_id;
 
 public:
@@ -36,16 +36,16 @@ public:
     /**
      * @brief Adiciona uma produção a gramática
      * @param nao_terminal Não terminal
-     * @param production Produção
+     * @param produto Resultado da produção
+     * @warning Os símbolos do produto devem ser separados por espaço
      */
-    void addProduction(const std::string &nao_terminal, const std::string &production);
+    void addProduction(const std::string &nao_terminal, const std::string &produto);
 
     /**
      * @brief Preenche a tabela LL(1) do analisador sintático com base na gramática
      * @param sintatico Analisador Sintático
      */
     void toParsingTable(AnalisadorSintatico &sintatico);
-
 
     /**
      * @brief Verifica se um símbolo é um não terminal
@@ -60,6 +60,21 @@ public:
     void printGramaticaGroups() const;
 
 private:
+    /**
+     * @brief Obtém o conjunto FIRST de uma produção
+     * @param production Produção a ser obtida o FIRST
+     * @return Retorna o FIRST da produção
+     * @warning O map groups deve estar completo
+     */
+    std::unordered_set<std::string> getFirst(const std::deque<std::string> &production) const;
+
+    /**
+     * @brief Obtém a string de um não terminal pelo seu id
+     * @param id Id do não terminal
+     * @return Retorna a string do não terminal
+     */
+    std::string getNaoTerminalById(int id) const;
+
     /**
      * @brief Obtém o nullable, o first e o follow das produções
      */

@@ -41,6 +41,28 @@ void AnalisadorSintatico::addProduction(const std::string &nao_terminal, const s
     parsing_table[row][col] = SintaticGroup(nao_terminal, simbols);
 }
 
+void AnalisadorSintatico::addProduction(const std::string &nao_terminal, const std::string &terminal, const std::deque<std::string> &produto)
+{
+    adicionarNaoTerminal(nao_terminal);
+    adicionarTerminal(terminal);
+
+    int row = nao_terminais[nao_terminal];
+    int col = terminais[terminal];
+
+    // Verifica se a célula na tabela já está preenchida
+    if (!parsing_table[row][col].isEmpty())
+    {
+        std::string production = parsing_table[row][col].pop + " -> ";
+        for (const auto &simbol : parsing_table[row][col].simbols)
+        {
+            production += simbol + " ";
+        }
+        throw std::runtime_error("Gramática Ambígua, em: " + production + " " + nao_terminal + " -> " + produto.front());
+    }
+
+    parsing_table[row][col] = SintaticGroup(nao_terminal, produto);
+}
+
 void AnalisadorSintatico::analisar(const std::list<LexicalGroup> &tokens)
 {
     std::stack<std::string> pilha;

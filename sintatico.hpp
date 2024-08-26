@@ -48,8 +48,18 @@ public:
      * @param token Token a ser obtido
      * @param produto Cadeia produzida pela derivação
      * @note Quero ler `token` então `origem` => `produto`
+     * @warning Os símbolos do produto devem ser separados por espaço
      */
     void addProduction(const std::string &origem, const std::string &token, const std::string &produto);
+
+    /**
+     * @brief Adiciona uma produção a tabela
+     * @param origem Não terminal de origem
+     * @param token Token a ser obtido
+     * @param produto Cadeia produzida pela derivação
+     * @note Quero ler `token` então `origem` => `produto`
+     */
+    void addProduction(const std::string &origem, const std::string &token, const std::deque<std::string> &produto);
 
     /**
      * @brief Realiza uma derivação na tabela
