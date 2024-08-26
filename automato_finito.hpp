@@ -51,8 +51,10 @@ public:
      * @brief Implementa uma expressão regular no autômato
      * @param re Expressão regular
      * @param token Token reconhecido
+     * @param ignore_case Define se ignora ou não o case da expressão (Default = false)
+     * @warning Para usar o ignore_case a expressão regular deve ser `RAW_STRING`
      */
-    void addRegularExpression(const std::string &re, const std::string &token);
+    void addRegularExpression(const std::string &re, const std::string &token, bool ignore_case = false);
 
     /**
      * @brief Aplica o algoritmo para minimizar o AFD

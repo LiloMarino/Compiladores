@@ -97,13 +97,28 @@ void AutomatoFinito::addTransitions(const int estado_inicial, const int estado_f
     }
 }
 
-void AutomatoFinito::addRegularExpression(const std::string &re, const std::string &token)
+void AutomatoFinito::addRegularExpression(const std::string &re, const std::string &token, bool ignore_case)
 {
     if (this->deterministico)
     {
         throw std::logic_error("O Autômato é determinístico");
     }
-    int estado_final = this->afnd->addRegularExpression(re);
+    std::string regex;
+    if (ignore_case)
+    {
+        for (char c : re)
+        {
+            regex += '[';
+            regex += std::tolower(c);
+            regex += std::toupper(c);
+            regex += ']';
+        }
+    }
+    else
+    {
+        regex = re;
+    }
+    int estado_final = this->afnd->addRegularExpression(std::move(regex));
     this->tokens.addToken(token);
     this->tokens.setFinalState(token, estado_final);
 }

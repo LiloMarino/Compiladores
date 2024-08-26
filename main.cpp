@@ -18,6 +18,37 @@ void createAutomato(AutomatoFinito &af)
     af.addRegularExpression("{", "multiline start");
     af.addRegularExpression("}", "multiline end");
     af.addRegularExpression("[ ]+", "whitespace");
+    af.addRegularExpression("algoritmo", "algoritmo", true);
+    af.addRegularExpression("vetor", "vetor", true);
+    af.addRegularExpression("enquanto", "enquanto", true);
+    af.addRegularExpression("imprima", "imprima", true);
+    af.addRegularExpression("inicio", "inicio", true);
+    af.addRegularExpression("matriz", "matriz", true);
+    af.addRegularExpression("faca", "faca", true);
+    af.addRegularExpression("verdadeiro", "verdadeiro", true);
+    af.addRegularExpression("fim", "fim", true);
+    af.addRegularExpression("tipo", "tipo", true);
+    af.addRegularExpression("para", "para", true);
+    af.addRegularExpression("falso", "falso", true);
+    af.addRegularExpression("variaveis", "variaveis", true);
+    af.addRegularExpression("funcao", "funcao", true);
+    af.addRegularExpression("de", "de", true);
+    af.addRegularExpression("e", "e", true);
+    af.addRegularExpression("inteiro", "inteiro", true);
+    af.addRegularExpression("procedimento", "procedimento", true);
+    af.addRegularExpression("ate", "ate", true);
+    af.addRegularExpression("ou", "ou", true);
+    af.addRegularExpression("real", "real", true);
+    af.addRegularExpression("se", "se", true);
+    af.addRegularExpression("passo", "passo", true);
+    af.addRegularExpression("nao", "nao", true);
+    af.addRegularExpression("caractere", "caractere", true);
+    af.addRegularExpression("entao", "entao", true);
+    af.addRegularExpression("repita", "repita", true);
+    af.addRegularExpression("div", "div", true);
+    af.addRegularExpression("logico", "logico", true);
+    af.addRegularExpression("senao", "senao", true);
+    af.addRegularExpression("leia", "leia", true);
     af.toAFD();
 }
 
