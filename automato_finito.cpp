@@ -397,12 +397,26 @@ void AutomatoFinito::toAFD()
     delete this->afnd;
     this->afnd = afd;
 
-    // Passo 4: Atualiza o final_state_map do TokenManager existente
+    // Passo 4: Resolve duplicações no final_state_map garantindo que apenas o estado final com maior prioridade seja mantido
+    for (auto &[token_id, estados] : novos_final_state_map)
+    {
+        if (estados.size() > 1)
+        {
+            // Encontrar o estado com menor valor numérico (maior prioridade)
+            int priority_id = *std::min_element(estados.begin(), estados.end());
+            
+            // Limpar e inserir apenas o estado prioritário
+            estados.clear();
+            estados.insert(priority_id);
+        }
+    }
+
+    // Passo 5: Atualiza o final_state_map do TokenManager existente
     this->tokens.replaceFinalStateMap(std::move(novos_final_state_map));
 
     this->printVisualizacaoDOT("afd.dot");
 
-    // Passo 5: Transpõe para a estrutura do AFD
+    // Passo 6: Transpõe para a estrutura do AFD
     this->transposeAFD();
 }
 

@@ -16,9 +16,9 @@
 class TokenManager
 {
 private:
-    std::unordered_map<std::string, int> token_map;
-    std::unordered_map<int, std::unordered_set<int>> final_state_map;
-    std::unordered_map<int, int> state_to_token_map;
+    std::unordered_map<std::string, int> token_map;                   // Token -> TokenId
+    std::unordered_map<int, std::unordered_set<int>> final_state_map; // TokenId -> Final State
+    std::unordered_map<int, int> state_to_token_map;                  // Final State -> TokenId
     int next_id;
 
 public:

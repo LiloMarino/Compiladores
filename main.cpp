@@ -10,14 +10,6 @@ using namespace std;
 
 void createAutomato(AutomatoFinito &af)
 {
-    af.addRegularExpression("[a-zA-Z_-_][a-zA-Z0-9_-_]*", "identificador");
-    af.addRegularExpression("[0-9]+", "inteiro");
-    af.addRegularExpression("[0-9]+\\.[0-9]+", "real");
-    af.addRegularExpression("\"[a-zA-Z0-9_-_]*\"", "string");
-    af.addRegularExpression("//.*", "comment");
-    af.addRegularExpression("{", "multiline start");
-    af.addRegularExpression("}", "multiline end");
-    af.addRegularExpression("[ ]+", "whitespace");
     af.addRegularExpression("algoritmo", "algoritmo", true);
     af.addRegularExpression("vetor", "vetor", true);
     af.addRegularExpression("enquanto", "enquanto", true);
@@ -49,6 +41,14 @@ void createAutomato(AutomatoFinito &af)
     af.addRegularExpression("logico", "logico", true);
     af.addRegularExpression("senao", "senao", true);
     af.addRegularExpression("leia", "leia", true);
+    af.addRegularExpression("[a-zA-Z_-_][a-zA-Z0-9_-_]*", "identificador");
+    af.addRegularExpression("[0-9]+", "number inteiro");
+    af.addRegularExpression("[0-9]+\\.[0-9]+", "number real");
+    af.addRegularExpression("\"[a-zA-Z0-9_-_]*\"", "string");
+    af.addRegularExpression("//.*", "comment");
+    af.addRegularExpression("{", "multiline start");
+    af.addRegularExpression("}", "multiline end");
+    af.addRegularExpression("[ ]+", "whitespace");
     af.toAFD();
 }
 
