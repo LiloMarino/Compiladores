@@ -78,8 +78,6 @@ public:
      */
     void analisar(const std::list<LexicalGroup> &entrada);
 
-    
-
     /**
      * @brief Printa a tabela LL(1)
      */

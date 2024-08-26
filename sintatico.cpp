@@ -7,7 +7,6 @@
 AnalisadorSintatico::AnalisadorSintatico(std::string simbolo_inicial) : simbolo_inicial(simbolo_inicial)
 {
 }
-
 void AnalisadorSintatico::addProduction(const std::string &nao_terminal, const std::string &terminal, const std::string &produto)
 {
     adicionarNaoTerminal(nao_terminal);
@@ -15,6 +14,19 @@ void AnalisadorSintatico::addProduction(const std::string &nao_terminal, const s
 
     int row = nao_terminais[nao_terminal];
     int col = terminais[terminal];
+
+    // Verifica se a célula na tabela já está preenchida
+    if (!parsing_table[row][col].isEmpty())
+    {
+        std::string production;
+        production += parsing_table[row][col].pop;
+        production += " -> ";
+        for (auto &simbol : parsing_table[row][col].simbols)
+        {
+            production += simbol;
+        }
+        throw std::runtime_error("Gramática Ambígua, em: " + production + " " + nao_terminal + " -> " + produto);
+    }
 
     std::deque<std::string> simbols;
 
@@ -75,7 +87,8 @@ std::string AnalisadorSintatico::getExpected(std::string &n_terminal)
     // Copia e ordena o map pelo index (int)
     std::vector<std::pair<std::string, int>> terminais_ordenados(terminais.begin(), terminais.end());
     std::sort(terminais_ordenados.begin(), terminais_ordenados.end(),
-              [](const auto &a, const auto &b) { return a.second < b.second; });
+              [](const auto &a, const auto &b)
+              { return a.second < b.second; });
 
     // Itera sobre o vetor ordenado
     for (const auto &it_terminais : terminais_ordenados)
@@ -98,37 +111,53 @@ std::string AnalisadorSintatico::getExpected(std::string &n_terminal)
 
 void AnalisadorSintatico::exibirTabela(std::ostream &output) const
 {
+    // Define o tamanho das colunas
+    const int col_width = 20;
+    const int row_width = 10;
+
     // Ordena os não-terminais e terminais
     std::map<std::string, int> ordenado_nao_terminais(nao_terminais.begin(), nao_terminais.end());
     std::map<std::string, int> ordenado_terminais(terminais.begin(), terminais.end());
 
     // Cabeçalho com terminais
-    output << std::setw(2) << " ";
+    output << std::setw(row_width) << " ";
     for (const auto &[terminal, index] : ordenado_terminais)
     {
-        output << std::setw(15) << terminal;
+        output << std::setw(col_width) << terminal;
     }
     output << std::endl;
+
+    // Linha separadora
+    output << std::string(row_width + col_width * ordenado_terminais.size(), '-') << std::endl;
 
     // Linhas com não-terminais e produções
     for (const auto &[nao_terminal, row] : ordenado_nao_terminais)
     {
-        output << std::setw(2) << nao_terminal;
+        // Exibe o não-terminal
+        output << std::setw(row_width) << nao_terminal;
+
+        // Exibe as produções associadas a cada terminal
         for (const auto &[terminal, col] : ordenado_terminais)
         {
-            const SintaticGroup &producao = parsing_table[row][col];
+            const SintaticGroup &producao = parsing_table.at(row).at(col);
+
             if (!producao.isEmpty())
             {
+                // Cria a string de produção
                 std::string producaoStr = producao.pop + " -> ";
                 for (const auto &simbol : producao.simbols)
                 {
-                    producaoStr += simbol;
+                    producaoStr += simbol + " ";
                 }
-                output << std::setw(15) << producaoStr;
+
+                // Remove o espaço extra no final
+                producaoStr = producaoStr.substr(0, producaoStr.size() - 1);
+                output << std::setw(col_width) << producaoStr;
             }
             else
             {
-                output << std::setw(15) << "-";
+                // Se não houver produção, insere "-"
+                output << std::setw(col_width) << "-";
             }
         }
         output << std::endl;
