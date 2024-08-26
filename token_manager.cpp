@@ -125,6 +125,8 @@ void TokenManager::removeFinalState(int final_state)
 void TokenManager::replaceFinalStateMap(std::unordered_map<int, std::unordered_set<int>> new_map)
 {
     final_state_map = std::move(new_map);
+    // Remove os múltiplos estados finais se houver, mantendo a consistência dos dados
+    this->reduceFinalStateMap();
     state_to_token_map.clear();
 
     // Reconstituir o mapa state_to_token_map com base no novo final_state_map
@@ -134,5 +136,43 @@ void TokenManager::replaceFinalStateMap(std::unordered_map<int, std::unordered_s
         {
             state_to_token_map[state] = token_id;
         }   
+    }
+}
+
+void TokenManager::reduceFinalStateMap()
+{
+    std::unordered_map<int, int> estado_para_token; // Mapeia estados finais para o token_id com a menor prioridade
+
+    for (auto &[token_id, estados_finais] : final_state_map)
+    {
+        std::unordered_set<int> estados_a_remover;
+
+        for (int estado : estados_finais)
+        {
+            auto it = estado_para_token.find(estado);
+
+            if (it == estado_para_token.end())
+            {
+                // Se o estado não está mapeado, adiciona-o ao mapa
+                estado_para_token[estado] = token_id;
+            }
+            else if (it->second > token_id)
+            {
+                // Se o estado está mapeado para um token_id maior, atualiza o token_id no mapa e marca para remoção
+                final_state_map[it->second].erase(estado);
+                estado_para_token[estado] = token_id;
+            }
+            else
+            {
+                // Se o estado já está mapeado para um token_id menor ou igual, marca para remoção
+                estados_a_remover.insert(estado);
+            }
+        }
+
+        // Remove os estados que foram duplicados em tokens de menor prioridade
+        for (int estado : estados_a_remover)
+        {
+            estados_finais.erase(estado);
+        }
     }
 }

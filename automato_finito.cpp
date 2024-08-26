@@ -397,48 +397,12 @@ void AutomatoFinito::toAFD()
     delete this->afnd;
     this->afnd = afd;
 
-    // Passo 4: Remove duplicações garantindo que apenas o estado final com menor token_id seja mantido
-    std::unordered_map<int, int> estado_para_token; // Mapeia estados finais para o token_id com a menor prioridade
-
-    for (auto &[token_id, estados_finais] : novos_final_state_map)
-    {
-        std::unordered_set<int> estados_a_remover;
-
-        for (int estado : estados_finais)
-        {
-            auto it = estado_para_token.find(estado);
-
-            if (it == estado_para_token.end())
-            {
-                // Se o estado não está mapeado, adiciona-o ao mapa
-                estado_para_token[estado] = token_id;
-            }
-            else if (it->second > token_id)
-            {
-                // Se o estado está mapeado para um token_id maior, atualiza o token_id no mapa e marca para remoção
-                novos_final_state_map[it->second].erase(estado);
-                estado_para_token[estado] = token_id;
-            }
-            else
-            {
-                // Se o estado já está mapeado para um token_id menor ou igual, marca para remoção
-                estados_a_remover.insert(estado);
-            }
-        }
-
-        // Remove os estados que foram duplicados em tokens de menor prioridade
-        for (int estado : estados_a_remover)
-        {
-            estados_finais.erase(estado);
-        }
-    }
-
-    // Passo 5: Atualiza o final_state_map do TokenManager existente
+    // Passo 4: Atualiza o final_state_map do TokenManager existente, removendo as duplicações
     this->tokens.replaceFinalStateMap(std::move(novos_final_state_map));
 
     this->printVisualizacaoDOT("afd.dot");
 
-    // Passo 6: Transpõe para a estrutura do AFD
+    // Passo 5: Transpõe para a estrutura do AFD
     this->transposeAFD();
 }
 

@@ -101,6 +101,16 @@ public:
      * @param new_map Novo mapa de estados finais
      */
     void replaceFinalStateMap(std::unordered_map<int, std::unordered_set<int>> new_map);
+
+private:
+    /**
+     * @brief Remove os múltiplos estados finais de `final_state_map` é útil especialmente após o replace
+     * garantindo a consistência dos dados
+     * @note Ele usa como base o TokenId para isso, portanto quem foi declarado primeiro e por consequência
+     * tem o menor TokenId tem a maior prioridade, o estado final então passará a reconhecer o TokenId de maior
+     * prioridade, seguindo essa regra
+     */
+    void reduceFinalStateMap();
 };
 
 #endif
