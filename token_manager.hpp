@@ -8,6 +8,7 @@
 
 /**
  * @class TokenManager
+ * @author Murilo Marino
  * @brief Gerencia tokens, seus identificadores únicos e estados finais.
  */
 class TokenManager

@@ -24,6 +24,10 @@ struct SintaticGroup
     }
 };
 
+/**
+ * @brief Classe de Analisador Sintático
+ * @author Murilo Marino
+ */
 class AnalisadorSintatico
 {
 private:

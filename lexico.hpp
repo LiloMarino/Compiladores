@@ -11,6 +11,10 @@ struct LexicalGroup
     std::string cadeia;
 };
 
+/**
+ * @brief Classe de Analisador Léxico
+ * @author Murilo Marino
+ */
 class AnalisadorLexico
 {
 private:

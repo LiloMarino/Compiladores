@@ -12,6 +12,10 @@ struct Transition
     State *estado_destino;
 };
 
+/**
+ * @brief Classe de Estados
+ * @author Murilo Marino
+ */
 class State
 {
 private:
