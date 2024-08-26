@@ -5,6 +5,7 @@
 #include "automato_finito.hpp"
 #include "lexico.hpp"
 #include "sintatico.hpp"
+#include "gramatica.hpp"
 
 using namespace std;
 
@@ -73,6 +74,14 @@ void createAutomato(AutomatoFinito &af)
 
 void createParseTable(AnalisadorSintatico &as)
 {
+    Gramatica grammar;
+    grammar.addProduction("Z","d");
+    grammar.addProduction("Z","XYZ");
+    grammar.addProduction("Y","");
+    grammar.addProduction("Y","c");
+    grammar.addProduction("X","Y");
+    grammar.addProduction("X","a");
+    grammar.toParsingTable(as);
 }
 
 int main()
