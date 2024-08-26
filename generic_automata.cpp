@@ -378,12 +378,19 @@ std::list<Action> GenericAutomata::decodifyRegularExpression(const std::string &
         {
         case '[':
             // Inicia o set
-            set = true;
-            if (aux.length() > 0)
+            if (last_char != '\\')
             {
-                // Salva a raw string
-                actions.push_back({RAW_STRING, aux});
-                aux.clear();
+                set = true;
+                if (aux.length() > 0)
+                {
+                    // Salva a raw string
+                    actions.push_back({RAW_STRING, aux});
+                    aux.clear();
+                }
+            }
+            else
+            {
+                aux += c;
             }
             break;
 
@@ -401,22 +408,29 @@ std::list<Action> GenericAutomata::decodifyRegularExpression(const std::string &
 
         case ']':
             // Termina um set ou um intervalo
-            if (set)
+            if (last_char != '\\')
             {
-                if (interval && aux.length() > 2)
+                if (set)
                 {
-                    // Salva o intervalo
-                    actions.push_back({INTERVAL_SET, aux});
-                    aux.clear();
+                    if (interval && aux.length() > 2)
+                    {
+                        // Salva o intervalo
+                        actions.push_back({INTERVAL_SET, aux});
+                        aux.clear();
+                    }
+                    else
+                    {
+                        // Salva o set
+                        actions.push_back({SET, aux});
+                        aux.clear();
+                    }
+                    set = false;
+                    interval = false;
                 }
-                else
-                {
-                    // Salva o set
-                    actions.push_back({SET, aux});
-                    aux.clear();
-                }
-                set = false;
-                interval = false;
+            }
+            else
+            {
+                aux += c;
             }
             break;
 

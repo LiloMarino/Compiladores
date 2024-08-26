@@ -9,9 +9,6 @@
 /**
  * @class TokenManager
  * @brief Gerencia tokens, seus identificadores únicos e estados finais.
- * @note Se o Id do Token não for utilizado é melhor otimizar a classe para 2 maps
- * std::unordered_map<std::string, std::unordered_set<int>> token_map;
- * std::unordered_map<int, std::string> final_to_token_map;
  */
 class TokenManager
 {

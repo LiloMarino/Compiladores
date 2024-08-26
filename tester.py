@@ -4,10 +4,10 @@ import filecmp
 import difflib
 
 def run_program(executable, input_folder, output_folder):
-    input_files: list[str] = [f for f in os.listdir(input_folder) if f.endswith('.txt')]
+    input_files: list[str] = [f for f in os.listdir(input_folder) if f.endswith('.txt') or f.endswith('.por')]
     for input_file in input_files:
         input_path = os.path.join(input_folder, input_file)
-        output_path = os.path.join(output_folder, input_file.replace("entrada","saida"))
+        output_path = os.path.join(output_folder, ("saida_" + input_file).replace("entrada","saida") + ".txt")
         with open(input_path, 'r') as infile, open(output_path, 'w') as outfile:
             subprocess.run([executable], stdin=infile, stdout=outfile)
 
