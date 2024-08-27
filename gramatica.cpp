@@ -49,7 +49,7 @@ void Gramatica::toParsingTable(AnalisadorSintatico &sintatico)
 
         for (auto &production : prods)
         {
-            std::unordered_set<std::string> first = getFirst(production);
+            std::unordered_set<std::string> first = getFirst(n_terminal, production);
             for (auto &&token : first)
             {
                 sintatico.addProduction(n_terminal, token, production);
@@ -58,9 +58,53 @@ void Gramatica::toParsingTable(AnalisadorSintatico &sintatico)
     }
 }
 
-std::unordered_set<std::string> Gramatica::getFirst(const std::deque<std::string> &production) const
+std::unordered_set<std::string> Gramatica::getFirst(const std::string &n_terminal, const std::deque<std::string> &production)
 {
     std::unordered_set<std::string> first_set;
+
+    if (production.empty())
+    {
+        // Produção vazia então usa o FOLLOW
+        GramaticaGroup group = groups[nao_terminais[n_terminal]];
+        first_set.insert(group.follow.begin(), group.follow.end());
+    }
+    else
+    {
+        auto it = production.begin();
+        while (it != production.end())
+        {
+            const std::string &symbol = *it;
+
+            if (isNonTerminal(symbol))
+            {
+                // O símbolo é um não-terminal então verifica se é nullable
+                GramaticaGroup group = groups[nao_terminais[symbol]];
+                first_set.insert(group.first.begin(), group.first.end());
+
+                // Se o não-terminal é nullable, continua a adicionar o FIRST dos símbolos subsequentes
+                if (!group.nullable)
+                {
+                    break; // Sai do loop se o não-terminal não é nullable
+                }
+            }
+            else
+            {
+                // É um terminal então seu FIRST é o próprio terminal
+                first_set.insert(symbol);
+                break;
+            }
+
+            ++it; // Avança para o próximo símbolo na produção
+        }
+
+        // Caso o FIRST do símbolo seja nullable, adicionar o FIRST dos símbolos subsequentes
+        if (it == production.end())
+        {
+            // Se chegamos ao final da produção, considera o FOLLOW do não-terminal original
+            GramaticaGroup group = groups[nao_terminais[n_terminal]];
+            first_set.insert(group.follow.begin(), group.follow.end());
+        }
+    }
 
     return first_set;
 }
@@ -77,7 +121,7 @@ std::string Gramatica::getNaoTerminalById(int id) const
     throw std::runtime_error("Erro de consistência nos dados da gramática");
 }
 
-bool Gramatica::isNonTerminal(const std::string &nao_terminal)
+bool Gramatica::isNonTerminal(const std::string &nao_terminal) const
 {
     auto it = nao_terminais.find(nao_terminal);
     return (it != nao_terminais.end());

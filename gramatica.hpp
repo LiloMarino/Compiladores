@@ -52,7 +52,7 @@ public:
      * @param nao_terminal Não terminal a ser verificado
      * @return Retorna verdadeiro se for não terminal e falso caso contrário
      */
-    bool isNonTerminal(const std::string &nao_terminal);
+    bool isNonTerminal(const std::string &nao_terminal) const;
 
     /**
      * @brief Printa a tabela de nullable, first, follow
@@ -66,7 +66,7 @@ private:
      * @return Retorna o FIRST da produção
      * @warning O map groups deve estar completo
      */
-    std::unordered_set<std::string> getFirst(const std::deque<std::string> &production) const;
+    std::unordered_set<std::string> getFirst(const std::string &n_terminal, const std::deque<std::string> &production);
 
     /**
      * @brief Obtém a string de um não terminal pelo seu id
