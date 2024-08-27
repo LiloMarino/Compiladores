@@ -75,12 +75,15 @@ void createAutomato(AutomatoFinito &af)
 void createParseTable(AnalisadorSintatico &as)
 {
     Gramatica grammar;
-    grammar.addProduction("Z","d");
-    grammar.addProduction("Z","X Y Z");
-    grammar.addProduction("Y","");
-    grammar.addProduction("Y","c");
-    grammar.addProduction("X","Y");
-    grammar.addProduction("X","a");
+    grammar.addProduction("S", "E $");
+    grammar.addProduction("E", "T E'");
+    grammar.addProduction("E'", "+ T E'");
+    grammar.addProduction("E'", "");
+    grammar.addProduction("T", "F T'");
+    grammar.addProduction("T'", "* F T'");
+    grammar.addProduction("T'", "");
+    grammar.addProduction("F", "( E )");
+    grammar.addProduction("F", "id");
     grammar.toParsingTable(as);
 }
 
@@ -94,6 +97,9 @@ int main()
     lexic.setMultilineComment("multiline start", "multiline end");
     AnalisadorSintatico sintatic("S");
     createParseTable(sintatic);
+    ofstream arquivo("__table.txt");
+    sintatic.exibirTabela(arquivo);
+    arquivo.close();
     string input;
     bool first_line = true;
     while (getline(cin, input))
