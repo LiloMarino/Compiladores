@@ -57,7 +57,12 @@ void AnalisadorSintatico::addProduction(const std::string &nao_terminal, const s
         {
             production += simbol + " ";
         }
-        throw std::runtime_error("Gramática Ambígua, em: " + production + " " + nao_terminal + " -> " + produto.front());
+        std::string production2;
+        for (const auto &simbol : produto)
+        {
+            production2 += simbol + " ";
+        }
+        throw std::runtime_error("Gramática Ambígua, em: " + production + " " + nao_terminal + " -> " + production2);
     }
 
     parsing_table[row][col] = SintaticGroup(nao_terminal, produto);
