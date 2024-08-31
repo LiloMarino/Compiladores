@@ -37,10 +37,9 @@ public:
      * @brief Adiciona uma produção à gramática
      * @param nao_terminal Não terminal
      * @param produto Resultado da produção
-     * @return True se uma nova produção foi adicionada, false caso contrário
      * @warning Os símbolos do produto devem ser separados por espaço
      */
-    bool addProduction(const std::string &nao_terminal, const std::string &produto);
+    void addProduction(const std::string &nao_terminal, const std::string &produto);
 
     /**
      * @brief Preenche a tabela LL(1) do analisador sintático com base na gramática

@@ -7,11 +7,9 @@
 
 Gramatica::Gramatica() : last_id(0) {}
 
-bool Gramatica::addProduction(const std::string &nao_terminal, const std::string &produto)
+void Gramatica::addProduction(const std::string &nao_terminal, const std::string &produto)
 {
     int id;
-    bool added = false;
-
     // Verifica se o não-terminal já existe
     auto it = nao_terminais.find(nao_terminal);
     if (it == nao_terminais.end())
@@ -26,27 +24,17 @@ bool Gramatica::addProduction(const std::string &nao_terminal, const std::string
         // Não-terminal já existe, usa o id existente
         id = it->second;
     }
-
     std::deque<std::string> symbols;
     std::stringstream ss(produto);
     std::string symbol;
-
     // Divide a produção em símbolos
     while (ss >> symbol)
     {
         symbols.push_back(symbol);
     }
 
-    // Verifica se a produção já existe
-    auto &prods = productions[id];
-    if (std::find(prods.begin(), prods.end(), symbols) == prods.end())
-    {
-        // Adiciona a produção à lista de produções associada ao id
-        prods.emplace_back(std::move(symbols));
-        added = true;
-    }
-
-    return added;
+    // Adiciona a produção à lista de produções associada ao id
+    productions[id].emplace_back(std::move(symbols));
 }
 
 void Gramatica::toParsingTable(AnalisadorSintatico &sintatico)
@@ -72,125 +60,103 @@ void Gramatica::toParsingTable(AnalisadorSintatico &sintatico)
 
 void Gramatica::toLL1()
 {
-    bool changed;
-
-    do
+    // Passo 1: Eliminar Recursão à Esquerda
+    for (auto &[n_terminal, id] : nao_terminais)
     {
-        changed = false;
+        std::vector<std::deque<std::string>> alpha_productions; // Produções recursivas à esquerda (A -> Aa)
+        std::vector<std::deque<std::string>> beta_productions;  // Produções não-recursivas (A -> b)
 
-        // Passo 1: Eliminar Recursão à Esquerda
-        for (auto &[n_terminal, id] : nao_terminais)
+        for (auto &production : productions[id])
         {
-            std::vector<std::deque<std::string>> alpha_productions; // Produções recursivas à esquerda (A -> Aa)
-            std::vector<std::deque<std::string>> beta_productions;  // Produções não-recursivas (A -> b)
-
-            for (auto &production : productions[id])
+            if (n_terminal == production.front())
             {
-                if (n_terminal == production.front())
+                // A produção é recursiva à esquerda
+                production.pop_front();
+                alpha_productions.push_back(production);
+            }
+            else
+            {
+                // A produção não é recursiva à esquerda
+                beta_productions.push_back(production);
+            }
+        }
+
+        // Se houver produções recursivas à esquerda, aplicar a transformação
+        if (!alpha_productions.empty())
+        {
+            // Criar um novo não-terminal A'
+            std::string new_non_terminal = n_terminal + "'"; // Pode adicionar uma verificação para garantir que não há conflito de nomes
+
+            // Transformar as produções não-recursivas (A -> b) em A -> bA'
+            for (auto &beta : beta_productions)
+            {
+                std::string beta_prod = "";
+                for (const auto &symbol : beta)
                 {
-                    // A produção é recursiva à esquerda
-                    production.pop_front();
-                    alpha_productions.push_back(production);
+                    beta_prod += symbol + " ";
                 }
-                else
-                {
-                    // A produção não é recursiva à esquerda
-                    beta_productions.push_back(production);
-                }
+                beta_prod += new_non_terminal; // Adiciona A' no final
+
+                addProduction(n_terminal, beta_prod);
             }
 
-            // Se houver produções recursivas à esquerda, aplicar a transformação
-            if (!alpha_productions.empty())
+            // Transformar as produções recursivas (A -> Aa) em A' -> aA'
+            for (auto &alpha : alpha_productions)
+            {
+                std::string alpha_prod = "";
+                for (const auto &symbol : alpha)
+                {
+                    alpha_prod += symbol + " ";
+                }
+                alpha_prod += new_non_terminal; // Adiciona A' no final
+
+                addProduction(new_non_terminal, alpha_prod);
+            }
+
+            // Adicionar a produção e (A' -> e) ao novo não-terminal
+            addProduction(new_non_terminal, "");
+        }
+    }
+
+    // Passo 2: Fatoração à Esquerda
+    for (auto &[n_terminal, id] : nao_terminais)
+    {
+        std::map<std::string, std::vector<std::deque<std::string>>> prefix_map;
+
+        // Organizar produções por prefixo comum
+        for (auto &production : productions[id])
+        {
+            if (!production.empty())
+            {
+                std::string prefix = production.front();
+                prefix_map[prefix].push_back(production);
+            }
+        }
+
+        // Fatorar as produções que compartilham prefixo
+        for (const auto &[prefix, group] : prefix_map)
+        {
+            if (group.size() > 1) // Mais de uma produção compartilha o mesmo prefixo
             {
                 // Criar um novo não-terminal A'
-                std::string new_non_terminal = n_terminal + "'"; // Pode adicionar uma verificação para garantir que não há conflito de nomes
+                std::string new_non_terminal = n_terminal + prefix + "'";
 
-                // Transformar as produções não-recursivas (A -> b) em A -> bA'
-                for (auto &beta : beta_productions)
+                // Adicionar a nova produção fatorada (A -> prefix A')
+                addProduction(n_terminal, prefix + " " + new_non_terminal);
+
+                // Adicionar as produções para o novo não-terminal A'
+                for (const auto &prod : group)
                 {
-                    std::string beta_prod = "";
-                    for (const auto &symbol : beta)
+                    std::string suffix = "";
+                    for (size_t i = 1; i < prod.size(); ++i) // Pula o prefixo
                     {
-                        beta_prod += symbol + " ";
+                        suffix += prod[i] + " ";
                     }
-                    beta_prod += new_non_terminal; // Adiciona A' no final
-
-                    if (addProduction(n_terminal, beta_prod))
-                    {
-                        changed = true;
-                    }
-                }
-
-                // Transformar as produções recursivas (A -> Aa) em A' -> aA'
-                for (auto &alpha : alpha_productions)
-                {
-                    std::string alpha_prod = "";
-                    for (const auto &symbol : alpha)
-                    {
-                        alpha_prod += symbol + " ";
-                    }
-                    alpha_prod += new_non_terminal; // Adiciona A' no final
-
-                    if (addProduction(new_non_terminal, alpha_prod))
-                    {
-                        changed = true;
-                    }
-                }
-
-                // Adicionar a produção ε (A' -> ε) ao novo não-terminal
-                if (addProduction(new_non_terminal, ""))
-                {
-                    changed = true;
+                    addProduction(new_non_terminal, suffix.empty() ? "" : suffix);
                 }
             }
         }
-
-        // Passo 2: Fatoração à Esquerda
-        for (auto &[n_terminal, id] : nao_terminais)
-        {
-            std::map<std::string, std::vector<std::deque<std::string>>> prefix_map;
-
-            // Organizar produções por prefixo comum
-            for (auto &production : productions[id])
-            {
-                if (!production.empty())
-                {
-                    std::string prefix = production.front();
-                    prefix_map[prefix].push_back(production);
-                }
-            }
-
-            // Fatorar as produções que compartilham prefixo
-            for (const auto &[prefix, group] : prefix_map)
-            {
-                if (group.size() > 1) // Mais de uma produção compartilha o mesmo prefixo
-                {
-                    // Criar um novo não-terminal A'
-                    std::string new_non_terminal = n_terminal + prefix + "'";
-
-                    // Adicionar a nova produção fatorada (A -> prefix A')
-                    if (addProduction(n_terminal, prefix + " " + new_non_terminal))
-                    {
-                        changed = true;
-                    }
-
-                    // Adicionar as produções para o novo não-terminal A'
-                    for (const auto &prod : group)
-                    {
-                        std::string suffix = "";
-                        for (size_t i = 1; i < prod.size(); ++i) // Pula o prefixo
-                        {
-                            suffix += prod[i] + " ";
-                        }
-                        if (addProduction(new_non_terminal, suffix.empty() ? "" : suffix))
-                        {
-                            changed = true;
-                        }
-                    }
-                }
-            }
-        }
-    } while (changed);
+    }
 }
 
 std::unordered_set<std::string> Gramatica::getFirst(const std::string &n_terminal, const std::deque<std::string> &production)
