@@ -39,9 +39,7 @@ void Gramatica::addProduction(const std::string &nao_terminal, const std::string
 
 void Gramatica::toParsingTable(AnalisadorSintatico &sintatico)
 {
-    toLL1();
     getGramaticaGroups();
-    printGramaticaGroups();
 
     for (const auto &[id, prods] : productions)
     {
@@ -58,67 +56,63 @@ void Gramatica::toParsingTable(AnalisadorSintatico &sintatico)
     }
 }
 
-void Gramatica::toLL1()
+void Gramatica::identifyConflicts()
 {
-    // Passo 1: Eliminar Recursão à Esquerda
+    // Passo 1: Detectar Recursão à Esquerda Direta
     for (auto &[n_terminal, id] : nao_terminais)
     {
-        std::vector<std::deque<std::string>> alpha_productions; // Produções recursivas à esquerda (A -> Aa)
-        std::vector<std::deque<std::string>> beta_productions;  // Produções não-recursivas (A -> b)
+        bool has_direct_recursion = false;
 
         for (auto &production : productions[id])
         {
             if (n_terminal == production.front())
             {
-                // A produção é recursiva à esquerda
-                production.pop_front();
-                alpha_productions.push_back(production);
-            }
-            else
-            {
-                // A produção não é recursiva à esquerda
-                beta_productions.push_back(production);
+                has_direct_recursion = true;
+                std::cout << "Recursão à Esquerda Direta detectada em: " << n_terminal << " ->";
+                for (const auto &symbol : production)
+                    std::cout << " " << symbol;
+                std::cout << std::endl;
             }
         }
 
-        // Se houver produções recursivas à esquerda, aplicar a transformação
-        if (!alpha_productions.empty())
+        if (has_direct_recursion)
         {
-            // Criar um novo não-terminal A'
-            std::string new_non_terminal = n_terminal + "'"; // Pode adicionar uma verificação para garantir que não há conflito de nomes
-
-            // Transformar as produções não-recursivas (A -> b) em A -> bA'
-            for (auto &beta : beta_productions)
-            {
-                std::string beta_prod = "";
-                for (const auto &symbol : beta)
-                {
-                    beta_prod += symbol + " ";
-                }
-                beta_prod += new_non_terminal; // Adiciona A' no final
-
-                addProduction(n_terminal, beta_prod);
-            }
-
-            // Transformar as produções recursivas (A -> Aa) em A' -> aA'
-            for (auto &alpha : alpha_productions)
-            {
-                std::string alpha_prod = "";
-                for (const auto &symbol : alpha)
-                {
-                    alpha_prod += symbol + " ";
-                }
-                alpha_prod += new_non_terminal; // Adiciona A' no final
-
-                addProduction(new_non_terminal, alpha_prod);
-            }
-
-            // Adicionar a produção e (A' -> e) ao novo não-terminal
-            addProduction(new_non_terminal, "");
+            std::cout << "Sugestão: Eliminar a recursão à esquerda direta para o não-terminal " << n_terminal << "." << std::endl << std::endl;;
         }
     }
 
-    // Passo 2: Fatoração à Esquerda
+    // Passo 2: Detectar Recursão à Esquerda Indireta
+    for (auto &[n_terminal, id] : nao_terminais)
+    {
+        std::set<std::string> visited;
+        std::deque<std::string> stack;
+        stack.push_back(n_terminal);
+
+        while (!stack.empty())
+        {
+            std::string current = stack.front();
+            stack.pop_front();
+
+            if (visited.count(current) > 0)
+            {
+                std::cout << "Recursão à Esquerda Indireta detectada envolvendo: " << n_terminal << " -> " << current << std::endl;
+                std::cout << "Sugestão: Eliminar a recursão à esquerda indireta." << std::endl << std::endl;;
+                break;
+            }
+
+            visited.insert(current);
+
+            for (auto &production : productions[nao_terminais[current]])
+            {
+                if (nao_terminais.count(production.front()) > 0)
+                {
+                    stack.push_back(production.front());
+                }
+            }
+        }
+    }
+
+    // Passo 3: Detectar Fatoração à Esquerda
     for (auto &[n_terminal, id] : nao_terminais)
     {
         std::map<std::string, std::vector<std::deque<std::string>>> prefix_map;
@@ -133,27 +127,20 @@ void Gramatica::toLL1()
             }
         }
 
-        // Fatorar as produções que compartilham prefixo
+        // Detectar produções que precisam de fatoração à esquerda
         for (const auto &[prefix, group] : prefix_map)
         {
             if (group.size() > 1) // Mais de uma produção compartilha o mesmo prefixo
             {
-                // Criar um novo não-terminal A'
-                std::string new_non_terminal = n_terminal + prefix + "'";
-
-                // Adicionar a nova produção fatorada (A -> prefix A')
-                addProduction(n_terminal, prefix + " " + new_non_terminal);
-
-                // Adicionar as produções para o novo não-terminal A'
+                std::cout << "Fatoração à Esquerda necessária para o não-terminal " << n_terminal << " devido ao prefixo comum \"" << prefix << "\"." << std::endl;
                 for (const auto &prod : group)
                 {
-                    std::string suffix = "";
-                    for (size_t i = 1; i < prod.size(); ++i) // Pula o prefixo
-                    {
-                        suffix += prod[i] + " ";
-                    }
-                    addProduction(new_non_terminal, suffix.empty() ? "" : suffix);
+                    std::cout << "  " << n_terminal << " ->";
+                    for (const auto &sym : prod)
+                        std::cout << " " << sym;
+                    std::cout << std::endl;
                 }
+                std::cout << "Sugestão: Aplicar fatoração à esquerda para o não-terminal " << n_terminal << "." << std::endl << std::endl;;
             }
         }
     }

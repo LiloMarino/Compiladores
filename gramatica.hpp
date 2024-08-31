@@ -48,9 +48,9 @@ public:
     void toParsingTable(AnalisadorSintatico &sintatico);
 
     /**
-     * @brief Transforma a gramática para LL(1)
+     * @brief Identifica problemas para usar a gramática como LL(1)
      */
-    void toLL1();
+    void identifyConflicts();
 
     /**
      * @brief Verifica se um símbolo é um não terminal
