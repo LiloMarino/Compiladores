@@ -112,10 +112,11 @@ void createParseTable(AnalisadorSintatico &as)
     grammar.addProduction("ListaComandos", "Comandos ; ListaComandosFE");
     grammar.addProduction("ListaComandosFE", "");
     grammar.addProduction("ListaComandosFE", "ListaComandos");
-    grammar.addProduction("Comandos", "identificador ComandosFE1");
+    grammar.addProduction("Comandos", "identificador ComandosFE4");
+    grammar.addProduction("ComandosFE4", "ComandosFE1");
+    grammar.addProduction("ComandosFE4", "VariavelFE <- Expressao");
     grammar.addProduction("ComandosFE1", "( ExprIter )");
     grammar.addProduction("ComandosFE1", "");
-    grammar.addProduction("Comandos", "Variavel <- Expressao");
     grammar.addProduction("Comandos", "se Expressao entao ListaComandos ComandosFE3");
     grammar.addProduction("ComandosFE3", "fim se");
     grammar.addProduction("ComandosFE3", "senao ListaComandos fim se");
@@ -154,8 +155,9 @@ void createParseTable(AnalisadorSintatico &as)
     grammar.addProduction("Fator", "verdadeiro");
     grammar.addProduction("Fator", "falso");
     grammar.addProduction("Fator", "string");
-    grammar.addProduction("Fator", "identificador ( ExprIter )");
-    grammar.addProduction("Fator", "Variavel");
+    grammar.addProduction("Fator", "identificador FatorFE");
+    grammar.addProduction("FatorFE", "VariavelFE");
+    grammar.addProduction("FatorFE", "( ExprIter )");
     grammar.addProduction("Variavel", "identificador VariavelFE");
     grammar.addProduction("VariavelFE", "[ ExprIter ]");
     grammar.addProduction("VariavelFE", "");
