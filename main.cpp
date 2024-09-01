@@ -180,31 +180,28 @@ int main()
     list<LexicalGroup> all_tokens;
     string input;
     bool first_line = true;
-    while (getline(cin, input))
+    try
     {
-        try
+        while (getline(cin, input))
         {
             list<LexicalGroup> tokens = lexic.reconhecer(input);
             all_tokens.insert(all_tokens.end(), tokens.begin(), tokens.end());
         }
-        catch (const AnalisadorLexico::LexicalError &e)
-        {
-            if (!first_line)
-            {
-                std::cout << std::endl;
-            }
-            std::cout << e.what();
-            first_line = false;
-        }
-    }
-    try
-    {
         sintatic.analisar(all_tokens);
         if (!first_line)
         {
             std::cout << std::endl;
         }
         std::cout << "PROGRAMA CORRETO.";
+        first_line = false;
+    }
+    catch (const AnalisadorLexico::LexicalError &e)
+    {
+        if (!first_line)
+        {
+            std::cout << std::endl;
+        }
+        std::cout << e.what();
         first_line = false;
     }
     catch (const AnalisadorSintatico::SintaticError &e)

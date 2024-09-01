@@ -9,6 +9,8 @@ struct LexicalGroup
 {
     std::string token;
     std::string cadeia;
+    int token_column;       // Coluna de início do token
+    int token_line;         // Linha do token
 };
 
 /**
@@ -22,7 +24,8 @@ private:
     std::unordered_set<std::string> ignore_tokens;
     bool multiline_comment = false;
     std::pair<std::string, std::string> multiline_tokens;
-
+    int line = 0;
+    int column = 0;
 public:
     AnalisadorLexico(AutomatoFinito &a);
 
@@ -67,7 +70,7 @@ public:
         std::string mensagem;
 
     public:
-        explicit LexicalError(const std::string &token);
+        explicit LexicalError(const LexicalGroup &token);
 
         virtual const char *what() const noexcept override;
     };

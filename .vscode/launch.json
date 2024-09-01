@@ -8,7 +8,7 @@
             "name": "Depurar",
             "type": "cppdbg",
             "request": "launch",
-            "program": "${workspaceFolder}/l10e4",
+            "program": "${workspaceFolder}/portugol",
             "visualizerFile": "${workspaceFolder}/debug/custom.natvis",
             "args": [],
             "stopAtEntry": false,

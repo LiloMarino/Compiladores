@@ -9,6 +9,8 @@ AnalisadorLexico::AnalisadorLexico(AutomatoFinito &a) : automato(a)
 
 list<LexicalGroup> AnalisadorLexico::reconhecer(const string &entrada)
 {
+    column = 1;
+    ++line;
     list<LexicalGroup> lista_tokens;
     string termo;
     int estado_atual = 1; // Estado inicial
@@ -21,7 +23,7 @@ list<LexicalGroup> AnalisadorLexico::reconhecer(const string &entrada)
         ultimo_estado_valido = 0;
         estado_atual = 1; // Reseta para o estado inicial para cada novo token
 
-        for (size_t i = index; i < entrada.size(); ++i)
+        for (size_t i = index; i < entrada.size(); ++i, ++column)
         {
             char c = entrada[i];
 
@@ -38,9 +40,11 @@ list<LexicalGroup> AnalisadorLexico::reconhecer(const string &entrada)
                 else
                 {
                     // Token inválido
-                    throw LexicalError(termo + c);
-                    // lista_tokens.push_back({"ERRO", termo + c});
-                    // index = i + 1;
+                    LexicalGroup error;
+                    error.cadeia += c;
+                    error.token_column = this->column;
+                    error.token_line = this->line;
+                    throw LexicalError(error);
                 }
                 break;
             }
@@ -72,7 +76,7 @@ list<LexicalGroup> AnalisadorLexico::reconhecer(const string &entrada)
     return lista_tokens;
 }
 
-void AnalisadorLexico::verifyToken(int ultimo_estado_valido, std::__cxx11::list<LexicalGroup> &lista_tokens, std::string &termo)
+void AnalisadorLexico::verifyToken(int ultimo_estado_valido, std::list<LexicalGroup> &lista_tokens, std::string &termo)
 {
     std::string token = this->automato.tokens.getTokenByFinalState(ultimo_estado_valido);
     // Verifica se não é um token ignorado
@@ -116,11 +120,10 @@ void AnalisadorLexico::setMultilineComment(const std::string &token_start, const
     multiline_tokens.second = token_end;
 }
 
-AnalisadorLexico::LexicalError::LexicalError(const std::string &token)
+AnalisadorLexico::LexicalError::LexicalError(const LexicalGroup &token)
 {
     std::string erro;
-    erro += "ERRO LEXICO: ";
-    erro += token;
+    erro += "ERRO LEXICO. Linha: " + to_string(token.token_line) + " Coluna: " + to_string(token.token_column) + " -> '" + token.cadeia + "'";
     this->mensagem = std::move(erro);
 }
 

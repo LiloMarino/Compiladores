@@ -72,7 +72,8 @@ void AnalisadorSintatico::analisar(const std::list<LexicalGroup> &tokens)
 {
     std::stack<std::string> pilha;
     pilha.push(simbolo_inicial);
-    for (auto &[token, str] : tokens)
+    
+    for (auto &[token, str, col, row] : tokens)
     {
         bool obtido_token = false;
         while (!obtido_token)
