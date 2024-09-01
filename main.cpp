@@ -64,7 +64,7 @@ void createAutomato(AutomatoFinito &af)
     af.addRegularExpression("[a-zA-Z_-_][a-zA-Z0-9_-_]*", "identificador");
     af.addRegularExpression("[0-9]+", "numero_inteiro");
     af.addRegularExpression("[0-9]+\\.[0-9]+", "numero_real");
-    af.addRegularExpression("\"[a-zA-Z0-9_-_]*\"", "string");
+    af.addRegularExpression("\"[ -!#-~]*\"", "string");
     af.addRegularExpression("//.*", "comment");
     af.addRegularExpression("{", "multiline start");
     af.addRegularExpression("}", "multiline end");
@@ -164,7 +164,6 @@ void createParseTable(AnalisadorSintatico &as)
     grammar.addProduction("ExprIter", "Expressao ExprIterFE");
     grammar.addProduction("ExprIterFE", ", ExprIter");
     grammar.addProduction("ExprIterFE", "");
-    grammar.identifyConflicts();
     grammar.toParsingTable(as);
 }
 
@@ -178,9 +177,6 @@ int main()
     lexic.setMultilineComment("multiline start", "multiline end");
     AnalisadorSintatico sintatic("S");
     createParseTable(sintatic);
-    ofstream arquivo("__table.txt");
-    sintatic.exibirTabela(arquivo);
-    arquivo.close();
     string input;
     bool first_line = true;
     while (getline(cin, input))

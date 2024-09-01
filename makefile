@@ -1,8 +1,8 @@
 # Nome do executável
-EXEC_NAME = l10e4
+EXEC_NAME = portugol
 
 # Nome do zip
-ZIP_NAME = LISTA_10_EXERCICIO_4
+ZIP_NAME = portugol.zip
 
 # Lista de arquivos fonte
 SOURCES = main.cpp automato_finito.cpp lexico.cpp state.cpp generic_automata.cpp token_manager.cpp sintatico.cpp gramatica.cpp
