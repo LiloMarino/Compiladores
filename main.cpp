@@ -175,8 +175,9 @@ int main()
     lexic.addIgnoreToken("whitespace");
     lexic.addIgnoreToken("comment");
     lexic.setMultilineComment("multiline start", "multiline end");
-    AnalisadorSintatico sintatic("S");
+    AnalisadorSintatico sintatic("Programa");
     createParseTable(sintatic);
+    list<LexicalGroup> all_tokens;
     string input;
     bool first_line = true;
     while (getline(cin, input))
@@ -184,27 +185,7 @@ int main()
         try
         {
             list<LexicalGroup> tokens = lexic.reconhecer(input);
-            for (auto &&[token, cadeia] : tokens)
-            {
-                std::cout << token << " " << cadeia << std::endl;
-            }
-
-            // sintatic.analisar(tokens);
-            // if (!first_line)
-            // {
-            //     std::cout << std::endl;
-            // }
-            // std::cout << "CADEIA ACEITA";
-            first_line = false;
-        }
-        catch (const AnalisadorSintatico::SintaticError &e)
-        {
-            if (!first_line)
-            {
-                std::cout << std::endl;
-            }
-            std::cout << e.what();
-            first_line = false;
+            all_tokens.insert(all_tokens.end(), tokens.begin(), tokens.end());
         }
         catch (const AnalisadorLexico::LexicalError &e)
         {
@@ -216,5 +197,25 @@ int main()
             first_line = false;
         }
     }
+    try
+    {
+        sintatic.analisar(all_tokens);
+        if (!first_line)
+        {
+            std::cout << std::endl;
+        }
+        std::cout << "PROGRAMA CORRETO.";
+        first_line = false;
+    }
+    catch (const AnalisadorSintatico::SintaticError &e)
+    {
+        if (!first_line)
+        {
+            std::cout << std::endl;
+        }
+        std::cout << e.what();
+        first_line = false;
+    }
+
     return 0;
 }
