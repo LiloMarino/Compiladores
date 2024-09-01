@@ -16,12 +16,16 @@ list<LexicalGroup> AnalisadorLexico::reconhecer(const string &entrada)
     int estado_atual = 1; // Estado inicial
     int ultimo_estado_valido = 0;
     size_t index = 0;
+    int token_start_column = column;
+    int token_start_line = line;
 
     while (index < entrada.size())
     {
         termo.clear();
         ultimo_estado_valido = 0;
         estado_atual = 1; // Reseta para o estado inicial para cada novo token
+        token_start_column = column;
+        token_start_line = line;
 
         for (size_t i = index; i < entrada.size(); ++i, ++column)
         {
@@ -34,7 +38,7 @@ list<LexicalGroup> AnalisadorLexico::reconhecer(const string &entrada)
                 if (ultimo_estado_valido != 0)
                 {
                     // Token válido dado pelo último estado final válido
-                    verifyToken(ultimo_estado_valido, lista_tokens, termo);
+                    verifyToken(ultimo_estado_valido, lista_tokens, termo, token_start_line, token_start_column);
                     index = i;
                 }
                 else
@@ -62,7 +66,7 @@ list<LexicalGroup> AnalisadorLexico::reconhecer(const string &entrada)
             // Se chegou ao final sem estado inválido, processa o termo restante
             if (i == entrada.size() - 1 && ultimo_estado_valido != 0)
             {
-                verifyToken(ultimo_estado_valido, lista_tokens, termo);
+                verifyToken(ultimo_estado_valido, lista_tokens, termo, token_start_line, token_start_column);
                 index = i + 1;
             }
         }
@@ -76,9 +80,10 @@ list<LexicalGroup> AnalisadorLexico::reconhecer(const string &entrada)
     return lista_tokens;
 }
 
-void AnalisadorLexico::verifyToken(int ultimo_estado_valido, std::list<LexicalGroup> &lista_tokens, std::string &termo)
+void AnalisadorLexico::verifyToken(int ultimo_estado_valido, std::list<LexicalGroup> &lista_tokens, std::string &termo, int token_start_line, int token_start_column)
 {
     std::string token = this->automato.tokens.getTokenByFinalState(ultimo_estado_valido);
+    
     // Verifica se não é um token ignorado
     if (ignore_tokens.find(token) == ignore_tokens.end())
     {
@@ -93,8 +98,8 @@ void AnalisadorLexico::verifyToken(int ultimo_estado_valido, std::list<LexicalGr
         }
         else if (!multiline_comment)
         {
-            // Token válido então adiciona na lista
-            lista_tokens.push_back({std::move(token), termo});
+            // Token válido, então adiciona na lista
+            lista_tokens.push_back({std::move(token), termo, token_start_column, token_start_line});
         }
     }
 }

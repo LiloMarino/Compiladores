@@ -3,6 +3,7 @@
 #include <iomanip>
 #include <map>
 #include <algorithm>
+#include <string>
 
 AnalisadorSintatico::AnalisadorSintatico(std::string simbolo_inicial) : simbolo_inicial(simbolo_inicial)
 {
@@ -73,21 +74,20 @@ void AnalisadorSintatico::analisar(const std::list<LexicalGroup> &tokens)
     std::stack<std::string> pilha;
     pilha.push(simbolo_inicial);
     
-    for (auto &[token, str, col, row] : tokens)
+    for (auto &token : tokens)
     {
         bool obtido_token = false;
         while (!obtido_token)
         {
             std::string n_terminal = pilha.top();
             pilha.pop();
-            if (n_terminal != token)
+            if (n_terminal != token.token)
             {
                 // Não terminal obtido então deriva
                 SintaticGroup production = this->getProduction(n_terminal, token);
                 if (production.isEmpty())
                 {
-                    std::string expected = getExpected(n_terminal);
-                    throw SintaticError(token, expected);
+                    throw SintaticError(token);
                 }
                 for (auto it = production.simbols.rbegin(); it != production.simbols.rend(); ++it)
                 {
@@ -103,8 +103,7 @@ void AnalisadorSintatico::analisar(const std::list<LexicalGroup> &tokens)
     }
     if (!pilha.empty())
     {
-        std::string expected = getExpected(pilha.top());
-        throw SintaticError("", expected);
+        throw SintaticError(tokens.back());
     }
 }
 
@@ -209,6 +208,23 @@ SintaticGroup AnalisadorSintatico::getProduction(const std::string &nao_terminal
     }
 }
 
+SintaticGroup AnalisadorSintatico::getProduction(const std::string &nao_terminal, const LexicalGroup &token) const
+{
+    auto nt_it = nao_terminais.find(nao_terminal);
+    auto t_it = terminais.find(token.token);
+
+    if (nt_it != nao_terminais.end() && t_it != terminais.end())
+    {
+        int row = nt_it->second;
+        int col = t_it->second;
+        return parsing_table[row][col];
+    }
+    else
+    {
+        throw SintaticError(token);
+    }
+}
+
 void AnalisadorSintatico::adicionarNaoTerminal(const std::string &nao_terminal)
 {
     if (nao_terminais.find(nao_terminal) == nao_terminais.end())
@@ -247,6 +263,15 @@ AnalisadorSintatico::SintaticError::SintaticError(const std::string &token, cons
     }
     erro += "ESPERADO: ";
     erro += expected;
+    this->mensagem = std::move(erro);
+}
+
+AnalisadorSintatico::SintaticError::SintaticError(const LexicalGroup &token)
+{
+    std::string erro;
+    erro += "ERRO DE SINTAXE. Linha: " + std::to_string(token.token_line);
+    erro += " Coluna: " + std::to_string(token.token_column);
+    erro += " -> '" + token.cadeia + "'";
     this->mensagem = std::move(erro);
 }
 

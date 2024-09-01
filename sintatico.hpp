@@ -70,6 +70,14 @@ public:
     SintaticGroup getProduction(const std::string &nao_terminal, const std::string &terminal) const;
 
     /**
+     * @brief Realiza uma derivação na tabela
+     * @param nao_terminal Não terminal a ser derivado
+     * @param token Token desejado
+     * @return Grupo Sintático para operar a pilha
+     */
+    SintaticGroup getProduction(const std::string &nao_terminal, const LexicalGroup &token) const;
+
+    /**
      * @brief Adiciona um não terminal a tabela
      * @param nao_terminal Não terminal a ser adicionado
      */
@@ -102,6 +110,7 @@ public:
         std::string mensagem;
 
     public:
+        explicit SintaticError(const LexicalGroup &token);
         explicit SintaticError(const std::string &token, const std::string &expected);
         explicit SintaticError(const std::string &msg);
         virtual const char *what() const noexcept override;

@@ -82,7 +82,7 @@ private:
      * @param lista_tokens Lista de tokens
      * @param termo Termo reconhecido
      */
-    void verifyToken(int ultimo_estado_valido, std::list<LexicalGroup> &lista_tokens, std::string &termo);
+    void verifyToken(int ultimo_estado_valido, std::list<LexicalGroup> &lista_tokens, std::string &termo, int token_start_line, int token_start_column);
 };
 
 #endif
