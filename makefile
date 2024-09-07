@@ -1,59 +1,73 @@
 # Nome do executável
-EXEC_NAME = portugol
+EXEC_NAME = l14e1
 
 # Nome do zip
-ZIP_NAME = portugol.zip
+ZIP_NAME = LISTA_14_EXERCICIO_1
 
 # Lista de arquivos fonte
-SOURCES = main.cpp automato_finito.cpp lexico.cpp state.cpp generic_automata.cpp token_manager.cpp sintatico.cpp gramatica.cpp
+SOURCES = main.cpp utils.cpp
+LEXER = lex.yy.c
+PARSER = parser.tab.c parser.tab.h
 
-# Gerar lista de headers automaticamente (qualquer .cpp que não seja main.cpp)
+# Lista de headers automaticamente (qualquer .cpp que não seja main.cpp)
 HEADERS = $(patsubst %.cpp,%.hpp,$(filter-out main.cpp,$(SOURCES)))
 
 # Lista todos os arquivos envolvidos
-FILES = $(SOURCES) $(HEADERS) makefile
+FILES = $(SOURCES) $(HEADERS) makefile $(LEXER) $(PARSER)
 
 # Definir o compilador
 CXX = g++
+LEX = flex
+YACC = bison
 
 # Definir flags do compilador
 CXXFLAGS = -Wall -Wextra -std=c++17 -g
 
 # Gerar a lista de arquivos objeto a partir dos arquivos fonte
-OBJECTS = $(SOURCES:.cpp=.o)
+OBJECTS = $(SOURCES:.cpp=.o) lexer.o parser.o
 
-# Regra padrão para compilar o projeto
-all: $(EXEC_NAME)
+# Alvo padrão
+all: $(LEXER) $(PARSER) $(EXEC_NAME)
 
-# Regra para gerar o executável
+# Regras de compilação
 $(EXEC_NAME): $(OBJECTS)
-	$(CXX) $(CXXFLAGS) -o $@ $^
+	$(CXX) $(CXXFLAGS) -o $@ $(OBJECTS)
 
-# Regra para compilar arquivos .cpp em .o e gerar dependências
+parser.tab.c parser.tab.h: parser.y
+	$(YACC) -d parser.y
+
+$(LEXER): lexer.l
+	$(LEX) lexer.l
+
 %.o: %.cpp
-	$(CXX) $(CXXFLAGS) -MMD -c $< -o $@
+	$(CXX) $(CXXFLAGS) -c $<
 
-# Incluir dependências geradas automaticamente
--include $(SOURCES:.cpp=.d)
+parser.o: parser.tab.c
+	$(CXX) $(CXXFLAGS) -c $<
+
+lexer.o: $(LEXER)
+	$(CXX) $(CXXFLAGS) -c $(LEXER)
+
+-include $(OBJECTS:.o=.d)
 
 # run: Compila e roda o programa
 run: $(EXEC_NAME)
 	./$(EXEC_NAME)
 
 # zip: Zippa os arquivos fonte
-zip: $(ZIP_NAME)
+zip: $(ZIP_NAME).zip
 
-$(ZIP_NAME): $(FILES)
-	zip -r $(ZIP_NAME) $(FILES)
+$(ZIP_NAME).zip: $(FILES)
+	zip -r $(ZIP_NAME).zip $(FILES)
 	mkdir -p $(ZIP_NAME)
-	unzip -q $(ZIP_NAME) -d $(ZIP_NAME)
+	unzip -q $(ZIP_NAME).zip -d $(ZIP_NAME)
 
 # clean: Limpa todos os arquivos gerados da compilação
 clean:
-	rm -f $(OBJECTS) 
+	rm -f $(OBJECTS)
 	rm -f $(SOURCES:.cpp=.d)
 	rm -f $(EXEC_NAME)
-	rm -f lex.yy.cpp
+	rm -f $(LEXER) parser.tab.c parser.tab.h
 
 # valgrind: Regra para executar o programa com o Valgrind
 valgrind: all

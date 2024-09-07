@@ -43,6 +43,10 @@ def main():
 
     if not os.path.exists(output_folder):
         os.makedirs(output_folder)
+    if not os.path.exists(input_folder):
+        os.makedirs(input_folder)
+    if not os.path.exists(expected_folder):
+        os.makedirs(expected_folder)
 
     run_program(executable, input_folder, output_folder)
     identical_count, total_files, differences = compare_files(output_folder, expected_folder)
