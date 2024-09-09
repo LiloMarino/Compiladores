@@ -2,6 +2,7 @@
 #include <iostream>
 #include "utils.hpp"
 void yyerror(const char *s);
+extern int yylex();
 %}
 
 %token NUMBER PLUS MINUS MULTIPLY DIVIDE

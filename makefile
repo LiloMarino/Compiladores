@@ -24,7 +24,7 @@ YACC = bison
 CXXFLAGS = -Wall -Wextra -std=c++17 -g
 
 # Gerar a lista de arquivos objeto a partir dos arquivos fonte
-OBJECTS = $(SOURCES:.cpp=.o) lexer.o parser.o
+OBJECTS = $(SOURCES:.cpp=.o) lex.yy.o parser.tab.o
 
 # Alvo padrão
 all: $(LEXER) $(PARSER) $(EXEC_NAME)
@@ -42,10 +42,10 @@ $(LEXER): lexer.l
 %.o: %.cpp
 	$(CXX) $(CXXFLAGS) -c $<
 
-parser.o: parser.tab.c
+parser.tab.o: parser.tab.c
 	$(CXX) $(CXXFLAGS) -c $<
 
-lexer.o: $(LEXER)
+lex.yy.o: $(LEXER)
 	$(CXX) $(CXXFLAGS) -c $(LEXER)
 
 -include $(OBJECTS:.o=.d)
@@ -68,6 +68,7 @@ clean:
 	rm -f $(SOURCES:.cpp=.d)
 	rm -f $(EXEC_NAME)
 	rm -f $(LEXER) parser.tab.c parser.tab.h
+	rm -f *.o
 
 # valgrind: Regra para executar o programa com o Valgrind
 valgrind: all
