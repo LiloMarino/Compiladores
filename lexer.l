@@ -1,20 +1,31 @@
 %{
 #include "parser.tab.h"
 #include "utils.hpp"
+#include <iostream>
+int column = 1;
 %}
 
 %%
 
-[ \t\n]+       ;
-[0-9]+         { return NUMBER; }
-"+"            { return PLUS; }
-"-"            { return MINUS; }
-"*"            { return MULTIPLY; }
-"/"            { return DIVIDE; }
-.              { 
-                 log_error("Token não reconhecido");
-                 return yytext[0]; 
-               }
+[ \t]+          {/* Ignora */}
+[0-9]+          { column += yyleng; return NUMBER; }
+[0-9]*"."[0-9]+ { column += yyleng; return REAL_NUMBER; }
+[0-9]+"."[0-9]* { column += yyleng; return REAL_NUMBER; }
+[a-z][a-z0-9]+  { column += yyleng; return VARIABLE; }
+"+"             { column += yyleng; return PLUS; }
+"-"             { column += yyleng; return MINUS; }
+"*"             { column += yyleng; return MULTIPLY; }
+"/"             { column += yyleng; return DIVIDE; }
+"^"             { column += yyleng; return POW; }
+"%"             { column += yyleng; return REST; }
+"("             { column += yyleng; return L_PAREN; }
+")"             { column += yyleng; return R_PAREN; }
+"sen"           { column += yyleng; return SEN; }
+"cos"           { column += yyleng; return COS; }
+"tan"           { column += yyleng; return TAN; }
+"abs"           { column += yyleng; return ABS; }
+\n              { column = 1; }
+.               { std::out << "ERROR: " << yytext << std::endl;}
 
 %%
 
