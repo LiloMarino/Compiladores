@@ -8,6 +8,10 @@ int column = 1;
 %%
 
 [ \t]+          {/* Ignora */}
+"sen"           { column += yyleng; return SEN; }
+"cos"           { column += yyleng; return COS; }
+"tan"           { column += yyleng; return TAN; }
+"abs"           { column += yyleng; return ABS; }
 [0-9]+          { column += yyleng; return NUMBER; }
 [0-9]*"."[0-9]+ { column += yyleng; return REAL_NUMBER; }
 [0-9]+"."[0-9]* { column += yyleng; return REAL_NUMBER; }
@@ -20,12 +24,8 @@ int column = 1;
 "%"             { column += yyleng; return REST; }
 "("             { column += yyleng; return L_PAREN; }
 ")"             { column += yyleng; return R_PAREN; }
-"sen"           { column += yyleng; return SEN; }
-"cos"           { column += yyleng; return COS; }
-"tan"           { column += yyleng; return TAN; }
-"abs"           { column += yyleng; return ABS; }
 \n              { column = 1; }
-.               { std::out << "ERROR: " << yytext << std::endl;}
+.               { printf("ERROR:  %s\n", yytext);}
 
 %%
 

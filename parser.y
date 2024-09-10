@@ -5,21 +5,28 @@ void yyerror(const char *s);
 extern int yylex();
 %}
 
-%token NUMBER PLUS MINUS MULTIPLY DIVIDE
+%token NUMBER REAL_NUMBER VARIABLE PLUS MINUS MULTIPLY DIVIDE POW REST L_PAREN R_PAREN SEN COS TAN ABS
+
+%start expr
 
 %%
 
-input:
-    | input expr '\n' { std::cout << "Resultado: " << $2 << std::endl; }
-    ;
-
-expr:
-    NUMBER                { $$ = $1; }
-    | expr PLUS expr      { $$ = $1 + $3; }
-    | expr MINUS expr     { $$ = $1 - $3; }
-    | expr MULTIPLY expr  { $$ = $1 * $3; }
-    | expr DIVIDE expr    { $$ = $1 / $3; }
-    ;
+operator: PLUS | MINUS | ;
+var: NUMBER | VARIABLE | REAL_NUMBER;
+opvar: operator var
+expr: L_PAREN expr R_PAREN 
+    | expr PLUS expr 
+    | expr MINUS expr 
+    | expr MULTIPLY expr 
+    | expr DIVIDE expr
+    | expr REST expr
+    | opvar POW opvar
+    | L_PAREN expr R_PAREN POW opvar
+    | SEN L_PAREN expr R_PAREN 
+    | COS L_PAREN expr R_PAREN 
+    | TAN L_PAREN expr R_PAREN 
+    | ABS L_PAREN expr R_PAREN 
+    | opvar
 
 %%
 
