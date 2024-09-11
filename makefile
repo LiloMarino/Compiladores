@@ -1,8 +1,8 @@
 # Nome do executável
-EXEC_NAME = l14e1
+EXEC_NAME = l15e1
 
 # Nome do zip
-ZIP_NAME = LISTA_14_EXERCICIO_1
+ZIP_NAME = LISTA_15_EXERCICIO_1
 
 # Lista de arquivos fonte
 SOURCES = main.cpp utils.cpp
