@@ -4,10 +4,10 @@ import filecmp
 import difflib
 
 def run_program(executable, input_folder, output_folder):
-    input_files: list[str] = [f for f in os.listdir(input_folder) if f.endswith('.txt') or f.endswith('.por')]
+    input_files: list[str] = [f for f in os.listdir(input_folder) if f.endswith('.txt')]
     for input_file in input_files:
         input_path = os.path.join(input_folder, input_file)
-        output_path = os.path.join(output_folder, ("saida_" + input_file).replace("entrada","saida") + ".txt")
+        output_path = os.path.join(output_folder, input_file.replace("entrada","saida"))
         with open(input_path, 'r') as infile, open(output_path, 'w') as outfile:
             subprocess.run([executable], stdin=infile, stdout=outfile)
 
@@ -16,11 +16,9 @@ def compare_files(output_folder, expected_folder):
     identical_count = 0
     total_files = len(output_files)
     differences = []
-
     for output_file in output_files:
         output_path = os.path.join(output_folder, output_file)
         expected_path = os.path.join(expected_folder, output_file)
-
         if filecmp.cmp(output_path, expected_path, shallow=False):
             identical_count += 1
         else:
@@ -32,11 +30,10 @@ def compare_files(output_folder, expected_folder):
                     tofile='expected'
                 ))
                 differences.append((output_file, diff))
-
     return identical_count, total_files, differences
 
 def main():
-    executable = './portugol'
+    executable = './l14e1'
     input_folder = 'entrada'
     output_folder = 'saida'
     expected_folder = 'saida_esperada'

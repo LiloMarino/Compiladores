@@ -13,7 +13,7 @@ PARSER = parser.tab.c parser.tab.h
 HEADERS = $(patsubst %.cpp,%.hpp,$(filter-out main.cpp,$(SOURCES)))
 
 # Lista todos os arquivos envolvidos
-FILES = $(SOURCES) $(HEADERS) makefile $(LEXER) $(PARSER)
+FILES = $(SOURCES) $(HEADERS) makefile lexer.l parser.y
 
 # Definir o compilador
 CXX = g++
