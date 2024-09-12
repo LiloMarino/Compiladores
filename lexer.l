@@ -1,19 +1,19 @@
 %{
+#include <string>
 #include "parser.tab.h"
-#include <iostream>
-#include <cstring>
-#include <cstdlib>
 %}
 
 %%
+
 "int"          { return INT; }
 "float"        { return FLOAT; }
 "char"         { return CHAR; }
-[a-z]+         { yylval.str = strdup(yytext); return ID; }
-[ \t\n\r]+     { /* Ignore whitespace */ }
+[a-z]+         { yylval.str = new std::string(yytext); return ID; }
 ","            { return ','; }
 "$"            { return '$'; }
-.              { std::cerr << "Invalid character: " << yytext << std::endl; exit(1); }
+.              { /* Ignora qualquer outro caractere */ }
+[ \t\n]+       { /* Ignora espaços e novas linhas */ }
+
 %%
 
 int yywrap() {

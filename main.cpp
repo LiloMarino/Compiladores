@@ -1,6 +1,5 @@
 #include "utils.hpp"
-
-int yyparse();
+#include "parser.tab.h"
 
 int main() {
     yyparse();
