@@ -11,8 +11,9 @@
 [a-z]+         { yylval.str = new std::string(yytext); return ID; }
 ","            { return ','; }
 "$"            { return '$'; }
+[ \t\r]+       { /* Ignora espaços, tabulações e retornos de carro */ }
+\n             { /* Ignora novas linhas */ }
 .              { /* Ignora qualquer outro caractere */ }
-[ \t\n]+       { /* Ignora espaços e novas linhas */ }
 
 %%
 

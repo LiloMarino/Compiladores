@@ -1,22 +1,48 @@
 #include "utils.hpp"
+#include <vector>
 #include <sstream>
+#include <iostream>
 
-bool SymbolTable::addSymbol(const std::string &name, const std::string &type, std::string &errorMsg) {
-    auto it = table.find(name);
+extern int yylineno;
+SymbolTable symbolTable;
 
-    if (it != table.end()) {
-        if (it->second == type) {
-            errorMsg = "identifier '" + name + "' already declared";
-        } else {
-            errorMsg = "redefinition of identifier '" + name + "'";
-        }
-        return false;
+void SymbolTable::addSymbol(const std::string &type, const std::string &declaration)
+{
+    // Separa as , e obtém os identificadores separados
+    std::vector<std::string> identificadores;
+    std::istringstream stream(declaration);
+    std::string identificador;
+    while (std::getline(stream, identificador, ','))
+    {
+        identificadores.push_back(identificador);
     }
 
-    table[name] = type;
-    return true;
+    // Para cada identificador trata ele e adiciona na tabela de símbolos
+    for (const auto &id : identificadores)
+    {
+        auto it = table.find(id);
+        if (it != table.end())
+        {
+            if (it->second == type)
+            {
+                showMessage("identifier '" + id + "' already declared");
+            }
+            else
+            {
+                showMessage("redefinition of identifier '" + id + "'");
+            }
+            return;
+        }
+        table[id] = type;
+    }
 }
 
-void SymbolTable::clearTable() {
+void SymbolTable::clearTable()
+{
     table.clear();
+}
+
+void showMessage(const std::string &msg)
+{
+    std::cout << yylineno << ": " << msg << std::endl;
 }
