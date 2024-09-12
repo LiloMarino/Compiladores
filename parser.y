@@ -9,6 +9,7 @@
 %{
 extern int yylex();
 void yyerror(const char *s);
+bool error = false;
 %}
 
 %union {
@@ -23,8 +24,12 @@ void yyerror(const char *s);
 %%
 
 S : D D_prime '$' { 
-      showMessage("All Identifiers on Hash.");
+      if(!error)
+      {
+        showMessage("All Identifiers on Hash.");
+      }
       symbolTable.clearTable(); 
+      error = false;
     }
   ;
 

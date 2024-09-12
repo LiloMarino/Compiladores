@@ -4,6 +4,7 @@
 #include <iostream>
 
 extern int yylineno;
+extern bool error;
 SymbolTable symbolTable;
 
 void SymbolTable::addSymbol(const std::string &type, const std::string &declaration)
@@ -26,10 +27,12 @@ void SymbolTable::addSymbol(const std::string &type, const std::string &declarat
             if (it->second == type)
             {
                 showMessage("identifier '" + id + "' already declared");
+                error = true;
             }
             else
             {
                 showMessage("redefinition of identifier '" + id + "'");
+                error = true;
             }
             return;
         }
