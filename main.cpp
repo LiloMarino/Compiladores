@@ -1,7 +1,9 @@
 #include "parser.tab.h"
 
-int main() {
-    yyparse();
+int main()
+{
+    while (yyparse() == 0)
+    {
+    }
     return 0;
 }
-

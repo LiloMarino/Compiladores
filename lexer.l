@@ -12,7 +12,7 @@
 ","            { return ','; }
 "$"            { return '$'; }
 [ \t\r]+       { /* Ignora espaços, tabulações e retornos de carro */ }
-\n             { /* Ignora novas linhas */ }
+\n             { yylineno++; }
 .              { /* Ignora qualquer outro caractere */ }
 
 %%

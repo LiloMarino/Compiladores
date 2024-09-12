@@ -30,6 +30,7 @@ S : D D_prime '$' {
       }
       symbolTable.clearTable(); 
       error = false;
+      return 0;
     }
   ;
 
@@ -55,6 +56,4 @@ I : ID        { $$ = $1; }
 
 %%
 
-void yyerror(const char *s) {
-    std::cout << "Parse error: " << s << std::endl;
-}
+void yyerror(const char *s) { /* Ignora os erros */ }
