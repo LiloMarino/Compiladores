@@ -80,7 +80,9 @@
         "typeindex": "cpp",
         "codecvt": "cpp",
         "unordered_set": "cpp",
-        "stack": "cpp"
+        "stack": "cpp",
+        "utils.hpp": "c",
+        "*.ipp": "cpp"
     },
     "makefile.launchConfigurations": [
         {

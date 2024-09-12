@@ -6,6 +6,7 @@
 extern int yylineno;
 extern bool error;
 SymbolTable symbolTable;
+bool firstline = true;
 
 void SymbolTable::addSymbol(const std::string &type, const std::string &declaration)
 {
@@ -34,9 +35,11 @@ void SymbolTable::addSymbol(const std::string &type, const std::string &declarat
                 showMessage("redefinition of identifier '" + id + "'");
                 error = true;
             }
-            return;
         }
-        table[id] = type;
+        else
+        {
+            table[id] = type;
+        }
     }
 }
 
@@ -47,5 +50,10 @@ void SymbolTable::clearTable()
 
 void showMessage(const std::string &msg)
 {
-    std::cout << yylineno << ": " << msg << std::endl;
+    if (!firstline)
+    {
+        std::cout << std::endl;
+    }
+    std::cout << yylineno << ": " << msg;
+    firstline = false;
 }
