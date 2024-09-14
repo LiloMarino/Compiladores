@@ -8,7 +8,7 @@
             "name": "Depurar",
             "type": "cppdbg",
             "request": "launch",
-            "program": "${workspaceFolder}/l15e1",
+            "program": "${workspaceFolder}/Analisador_Sintatico/sintatico",
             "visualizerFile": "${workspaceFolder}/debug/custom.natvis",
             "args": [],
             "stopAtEntry": false,

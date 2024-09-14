@@ -49,86 +49,85 @@ std::string result;
         unput(next); // Devolve o caractere para o buffer de leitura
     }
 }
-<COMMENT>. { coluna += std::strlen(yytext); }
-<COMMENT>\n { coluna = 1; }
+<COMMENT>.             { coluna += std::strlen(yytext); }
+<COMMENT>\n            { coluna = 1; }
 <COMMENT><<EOF>> { 
     throwException(ExceptionLevel::ERROR, true, inicioLinha, inicioColuna, "unterminated comment");
     exit(1);
 }
 "//".*\n               {/*Ignora comentário */ }
-\n                     {coluna=1;/*Ignora quebra de linha*/ }
+\n                     {coluna = 1; }
 [ ]                    {coluna++; }
-"void"                 {print("VOID"); }
-"int"                  {print("INT"); }
-"char"                 {print("CHAR"); }
-"return"               {print("RETURN"); }
-"break"                {print("BREAK"); }
-"switch"               {print("SWITCH"); }
-"case"                 {print("CASE"); }
-"default"              {print("DEFAULT"); }
-"do"                   {print("DO"); }
-"while"                {print("WHILE"); }
-"for"                  {print("FOR"); }
-"if"                   {print("IF"); }
-"else"                 {print("ELSE"); }
-"typedef"              {print("TYPEDEF"); }
-"struct"               {print("STRUCT"); }
-"+"                    {print("PLUS"); }
-"-"                    {print("MINUS"); }
-"*"                    {print("MULTIPLY"); }
-"/"                    {print("DIV"); }
-"%"                    {print("REMAINDER"); }
-"++"                   {print("INC"); }
-"--"                   {print("DEC"); }
-"&"                    {print("BITWISE_AND"); }
-"|"                    {print("BITWISE_OR"); }
-"~"                    {print("BITWISE_NOT"); }
-"^"                    {print("BITWISE_XOR"); }
-"!"                    {print("NOT"); }
-"&&"                   {print("LOGICAL_AND"); }
-"||"                   {print("LOGICAL_OR"); }
-"=="                   {print("EQUAL"); }
-"!="                   {print("NOT_EQUAL"); }
-"<"                    {print("LESS_THAN"); }
-">"                    {print("GREATER_THAN"); }
-"<="                   {print("LESS_EQUAL"); }
-">="                   {print("GREATER_EQUAL"); }
-">>"                   {print("R_SHIFT"); }
-"<<"                   {print("L_SHIFT"); }
-"="                    {print("ASSIGN"); }
-"+="                   {print("ADD_ASSIGN"); }
-"-="                   {print("MINUS_ASSIGN"); }
-";"                    {print("SEMICOLON"); }
-","                    {print("COMMA"); }
-":"                    {print("COLON"); }
-"("                    {print("L_PAREN"); }
-")"                    {print("R_PAREN"); }
-"{"                    {print("L_CURLY_BRACKET"); }
-"}"                    {print("R_CURLY_BRACKET"); }
-"["                    {print("L_SQUARE_BRACKET"); }
-"]"                    {print("R_SQUARE_BRACKET"); }
-"?"                    {print("TERNARY_CONDITIONAL"); }
-"#"                    {print("NUMBER_SIGN"); }
-"->"                   {print("POINTER"); }
-"printf"               {print("PRINTF"); }
-"scanf"                {print("SCANF"); }
-"define"               {print("DEFINE"); }
-"exit"                 {print("EXIT"); }
+"void"                 {coluna += std::strlen(yytext); }
+"int"                  {coluna += std::strlen(yytext); }
+"char"                 {coluna += std::strlen(yytext); }
+"return"               {coluna += std::strlen(yytext); }
+"break"                {coluna += std::strlen(yytext); }
+"switch"               {coluna += std::strlen(yytext); }
+"case"                 {coluna += std::strlen(yytext); }
+"default"              {coluna += std::strlen(yytext); }
+"do"                   {coluna += std::strlen(yytext); }
+"while"                {coluna += std::strlen(yytext); }
+"for"                  {coluna += std::strlen(yytext); }
+"if"                   {coluna += std::strlen(yytext); }
+"else"                 {coluna += std::strlen(yytext); }
+"typedef"              {coluna += std::strlen(yytext); }
+"struct"               {coluna += std::strlen(yytext); }
+"+"                    {coluna += std::strlen(yytext); }
+"-"                    {coluna += std::strlen(yytext); }
+"*"                    {coluna += std::strlen(yytext); }
+"/"                    {coluna += std::strlen(yytext); }
+"%"                    {coluna += std::strlen(yytext); }
+"++"                   {coluna += std::strlen(yytext); }
+"--"                   {coluna += std::strlen(yytext); }
+"&"                    {coluna += std::strlen(yytext); }
+"|"                    {coluna += std::strlen(yytext); }
+"~"                    {coluna += std::strlen(yytext); }
+"^"                    {coluna += std::strlen(yytext); }
+"!"                    {coluna += std::strlen(yytext); }
+"&&"                   {coluna += std::strlen(yytext); }
+"||"                   {coluna += std::strlen(yytext); }
+"=="                   {coluna += std::strlen(yytext); }
+"!="                   {coluna += std::strlen(yytext); }
+"<"                    {coluna += std::strlen(yytext); }
+">"                    {coluna += std::strlen(yytext); }
+"<="                   {coluna += std::strlen(yytext); }
+">="                   {coluna += std::strlen(yytext); }
+">>"                   {coluna += std::strlen(yytext); }
+"<<"                   {coluna += std::strlen(yytext); }
+"="                    {coluna += std::strlen(yytext); }
+"+="                   {coluna += std::strlen(yytext); }
+"-="                   {coluna += std::strlen(yytext); }
+";"                    {coluna += std::strlen(yytext); }
+","                    {coluna += std::strlen(yytext); }
+":"                    {coluna += std::strlen(yytext); }
+"("                    {coluna += std::strlen(yytext); }
+")"                    {coluna += std::strlen(yytext); }
+"{"                    {coluna += std::strlen(yytext); }
+"}"                    {coluna += std::strlen(yytext); }
+"["                    {coluna += std::strlen(yytext); }
+"]"                    {coluna += std::strlen(yytext); }
+"?"                    {coluna += std::strlen(yytext); }
+"#"                    {coluna += std::strlen(yytext); }
+"->"                   {coluna += std::strlen(yytext); }
+"printf"               {coluna += std::strlen(yytext); }
+"scanf"                {coluna += std::strlen(yytext); }
+"define"               {coluna += std::strlen(yytext); }
+"exit"                 {coluna += std::strlen(yytext); }
 [a-zA-Z_][0-9a-zA-Z_]* {
     if (yyleng <= 255)
     {
-        result = "IDENTIFIER(" + std::string(yytext) + ")";
-        print(result);
+        coluna += std::strlen(yytext);
     }
     else
     {
         throwException(ExceptionLevel::ERROR, true, yylineno, coluna, "identifier too long");
     }
 }
-0[1-7][0-7]*           {result = "NUM_OCTAL(" + std::string(yytext) + ")"; print(result); }
-0[xX][0-9a-fA-F]+      {result = "NUM_HEXA(" + std::string(yytext) + ")"; print(result); }
-[0-9]+                 {result = "NUM_INTEGER(" + std::string(yytext) + ")"; print(result); }
-\"(\\.|[^"\\])*?\"     {result = "STRING(" + std::string(yytext+1, std::strlen(yytext) - 2) + ")"; print(result); }
-\'(\\.|[^'\\])\'       {result = "CHARACTER(" + std::string(yytext+1, std::strlen(yytext) - 2) + ")"; print(result); }
+0[1-7][0-7]*           { coluna += std::strlen(yytext); }
+0[xX][0-9a-fA-F]+      { coluna += std::strlen(yytext); }
+[0-9]+                 { coluna += std::strlen(yytext); }
+\"(\\.|[^"\\])*?\"     { coluna += std::strlen(yytext); }
+\'(\\.|[^'\\])\'       { coluna += std::strlen(yytext); }
 .                      {throwException(ExceptionLevel::ERROR, true, yylineno, coluna, yytext); }
 %%

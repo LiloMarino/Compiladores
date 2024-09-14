@@ -12,6 +12,4 @@ enum class ExceptionLevel
 
 void throwException(ExceptionLevel level, bool lexical, int line, int column, const std::string &message);
 
-void print(const std::string &token);
-
 #endif

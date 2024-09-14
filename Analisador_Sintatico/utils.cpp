@@ -30,18 +30,3 @@ void throwException(ExceptionLevel level, bool lexical, int line, int column, co
     firstLine = false;
     coluna += std::strlen(yytext);
 }
-
-void print(const std::string &token)
-{
-    if (firstLine)
-    {
-        std::cout << token;
-        firstLine = false;
-    }
-    else
-    {
-        std::cout << "\n"
-                  << token;
-    }
-    coluna += std::strlen(yytext);
-}
