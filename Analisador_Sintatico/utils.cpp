@@ -6,10 +6,13 @@
 
 extern int yycolno;  // Coluna atual
 extern int yylineno; // Linha atual
+extern std::string temp;
+extern int yylex();
 extern char *yytext;
-bool firstLine = true;
 
 std::vector<std::string> codeLines;
+bool firstLine = true;
+bool ignoreLexical = false;
 
 void throwException(ExceptionLevel level, ExceptionType type, int line, int column, const std::string &message)
 {
@@ -43,6 +46,7 @@ void throwException(ExceptionLevel level, ExceptionType type, int line, int colu
     }
     std::cout << text << line << ":" << column << ": " << message;
     firstLine = false;
+
     if (level == ExceptionLevel::ERROR && type == ExceptionType::LEXICAL)
     {
         exit(1);
@@ -51,28 +55,43 @@ void throwException(ExceptionLevel level, ExceptionType type, int line, int colu
 
 void yyerror(const char *s)
 {
+    // Pega a linha onde ocorreu o erro
     int line = yylineno;
     int column = yycolno - std::strlen(yytext);
-
-    // Lançar exceção usando nossa função personalizada
+    ignoreLexical = true;
     throwException(ExceptionLevel::ERROR, ExceptionType::SYNTAX, line, column, yytext);
 
-    // Verifica se a linha existe no vector
-    if (line > 0 && line <= codeLines.size())
+    // Lê toda a entrada
+    while (yylex())
     {
-        // Exibe a linha de código onde ocorreu o erro
-        std::string currentLine = codeLines[line - 1]; // Vetores são indexados a partir de 0
-        std::cout << currentLine << std::endl;
+    }
+    if (line > 0 && static_cast<size_t>(line) <= codeLines.size())
+    {
+        // Exibe a linha completa do código onde ocorreu o erro
+        std::string currentLine = codeLines[line - 1];
+        std::cout << std::endl
+                  << currentLine << std::endl;
 
-        // Imprime espaços até a posição da coluna onde o erro ocorreu
+        // Imprime a seta
         for (int i = 1; i < column; i++)
         {
             std::cout << " ";
         }
+        std::cout << "^";
+    }
+    else
+    {
+        // Exibe a linha completa do código onde ocorreu o erro
+        std::cout << std::endl << temp << std::endl;
 
-        // Imprime a seta "^" no local exato do erro
+        // Imprime a seta
+        for (int i = 1; i < column; i++)
+        {
+            std::cout << " ";
+        }
         std::cout << "^" << std::endl;
     }
+
     exit(1);
 }
 
