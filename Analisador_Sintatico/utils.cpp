@@ -43,7 +43,10 @@ void throwException(ExceptionLevel level, ExceptionType type, int line, int colu
     }
     std::cout << text << line << ":" << column << ": " << message;
     firstLine = false;
-    yycolno += std::strlen(yytext);
+    if (level == ExceptionLevel::ERROR && type == ExceptionType::LEXICAL)
+    {
+        exit(1);
+    }
 }
 
 void yyerror(const char *s)
@@ -70,6 +73,7 @@ void yyerror(const char *s)
         // Imprime a seta "^" no local exato do erro
         std::cout << "^" << std::endl;
     }
+    exit(1);
 }
 
 void addLine(const std::string &line)

@@ -12,7 +12,7 @@
 int yycolno = 1;
 int inicioLinha;
 int inicioColuna;
-std::string result;
+std::string temp;
 
 %}
 %%
@@ -40,8 +40,7 @@ std::string result;
     } 
     else 
     {
-        result = "'" + std::string(yytext) + "' within block comment";
-        throwException(ExceptionLevel::WARNING, ExceptionType::NONE, yylineno, yycolno, result);
+        throwException(ExceptionLevel::WARNING, ExceptionType::NONE, yylineno, yycolno, "'" + std::string(yytext) + "' within block comment");
         yycolno += std::strlen(yytext);
         if (next == '\n') 
         { 
@@ -54,7 +53,6 @@ std::string result;
 <COMMENT>\n            { yycolno = 1; }
 <COMMENT><<EOF>> { 
     throwException(ExceptionLevel::ERROR, ExceptionType::LEXICAL, inicioLinha, inicioColuna, "unterminated comment");
-    exit(1);
 }
 "//".*\n               { /* Ignora comentário de linha */ }
 \n                     { yycolno = 1; /* Ignora quebra de linha */ }
