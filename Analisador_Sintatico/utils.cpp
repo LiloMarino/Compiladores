@@ -4,6 +4,7 @@
 #include <string>
 #include <vector>
 
+extern int yychar;
 extern int yycolno;  // Coluna atual
 extern int yylineno; // Linha atual
 extern std::string temp;
@@ -59,7 +60,14 @@ void yyerror(const char *s)
     int line = yylineno;
     int column = yycolno - std::strlen(yytext);
     ignoreLexical = true;
-    throwException(ExceptionLevel::ERROR, ExceptionType::SYNTAX, line, column, yytext);
+    if (yychar == 0)
+    {
+        throwException(ExceptionLevel::ERROR, ExceptionType::SYNTAX, line, column, "expected declaration or statement at end of input");
+    }
+    else
+    {
+        throwException(ExceptionLevel::ERROR, ExceptionType::SYNTAX, line, column, yytext);
+    }
 
     // Lê toda a entrada
     while (yylex())
@@ -82,7 +90,8 @@ void yyerror(const char *s)
     else
     {
         // Exibe a linha completa do código onde ocorreu o erro
-        std::cout << std::endl << temp << std::endl;
+        std::cout << std::endl
+                  << temp << std::endl;
 
         // Imprime a seta
         for (int i = 1; i < column; i++)

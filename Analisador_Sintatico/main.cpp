@@ -3,6 +3,7 @@
 
 int main()
 {
-    std::cout << std::endl << yyparse();
+    yyparse();
+    std::cout << "SUCCESSFUL COMPILATION.";
     return 0;
 }
