@@ -5,8 +5,6 @@
 
 %{
 extern int yylex();
-void yyerror(const char *s);
-bool error = false;
 %}
 
 %token VOID INT CHAR RETURN BREAK SWITCH CASE DEFAULT DO WHILE FOR IF ELSE TYPEDEF STRUCT PLUS MINUS MULTIPLY 
@@ -207,5 +205,3 @@ Number: NUM_INTEGER
       ;
 
 %%
-
-void yyerror(const char *s) { /* Ignora os erros */ }

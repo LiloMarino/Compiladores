@@ -28,4 +28,17 @@ enum class ExceptionType
  */
 void throwException(ExceptionLevel level, ExceptionType type, int line, int column, const std::string &message);
 
+/**
+ * @brief Função de erro do Bison
+ * @param s Mensagem de erro do Bison
+ */
+void yyerror(const char *s);
+
+/**
+ * @brief Obtém a string da linha
+ * @param nline Número da linha da entrada padrão
+ * @return String da linha
+ */
+std::string getLine(int nline);
+
 #endif
