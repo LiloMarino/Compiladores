@@ -7,6 +7,7 @@
 extern int yylex();
 %}
 
+%token EOF_TOKEN
 %token VOID INT CHAR RETURN BREAK SWITCH CASE DEFAULT DO WHILE FOR IF ELSE TYPEDEF STRUCT PLUS MINUS MULTIPLY 
 %token DIVIDE MODULO INCREMENT DECREMENT BITWISE_AND BITWISE_OR BITWISE_NOT BITWISE_XOR NOT LOGICAL_AND 
 %token LOGICAL_OR EQUAL NOT_EQUAL LESS_THAN GREATER_THAN LESS_EQUAL GREATER_EQUAL RIGHT_SHIFT LEFT_SHIFT 
@@ -18,8 +19,8 @@ extern int yylex();
 
 %%
 
-Program: Declaration ProgramLoop
-       | Function ProgramLoop
+Program: Declaration ProgramLoop EOF_TOKEN { return 0; }
+       | Function ProgramLoop EOF_TOKEN    { return 0; }
        ;
 
 ProgramLoop: Declaration ProgramLoop

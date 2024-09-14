@@ -1,4 +1,5 @@
 #include "utils.hpp"
+#include "sintatico.tab.h"
 #include <iostream>
 #include <cstring>
 #include <string>
@@ -60,7 +61,7 @@ void yyerror(const char *s)
     int line = yylineno;
     int column = yycolno - std::strlen(yytext);
     ignoreLexical = true;
-    if (yychar == 0)
+    if (yychar == 0 || yychar == EOF_TOKEN)
     {
         throwException(ExceptionLevel::ERROR, ExceptionType::SYNTAX, line, column, "expected declaration or statement at end of input");
     }
@@ -70,7 +71,7 @@ void yyerror(const char *s)
     }
 
     // Lê toda a entrada
-    while (yylex())
+    while (yylex() != EOF_TOKEN)
     {
     }
     if (line > 0 && static_cast<size_t>(line) <= codeLines.size())

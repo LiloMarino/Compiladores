@@ -54,7 +54,8 @@ std::string temp;
 <COMMENT><<EOF>> { 
     throwException(ExceptionLevel::ERROR, ExceptionType::LEXICAL, inicioLinha, inicioColuna, "unterminated comment");
 }
-"//".*\n               { /* Ignora comentário de linha */ }
+<<EOF>>                { return EOF_TOKEN; }
+"//".*                 { /* Ignora comentário de linha */ }
 \n                     { addLine(temp); temp.clear(); yycolno = 1; }
 [ ]                    { temp += std::string(yytext); yycolno++; }
 "void"                 { temp += std::string(yytext); yycolno += std::strlen(yytext); return VOID; }
