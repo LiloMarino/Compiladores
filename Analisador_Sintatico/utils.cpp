@@ -6,20 +6,30 @@ extern int coluna;
 extern char *yytext;
 bool firstLine = true;
 
-void throwException(ExceptionLevel level, bool lexical, int line, int column, const std::string &message)
+void throwException(ExceptionLevel level, ExceptionType type, int line, int column, const std::string &message)
 {
     std::string text;
-    if (level == ExceptionLevel::WARNING)
+    switch (level)
     {
-        text += "warning:";
-    }
-    else if (level == ExceptionLevel::ERROR)
-    {
+    case ExceptionLevel::ERROR:
         text += "error:";
+        break;
+    case ExceptionLevel::WARNING:
+        text += "warning:";
+        break;
+    default:
+        break;
     }
-    if (lexical)
+    switch (type)
     {
+    case ExceptionType::LEXICAL:
         text += "lexical:";
+        break;
+    case ExceptionType::SYNTAX:
+        text += "syntax:";
+        break;
+    default:
+        break;
     }
 
     if (!firstLine)

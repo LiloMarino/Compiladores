@@ -41,7 +41,7 @@ std::string result;
     else 
     {
         result = "'" + std::string(yytext) + "' within block comment";
-        throwException(ExceptionLevel::WARNING, false, yylineno, coluna, result);
+        throwException(ExceptionLevel::WARNING, ExceptionType::NONE, yylineno, coluna, result);
         coluna += std::strlen(yytext);
         if (next == '\n') 
         { 
@@ -53,7 +53,7 @@ std::string result;
 <COMMENT>.             { coluna += std::strlen(yytext); }
 <COMMENT>\n            { coluna = 1; }
 <COMMENT><<EOF>> { 
-    throwException(ExceptionLevel::ERROR, true, inicioLinha, inicioColuna, "unterminated comment");
+    throwException(ExceptionLevel::ERROR, ExceptionType::LEXICAL, inicioLinha, inicioColuna, "unterminated comment");
     exit(1);
 }
 "//".*\n               { /* Ignora comentário de linha */ }
@@ -120,7 +120,7 @@ std::string result;
         coluna += std::strlen(yytext);
         return IDENTIFIER;
     } else {
-        throwException(ExceptionLevel::ERROR, true, yylineno, coluna, "identifier too long");
+        throwException(ExceptionLevel::ERROR, ExceptionType::LEXICAL, yylineno, coluna, "identifier too long");
     }
 }
 0[1-7][0-7]*           { coluna += std::strlen(yytext); return NUM_OCTAL; }
@@ -128,5 +128,5 @@ std::string result;
 [0-9]+                 { coluna += std::strlen(yytext); return NUM_INTEGER; }
 \"(\\.|[^"\\])*?\"     { coluna += std::strlen(yytext); return STRING_LITERAL; }
 \'(\\.|[^'\\])\'       { coluna += std::strlen(yytext); return CHARACTER_LITERAL; }
-.                      { throwException(ExceptionLevel::ERROR, true, yylineno, coluna, yytext); }
+.                      { throwException(ExceptionLevel::ERROR, ExceptionType::LEXICAL, yylineno, coluna, yytext); }
 %%

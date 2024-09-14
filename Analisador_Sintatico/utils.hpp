@@ -10,6 +10,22 @@ enum class ExceptionLevel
     ERROR,
 };
 
-void throwException(ExceptionLevel level, bool lexical, int line, int column, const std::string &message);
+// Tipo do Erro
+enum class ExceptionType
+{
+    NONE,
+    LEXICAL,
+    SYNTAX,
+};
+
+/**
+ * @brief Lança uma mensagem de erro na saída padrão
+ * @param level Nível da exceção
+ * @param type Tipo da exceção
+ * @param line Linha onde ocorreu
+ * @param column Coluna onde ocorreu
+ * @param message Mensagem do erro
+ */
+void throwException(ExceptionLevel level, ExceptionType type, int line, int column, const std::string &message);
 
 #endif

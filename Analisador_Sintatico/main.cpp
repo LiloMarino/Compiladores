@@ -1,9 +1,8 @@
 #include "sintatico.tab.h"
+#include <iostream>
 
 int main()
 {
-    while (yyparse() == 0)
-    {
-    }
+    std::cout << std::endl << yyparse();
     return 0;
 }
