@@ -1,4 +1,4 @@
-#include "parser.tab.h"
+#include "sintatico.tab.h"
 
 int main()
 {

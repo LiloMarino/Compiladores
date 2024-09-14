@@ -7,7 +7,7 @@ ZIP_NAME = sintatico
 # Lista de arquivos fonte
 SOURCES = main.cpp utils.cpp
 LEXER = lex.yy.c
-PARSER = parser.tab.c parser.tab.h
+PARSER = sintatico.tab.c sintatico.tab.h
 
 # Lista de headers automaticamente (qualquer .cpp que não seja main.cpp)
 HEADERS = $(patsubst %.cpp,%.hpp,$(filter-out main.cpp,$(SOURCES)))
@@ -33,16 +33,16 @@ all: $(LEXER) $(PARSER) $(EXEC_NAME)
 $(EXEC_NAME): $(OBJECTS)
 	$(CXX) $(CXXFLAGS) -o $@ $(OBJECTS)
 
-parser.tab.c parser.tab.h: parser.y
-	$(YACC) -d parser.y
+sintatico.tab.c sintatico.tab.h: sintatico.y
+	$(YACC) -d sintatico.y
 
-$(LEXER): lexer.l
-	$(LEX) lexer.l
+$(LEXER): lexico.l
+	$(LEX) lexico.l
 
 %.o: %.cpp
 	$(CXX) $(CXXFLAGS) -c $<
 
-parser.tab.o: parser.tab.c
+parser.tab.o: sintatico.tab.c
 	$(CXX) $(CXXFLAGS) -c $<
 
 lex.yy.o: $(LEXER)
@@ -67,7 +67,7 @@ clean:
 	rm -f $(OBJECTS)
 	rm -f $(SOURCES:.cpp=.d)
 	rm -f $(EXEC_NAME)
-	rm -f $(LEXER) parser.tab.c parser.tab.h
+	rm -f $(LEXER) sintatico.tab.c sintatico.tab.h
 	rm -f *.o
 
 # valgrind: Regra para executar o programa com o Valgrind
