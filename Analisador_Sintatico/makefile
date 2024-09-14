@@ -24,7 +24,7 @@ YACC = bison
 CXXFLAGS = -Wall -Wextra -std=c++17 -g
 
 # Gerar a lista de arquivos objeto a partir dos arquivos fonte
-OBJECTS = $(SOURCES:.cpp=.o) lex.yy.o parser.tab.o
+OBJECTS = $(SOURCES:.cpp=.o) lex.yy.o sintatico.tab.o
 
 # Alvo padrão
 all: $(LEXER) $(PARSER) $(EXEC_NAME)
@@ -42,7 +42,7 @@ $(LEXER): lexico.l
 %.o: %.cpp
 	$(CXX) $(CXXFLAGS) -c $<
 
-parser.tab.o: sintatico.tab.c
+sintatico.tab.o: sintatico.tab.c
 	$(CXX) $(CXXFLAGS) -c $<
 
 lex.yy.o: $(LEXER)
@@ -51,7 +51,7 @@ lex.yy.o: $(LEXER)
 -include $(OBJECTS:.o=.d)
 
 # run: Compila e roda o programa
-run: $(EXEC_NAME)
+run: all $(EXEC_NAME)
 	./$(EXEC_NAME)
 
 # zip: Zippa os arquivos fonte

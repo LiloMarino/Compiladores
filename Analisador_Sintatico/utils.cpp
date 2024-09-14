@@ -1,59 +1,47 @@
 #include "utils.hpp"
-#include <vector>
-#include <sstream>
 #include <iostream>
+#include <cstring>
 
-extern int yylineno;
-extern bool error;
-SymbolTable symbolTable;
-bool firstline = true;
+extern int coluna;
+extern char *yytext;
+bool firstLine = true;
 
-void SymbolTable::addSymbol(const std::string &type, const std::string &declaration)
+void throwException(ExceptionLevel level, bool lexical, int line, int column, const std::string &message)
 {
-    // Separa as , e obtém os identificadores separados
-    std::vector<std::string> identificadores;
-    std::istringstream stream(declaration);
-    std::string identificador;
-    while (std::getline(stream, identificador, ','))
+    std::string text;
+    if (level == ExceptionLevel::WARNING)
     {
-        identificadores.push_back(identificador);
+        text += "warning:";
+    }
+    else if (level == ExceptionLevel::ERROR)
+    {
+        text += "error:";
+    }
+    if (lexical)
+    {
+        text += "lexical:";
     }
 
-    // Para cada identificador trata ele e adiciona na tabela de símbolos
-    for (const auto &id : identificadores)
+    if (!firstLine)
     {
-        auto it = table.find(id);
-        if (it != table.end())
-        {
-            if (it->second == type)
-            {
-                showMessage("identifier '" + id + "' already declared");
-                error = true;
-            }
-            else
-            {
-                showMessage("redefinition of identifier '" + id + "'");
-                error = true;
-            }
-        }
-        else
-        {
-            table[id] = type;
-        }
+        std::cout << "\n";
     }
+    std::cout << text << line << ":" << column << ": " << message;
+    firstLine = false;
+    coluna += std::strlen(yytext);
 }
 
-void SymbolTable::clearTable()
+void print(const std::string &token)
 {
-    table.clear();
-}
-
-void showMessage(const std::string &msg)
-{
-    if (!firstline)
+    if (firstLine)
     {
-        std::cout << std::endl;
+        std::cout << token;
+        firstLine = false;
     }
-    std::cout << yylineno << ": " << msg;
-    firstline = false;
+    else
+    {
+        std::cout << "\n"
+                  << token;
+    }
+    coluna += std::strlen(yytext);
 }

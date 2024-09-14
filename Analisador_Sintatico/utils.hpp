@@ -2,23 +2,16 @@
 #define UTILS_HPP
 
 #include <string>
-#include <unordered_map>
 
-class SymbolTable {
-public:
-    void addSymbol(const std::string &type, const std::string &declaration);
-    void clearTable();
-
-private:
-    std::unordered_map<std::string, std::string> table;
+// Controle de exceções
+enum class ExceptionLevel
+{
+    WARNING,
+    ERROR,
 };
 
-/**
- * @brief Imprime a mensagem no formato padrão
- * @param msg Mensagem
- */
-void showMessage(const std::string &msg);
+void throwException(ExceptionLevel level, bool lexical, int line, int column, const std::string &message);
 
-extern SymbolTable symbolTable;
+void print(const std::string &token);
 
 #endif
