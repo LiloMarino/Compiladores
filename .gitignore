@@ -46,3 +46,8 @@ lex.yy.cpp
 # Dot
 *.dot
 *.png
+
+*.yy.c
+*.tab.c
+*.tab.h
+testes/
