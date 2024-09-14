@@ -18,6 +18,11 @@ bool ignoreLexical = false;
 
 void throwException(ExceptionLevel level, ExceptionType type, int line, int column, const std::string &message)
 {
+    if (type == ExceptionType::LEXICAL && ignoreLexical)
+    {
+        return;
+    }
+    
     std::string text;
     switch (level)
     {
@@ -49,7 +54,7 @@ void throwException(ExceptionLevel level, ExceptionType type, int line, int colu
     std::cout << text << line << ":" << column << ": " << message;
     firstLine = false;
 
-    if (level == ExceptionLevel::ERROR && type == ExceptionType::LEXICAL)
+    if (level == ExceptionLevel::ERROR && type == ExceptionType::LEXICAL && !ignoreLexical)
     {
         exit(1);
     }

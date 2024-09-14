@@ -13,7 +13,7 @@ PARSER = sintatico.tab.c sintatico.tab.h
 HEADERS = $(patsubst %.cpp,%.hpp,$(filter-out main.cpp,$(SOURCES)))
 
 # Lista todos os arquivos envolvidos
-FILES = $(SOURCES) $(HEADERS) makefile lexico.l sintatico.y
+FILES = $(SOURCES) $(HEADERS) Makefile lexico.l sintatico.y
 
 # Definir o compilador
 CXX = g++

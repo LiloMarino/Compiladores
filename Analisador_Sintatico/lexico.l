@@ -20,11 +20,13 @@ std::string temp;
 "/*" { 
     BEGIN(COMMENT); 
     inicioLinha = yylineno;
-    inicioColuna = yycolno; 
+    inicioColuna = yycolno;
+    temp += std::string(yytext);
     yycolno += std::strlen(yytext); 
 }
 <COMMENT>"*/" {
-    BEGIN(INITIAL); 
+    BEGIN(INITIAL);
+    temp += std::string(yytext); 
     yycolno += std::strlen(yytext); 
 }
 <COMMENT>"/*" {
@@ -36,11 +38,13 @@ std::string temp;
     if (next == '/') 
     {
         BEGIN(INITIAL);
+        temp += std::string(yytext);
         yycolno += std::strlen(yytext) + 1;
     } 
     else 
     {
         throwException(ExceptionLevel::WARNING, ExceptionType::NONE, yylineno, yycolno, "'" + std::string(yytext) + "' within block comment");
+        temp += std::string(yytext);
         yycolno += std::strlen(yytext);
         if (next == '\n') 
         { 
@@ -49,13 +53,13 @@ std::string temp;
         unput(next); 
     }
 }
-<COMMENT>.             { yycolno += std::strlen(yytext); }
+<COMMENT>.             { temp += std::string(yytext); yycolno += std::strlen(yytext); }
 <COMMENT>\n            { yycolno = 1; }
 <COMMENT><<EOF>> { 
     throwException(ExceptionLevel::ERROR, ExceptionType::LEXICAL, inicioLinha, inicioColuna, "unterminated comment");
 }
 <<EOF>>                { return EOF_TOKEN; }
-"//".*                 { /* Ignora comentário de linha */ }
+"//".*                 { temp += std::string(yytext); }
 \n                     { addLine(temp); temp.clear(); yycolno = 1; }
 [ ]                    { temp += std::string(yytext); yycolno++; }
 "void"                 { temp += std::string(yytext); yycolno += std::strlen(yytext); return VOID; }
