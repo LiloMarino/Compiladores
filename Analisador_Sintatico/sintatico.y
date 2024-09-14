@@ -1,8 +1,5 @@
 %code requires {
 // BISON BUGADO PRECISA FAZER ISSO AQUI
-#include <iostream>
-#include <string>
-#include <memory>
 #include "utils.hpp"
 }
 
@@ -19,11 +16,18 @@ bool error = false;
 %token RIGHT_CURLY_BRACKET LEFT_SQUARE_BRACKET RIGHT_SQUARE_BRACKET QUESTION_MARK HASH ARROW PRINTF SCANF 
 %token DEFINE EXIT IDENTIFIER NUM_OCTAL NUM_HEXA NUM_INTEGER STRING_LITERAL CHARACTER_LITERAL
 
+%start Program
+
 %%
 
-Program: Declaration Program
-       | Function Program
+Program: Declaration ProgramLoop
+       | Function ProgramLoop
        ;
+
+ProgramLoop: Declaration ProgramLoop
+           | Function ProgramLoop
+           | 
+           ;
 
 Declaration: HASH DEFINE IDENTIFIER Expression
            |  VariableDeclaration
