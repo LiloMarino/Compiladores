@@ -35,10 +35,9 @@ void throwException(ExceptionLevel level, ExceptionType type, int line, int colu
 void yyerror(const char *s);
 
 /**
- * @brief Obtém a string da linha
- * @param nline Número da linha da entrada padrão
- * @return String da linha
+ * @brief Adiciona a linha no vetor de linhas do código
+ * @param line Linha do código
  */
-std::string getLine(int nline);
+void addLine(const std::string &line);
 
 #endif
