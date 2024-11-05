@@ -1,9 +1,15 @@
-#include "parser.tab.h"
+#include "sintatico.tab.h"
+#include <iostream>
+
+extern bool firstLine;
 
 int main()
 {
-    while (yyparse() == 0)
+    yyparse();
+    if (!firstLine)
     {
+        std::cout<< std::endl;
     }
+    std::cout << "SUCCESSFUL COMPILATION.";
     return 0;
 }
