@@ -34,10 +34,4 @@ void throwException(ExceptionLevel level, ExceptionType type, int line, int colu
  */
 void yyerror(const char *s);
 
-/**
- * @brief Adiciona a linha no vetor de linhas do código
- * @param line Linha do código
- */
-void addLine(const std::string &line);
-
 #endif

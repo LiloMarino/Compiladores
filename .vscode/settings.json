@@ -82,7 +82,8 @@
         "unordered_set": "cpp",
         "stack": "cpp",
         "utils.hpp": "c",
-        "*.ipp": "cpp"
+        "*.ipp": "cpp",
+        "sintatico.tab.h": "c"
     },
     "makefile.launchConfigurations": [
         {
