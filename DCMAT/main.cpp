@@ -1,16 +1,27 @@
 #include "sintatico.tab.h"
 #include <iostream>
 
-// Declaração de yylex
-extern int yylex();
-extern const char* getTokenName(int token);
+extern int yyparse();
+extern FILE *yyin;
 
-int main()
-{
-    int token;
-    while ((token = yylex()) != 0) {
-        // Imprime o nome do token usando o índice de token para acessar yytname
-        std::cout << "Token: " << getTokenName(token) << std::endl;
+int main() {
+    while (true) {
+        std::cout << "> ";
+        std::string entrada;
+        std::getline(std::cin, entrada);
+
+        if (entrada == "sair") {
+            break;
+        }
+
+        yyin = fmemopen(entrada.data(), entrada.size(), "r");
+
+        // Chama o parser
+        if (yyparse() == 0) {
+            std::cout << "Expressão avaliada com sucesso!\n";
+        } else {
+            std::cerr << "Erro durante o parsing!\n";
+        }
     }
 
     return 0;

@@ -46,6 +46,5 @@ void throwException(ExceptionLevel level, ExceptionType type, int line, int colu
     }
 }
 
-void yyerror(const char *s)
-{
+void yyerror(const char *s) {
 }

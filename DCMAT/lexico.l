@@ -27,11 +27,6 @@ int yycolno = 1;
 "cos"                           { yycolno += std::strlen(yytext); return COS; }
 "tan"                           { yycolno += std::strlen(yytext); return TAN; }
 "abs"                           { yycolno += std::strlen(yytext); return ABS; }
-[Pp][Ii]                        { yycolno += std::strlen(yytext); return PI_CONSTANT; }
-[Ee]                            { yycolno += std::strlen(yytext); return EULER_CONSTANT; }
-[xX]                            { yycolno += std::strlen(yytext); return VARIABLE; }
-[0-9]+                          { yycolno += std::strlen(yytext); return INTEGER; }
-[0-9]+"."[0-9]+                 { yycolno += std::strlen(yytext); return REAL_NUMBER; }
 "about"                         { yycolno += std::strlen(yytext); return ABOUT;}
 "float"                         { yycolno += std::strlen(yytext); return FLOAT;}
 "settings"                      { yycolno += std::strlen(yytext); return SETTINGS;}
@@ -68,6 +63,11 @@ int yycolno = 1;
 "]"                             { yycolno += std::strlen(yytext); return RIGHT_BRACKET;}
 ";"                             { yycolno += std::strlen(yytext); return SEMICOLON;}
 ","                             { yycolno += std::strlen(yytext); return COMMA;}
+[Pp][Ii]                        { yycolno += std::strlen(yytext); return PI_CONSTANT; }
+[Ee]                            { yycolno += std::strlen(yytext); return EULER_CONSTANT; }
+[xX]                            { yycolno += std::strlen(yytext); return VARIABLE; }
+[0-9]+                          { yylval.double_val = atof(yytext); yycolno += std::strlen(yytext); return INTEGER; }
+[0-9]+"."[0-9]+                 { yylval.double_val = atof(yytext); yycolno += std::strlen(yytext); return REAL_NUMBER; }
 [a-zA-Z]+[_0-9a-zA-Z]*          { yycolno += std::strlen(yytext); return IDENTIFIER; }
 .                               { throwException(ExceptionLevel::ERROR, ExceptionType::LEXICAL, yylineno, yycolno, yytext); }
 %%
