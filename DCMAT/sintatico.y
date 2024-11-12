@@ -9,6 +9,7 @@
     extern int yylex();
 %}
 
+// ARRUMAR TIPOS E UNION
 %union {
     int int_val;
     double double_val;
@@ -19,8 +20,8 @@
 %type <double_val> Expression
 
 %token PLUS MINUS MULTIPLY DIVIDE EXPONENT MODULO LEFT_PAREN RIGHT_PAREN SIN COS TAN ABS VARIABLE IDENTIFIER 
-PI_CONSTANT EULER_CONSTANT ABOUT FLOAT SETTINGS H_VIEW PLOT SHOW AXIS INTEGRAL STEPS PRECISION SOLVE CONNECT 
-DOTS INTEGRATE QUIT SUM LINEAR SYSTEM RESET SYMBOLS DETERMINANT MATRIX RPN OFF V_VIEW ERASE ON SET COLON EQUAL ASSIGN 
+PI_CONSTANT EULER_CONSTANT ABOUT FLOAT SETTINGS H_VIEW PLOT SHOW AXIS INTEGRAL_STEPS PRECISION SOLVE 
+CONNECT_DOTS INTEGRATE QUIT SUM LINEAR_SYSTEM RESET SYMBOLS DETERMINANT MATRIX RPN OFF V_VIEW ERASE ON SET COLON EQUAL ASSIGN 
 LEFT_BRACKET RIGHT_BRACKET SEMICOLON COMMA
 
 // Definindo precedência e associatividade
@@ -36,19 +37,42 @@ LEFT_BRACKET RIGHT_BRACKET SEMICOLON COMMA
 Program:
     Command SEMICOLON
     | QUIT { exit(0); }
+    | Expression { printf("%lf\n", $1);}
     |
     ;
 
 Command:
-       Expression { printf("Resultado: %lf\n", $1);} // REMOVER
        | SHOW SETTINGS
        | RESET SETTINGS
-       | SET 
-       | 
-       | 
-       | 
-       | 
+       | SET H_VIEW REAL_NUMBER COLON REAL_NUMBER
+       | SET V_VIEW REAL_NUMBER COLON REAL_NUMBER
+       | SET AXIS ON
+       | SET AXIS OFF
+       | PLOT
+       | PLOT LEFT_PAREN Function RIGHT_PAREN
+       | SET ERASE PLOT OFF
+       | SET ERASE PLOT ON
+       | RPN LEFT_PAREN Expression RIGHT_PAREN
+       | SET INTEGRAL_STEPS INTEGER
+       | INTEGRATE LEFT_PAREN Interval COMMA Function RIGHT_PAREN
+       | SUM LEFT_PAREN IDENTIFIER COMMA Interval COMMA Expression RIGHT_PAREN 
+       | MatrixCreate
+       | SHOW MATRIX
+       | SOLVE DETERMINANT
+       | SOLVE LINEAR_SYSTEM
+       | ABOUT
+       | IDENTIFIER ASSIGN Expression
+       | IDENTIFIER ASSIGN MatrixCreate
+       | IDENTIFIER
+       | SHOW SYMBOLS
+       | SET FLOAT PRECISION INTEGER
        ;
+
+Function: Expression
+        ;
+
+MatrixCreate:  // TODO: 
+            ;
 
 Expression:
     Expression PLUS Expression   { $$ = $1 + $3; }
@@ -86,4 +110,9 @@ Expression:
     | REAL_NUMBER { $$ = $1; }
     ;
 
+Number: INTEGER
+      | REAL_NUMBER
+      ;
+
+Interval: Number COLON Number
 %%
