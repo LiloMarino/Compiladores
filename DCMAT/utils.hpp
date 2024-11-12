@@ -22,11 +22,9 @@ enum class ExceptionType
  * @brief Lança uma mensagem de erro na saída padrão
  * @param level Nível da exceção
  * @param type Tipo da exceção
- * @param line Linha onde ocorreu
- * @param column Coluna onde ocorreu
  * @param message Mensagem do erro
  */
-void throwException(ExceptionLevel level, ExceptionType type, int line, int column, const std::string &message);
+void throwException(ExceptionLevel level, ExceptionType type, const std::string &message);
 
 /**
  * @brief Função de erro do Bison
