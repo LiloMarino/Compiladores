@@ -10,8 +10,7 @@
 %}
 %%
 
-\n                              {  }
-[ ]                             {  }
+[ \t\n]                         {  }
 "+"                             { return PLUS; }
 "-"                             { return MINUS; }
 "*"                             { return MULTIPLY; }

@@ -12,7 +12,7 @@ int main()
         std::string entrada;
         std::getline(std::cin, entrada);
 
-        yyin = fmemopen(entrada.data(), entrada.size(), "r");
+        yyin = fmemopen(const_cast<char *>(entrada.data()), entrada.size(), "r");
         yyparse();
     }
     return 0;

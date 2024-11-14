@@ -102,12 +102,10 @@ Expression:
     | ABS LEFT_PAREN Expression RIGHT_PAREN { $$ = std::abs($3); }
     | PI_CONSTANT { $$ = M_PI; }
     | EULER_CONSTANT { $$ = M_E; }
-    | MINUS INTEGER { $$ = -$2; }
-    | PLUS INTEGER { $$ = +$2; }
     | INTEGER { $$ = $1; }
-    | MINUS REAL_NUMBER { $$ = -$2; }
-    | PLUS REAL_NUMBER { $$ = +$2; }
     | REAL_NUMBER { $$ = $1; }
+    | PLUS Expression { $$ = +$2; }
+    | MINUS Expression { $$ = -$2; }
     ;
 
 Number: INTEGER

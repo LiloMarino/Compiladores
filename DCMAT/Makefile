@@ -34,7 +34,7 @@ $(EXEC_NAME): $(OBJECTS)
 	$(CXX) $(CXXFLAGS) -o $@ $(OBJECTS)
 
 sintatico.tab.c sintatico.tab.h: sintatico.y
-	$(YACC) -d sintatico.y
+	$(YACC) -d sintatico.y -Wcounterexamples
 
 $(LEXER): lexico.l
 	$(LEX) lexico.l
