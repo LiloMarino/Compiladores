@@ -1,6 +1,7 @@
 %code requires {
 // Necessário para evitar problemas de inclusão
 #include "utils.hpp"
+#include "dcmat.hpp"
 #include <iostream>
 #include <cmath>
 }
@@ -40,8 +41,8 @@ Program:
     ;
 
 Command:
-       | SHOW SETTINGS
-       | RESET SETTINGS
+       | SHOW SETTINGS { settings.show(); }
+       | RESET SETTINGS { settings.reset(); }
        | SET H_VIEW REAL_NUMBER COLON REAL_NUMBER
        | SET V_VIEW REAL_NUMBER COLON REAL_NUMBER
        | SET AXIS ON
