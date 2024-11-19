@@ -58,8 +58,8 @@
 [Pp][Ii]                        { return PI_CONSTANT; }
 [Ee]                            { return EULER_CONSTANT; }
 [xX]                            { return VARIABLE; }
-[0-9]+                          { yylval.double_val = atof(yytext); return INTEGER; }
-[0-9]+"."[0-9]+                 { yylval.double_val = atof(yytext); return REAL_NUMBER; }
+[0-9]+                          { yylval.value = atof(yytext); return INTEGER; }
+[0-9]+"."[0-9]+                 { yylval.value = atof(yytext); return REAL_NUMBER; }
 [a-zA-Z]+[_0-9a-zA-Z]*          { return IDENTIFIER; }
 .                               { throwException(ExceptionLevel::ERROR, ExceptionType::LEXICAL, yytext); }
 %%

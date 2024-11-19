@@ -11,19 +11,16 @@
 
 // ARRUMAR TIPOS E UNION
 %union {
-    int int_val;
-    double double_val;
+    double value;
 }
 
-%token <double_val> INTEGER
-%token <double_val> REAL_NUMBER
-%type <double_val> Expression
-%type <double_val> Number
+%token <value> INTEGER REAL_NUMBER
+%type <value> Expression Number
 
 %token PLUS MINUS MULTIPLY DIVIDE EXPONENT MODULO LEFT_PAREN RIGHT_PAREN SIN COS TAN ABS VARIABLE IDENTIFIER 
 PI_CONSTANT EULER_CONSTANT ABOUT FLOAT SETTINGS H_VIEW PLOT SHOW AXIS INTEGRAL_STEPS PRECISION SOLVE 
-CONNECT_DOTS INTEGRATE QUIT SUM LINEAR_SYSTEM RESET SYMBOLS DETERMINANT MATRIX RPN OFF V_VIEW ERASE ON SET COLON EQUAL ASSIGN 
-LEFT_BRACKET RIGHT_BRACKET SEMICOLON COMMA
+CONNECT_DOTS INTEGRATE QUIT SUM LINEAR_SYSTEM RESET SYMBOLS DETERMINANT MATRIX RPN OFF V_VIEW ERASE ON SET COLON 
+EQUAL ASSIGN LEFT_BRACKET RIGHT_BRACKET SEMICOLON COMMA
 
 // Definindo precedência e associatividade
 %left PLUS MINUS
@@ -92,22 +89,8 @@ Expression:
     Expression PLUS Expression   { $$ = $1 + $3; }
     | Expression MINUS Expression  { $$ = $1 - $3; }
     | Expression MULTIPLY Expression { $$ = $1 * $3; }
-    | Expression DIVIDE Expression   {
-        if ($3 == 0) {
-            yyerror("Erro: divisão por zero");
-            $$ = 0;
-        } else {
-            $$ = $1 / $3;
-        }
-    }
-    | Expression MODULO Expression {
-        if ($3 == 0) {
-            yyerror("Erro: módulo por zero");
-            $$ = 0;
-        } else {
-            $$ = std::fmod($1, $3);
-        }
-    }
+    | Expression DIVIDE Expression   { $$ = $1 / $3; }
+    | Expression MODULO Expression { $$ = std::fmod($1, $3); }
     | Expression EXPONENT Expression { $$ = std::pow($1, $3); }
     | LEFT_PAREN Expression RIGHT_PAREN { $$ = $2; }
     | SIN LEFT_PAREN Expression RIGHT_PAREN { $$ = std::sin($3); }
