@@ -18,6 +18,7 @@
 %token <double_val> INTEGER
 %token <double_val> REAL_NUMBER
 %type <double_val> Expression
+%type <double_val> Number
 
 %token PLUS MINUS MULTIPLY DIVIDE EXPONENT MODULO LEFT_PAREN RIGHT_PAREN SIN COS TAN ABS VARIABLE IDENTIFIER 
 PI_CONSTANT EULER_CONSTANT ABOUT FLOAT SETTINGS H_VIEW PLOT SHOW AXIS INTEGRAL_STEPS PRECISION SOLVE 
@@ -66,12 +67,25 @@ Command:
        | IDENTIFIER
        | SHOW SYMBOLS
        | SET FLOAT PRECISION INTEGER
+       | SET CONNECT_DOTS ON
+       | SET CONNECT_DOTS OFF
        ;
 
 Function: Expression
         ;
 
-MatrixCreate:  // TODO: 
+MatrixCreate: 
+            MATRIX EQUAL LEFT_BRACKET LEFT_BRACKET Number MatrixNumberLoop RIGHT_BRACKET MatrixCreateLoop RIGHT_BRACKET
+            ;
+
+MatrixNumberLoop:
+                COMMA Number MatrixNumberLoop
+                |
+                ;
+
+MatrixCreateLoop:
+            COMMA LEFT_BRACKET Number MatrixNumberLoop RIGHT_BRACKET MatrixCreateLoop
+            |
             ;
 
 Expression:
@@ -102,10 +116,9 @@ Expression:
     | ABS LEFT_PAREN Expression RIGHT_PAREN { $$ = std::abs($3); }
     | PI_CONSTANT { $$ = M_PI; }
     | EULER_CONSTANT { $$ = M_E; }
-    | INTEGER { $$ = $1; }
-    | REAL_NUMBER { $$ = $1; }
     | PLUS Expression { $$ = +$2; }
     | MINUS Expression { $$ = -$2; }
+    | Number { $$ = $1; }
     ;
 
 Number: INTEGER
