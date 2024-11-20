@@ -90,12 +90,21 @@ public:
 class DCMAT
 {
 private:
+    static const int WIDTH = 80;
+    static const int HEIGHT = 25;
     std::unique_ptr<Function> last_function = nullptr;
+    char graph_matrix[HEIGHT][WIDTH];
+
 public:
     /**
      * @brief Configurações
      */
     Settings settings;
+
+    /**
+     * @brief Construtor
+     */
+    DCMAT();
 
     /**
      * @brief 
@@ -108,6 +117,22 @@ public:
      * @param func Função a ser plotada
      */
     void plot();
+
+private:
+    /**
+     * @brief Adiciona os eixos ao gráfico
+     */
+    void drawAxis();
+
+    /**
+     * @brief Limpa a matriz com espaços vazios
+     */
+    void clearGraph();
+
+    /**
+     * @brief Imprime o gráfico
+     */
+    void renderGraph() const;
 };
 
 extern DCMAT dcmat;

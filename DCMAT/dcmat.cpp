@@ -75,6 +75,11 @@ double Function::operator()(double x) const
     throw std::runtime_error("Árvore de funções malformada.");
 }
 
+DCMAT::DCMAT()
+{
+    clearGraph();
+}
+
 void DCMAT::setLastFunction(std::unique_ptr<Function> func)
 {
     last_function = std::move(func);
@@ -87,33 +92,87 @@ void DCMAT::plot()
         std::cout << "No function defined!" << std::endl;
         return;
     }
-    const int width = 80;
-    const int height = 25;
-    const double x_min = -10.0;
-    const double x_max = 10.0;
-    const double y_min = -10.0;
-    const double y_max = 10.0;
 
-    // Resolução do gráfico (25 linhas por 80 colunas)
-    for (int y = 0; y < height; ++y)
+    const double x_min = settings.h_view_lo;
+    const double x_max = settings.h_view_hi;
+    const double y_min = settings.v_view_lo;
+    const double y_max = settings.v_view_hi;
+    
+    if (settings.erase_plot)
     {
-        for (int x = 0; x < width; ++x)
+        clearGraph();
+    }
+    if (settings.draw_axis)
+    {
+        drawAxis();
+    }
+
+    for (int y = 0; y < HEIGHT; ++y)
+    {
+        for (int x = 0; x < WIDTH; ++x)
         {
-            // Mapeia os valores x e y para os limites definidos
-            double x_val = x_min + (x_max - x_min) * x / (width - 1);
+            // Mapeia os valores de x e y para os limites definidos
+            double x_val = x_min + (x_max - x_min) * x / (WIDTH - 1);
             double y_val = (*last_function)(x_val);
 
             // Normaliza a coordenada y para o intervalo de altura
-            int y_pos = static_cast<int>((y_max - y_val) * (height - 1) / (y_max - y_min));
+            int y_pos = static_cast<int>((y_max - y_val) * (HEIGHT - 1) / (y_max - y_min));
 
+            // Se a posição y na matriz coincidir com o valor calculado, desenha o ponto
             if (y_pos == y)
             {
-                std::cout << "*"; // Imprime o pixel
+                graph_matrix[y][x] = '*';
             }
-            else
-            {
-                std::cout << " "; // Espaço vazio
-            }
+        }
+    }
+
+    renderGraph();
+}
+
+void DCMAT::drawAxis()
+{
+    // Definindo a posição do eixo Y (vertical)
+    int y_axis_pos = HEIGHT / 2;
+
+    // Desenhando o eixo Y
+    for (int x = 0; x < WIDTH; ++x)
+    {
+        graph_matrix[y_axis_pos][x] = '-'; // Eixo X
+    }
+
+    // Definindo a posição do eixo X (horizontal)
+    int x_axis_pos = WIDTH / 2;
+
+    // Desenhando o eixo X
+    for (int y = 0; y < HEIGHT; ++y)
+    {
+        graph_matrix[y][x_axis_pos] = '|'; // Eixo Y
+    }
+
+    // Centralizando a origem (0,0)
+    graph_matrix[y_axis_pos][x_axis_pos] = '+';
+}
+
+void DCMAT::clearGraph()
+{
+    // Preenche a matriz com espaços vazios
+    for (int y = 0; y < HEIGHT; ++y)
+    {
+        for (int x = 0; x < WIDTH; ++x)
+        {
+            graph_matrix[y][x] = ' ';
+        }
+    }
+}
+
+void DCMAT::renderGraph() const
+{
+    // Imprime a matriz de gráfico no terminal
+    for (int y = 0; y < HEIGHT; ++y)
+    {
+        for (int x = 0; x < WIDTH; ++x)
+        {
+            std::cout << graph_matrix[y][x];
         }
         std::cout << std::endl;
     }
