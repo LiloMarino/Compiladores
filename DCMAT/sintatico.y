@@ -88,24 +88,24 @@ Function: FunctionExpression { $$ = $1; };
         ;
 
 FunctionExpression: 
-                  FunctionExpression PLUS FunctionExpression   { $$ = $1 + $3; }
-                  | FunctionExpression MINUS FunctionExpression  { $$ = $1 - $3; }
-                  | FunctionExpression MULTIPLY FunctionExpression { $$ = $1 * $3; }
-                  | FunctionExpression DIVIDE FunctionExpression   { $$ = $1 / $3; }
-                  | FunctionExpression MODULO FunctionExpression { $$ = std::fmod($1, $3); }
-                  | FunctionExpression EXPONENT FunctionExpression { $$ = std::pow($1, $3); }
-                  | LEFT_PAREN FunctionExpression RIGHT_PAREN { $$ = $2; }
-                  | SIN LEFT_PAREN FunctionExpression RIGHT_PAREN { $$ = std::sin($3); }
-                  | COS LEFT_PAREN FunctionExpression RIGHT_PAREN { $$ = std::cos($3); }
-                  | TAN LEFT_PAREN FunctionExpression RIGHT_PAREN { $$ = std::tan($3); }
-                  | ABS LEFT_PAREN FunctionExpression RIGHT_PAREN { $$ = std::abs($3); }
-                  | PI_CONSTANT { $$ = M_PI; }
-                  | EULER_CONSTANT { $$ = M_E; }
-                  | PLUS FunctionExpression { $$ = +$2; }
-                  | MINUS FunctionExpression { $$ = -$2; }
-                  | INTEGER { $$ = $1; }
-                  | REAL_NUMBER { $$ = $1; }
-                  | X { $$ = new std::function<double(double)>([](double x) { return x; }); }
+                  FunctionExpression PLUS FunctionExpression        { $$ = new std::function<double(double)>([](double x) { return (*$1)(x) + (*$3)(x); });  }
+                  | FunctionExpression MINUS FunctionExpression     { $$ = new std::function<double(double)>([](double x) { return (*$1)(x) - (*$3)(x); });  }
+                  | FunctionExpression MULTIPLY FunctionExpression  { $$ = new std::function<double(double)>([](double x) { return (*$1)(x) * (*$3)(x); });  }
+                  | FunctionExpression DIVIDE FunctionExpression    { $$ = new std::function<double(double)>([](double x) { return (*$1)(x) / (*$3)(x); });  }
+                  | FunctionExpression MODULO FunctionExpression    { $$ = new std::function<double(double)>([](double x) { return std::fmod((*$1)(x), (*$3)(x)); }); }
+                  | FunctionExpression EXPONENT FunctionExpression  { $$ = new std::function<double(double)>([](double x) { return std::pow((*$1)(x), (*$3)(x)); });  }
+                  | LEFT_PAREN FunctionExpression RIGHT_PAREN       { $$ = new std::function<double(double)>([](double x) { return (*$2)(x); }); }
+                  | SIN LEFT_PAREN FunctionExpression RIGHT_PAREN   { $$ = new std::function<double(double)>([](double x) { return std::sin(*$3)(x); }); }
+                  | COS LEFT_PAREN FunctionExpression RIGHT_PAREN   { $$ = new std::function<double(double)>([](double x) { return std::cos(*$3)(x); }); }
+                  | TAN LEFT_PAREN FunctionExpression RIGHT_PAREN   { $$ = new std::function<double(double)>([](double x) { return std::tan(*$3)(x); }); }
+                  | ABS LEFT_PAREN FunctionExpression RIGHT_PAREN   { $$ = new std::function<double(double)>([](double x) { return std::abs(*$3)(x); }); }
+                  | PI_CONSTANT                                     { $$ = new std::function<double(double)>([](double x) { return M_PI; }); }
+                  | EULER_CONSTANT                                  { $$ = new std::function<double(double)>([](double x) { return M_E; }); }
+                  | PLUS FunctionExpression                         { $$ = new std::function<double(double)>([](double x) { return +(*$2)(x); }); }
+                  | MINUS FunctionExpression                        { $$ = new std::function<double(double)>([](double x) { return -(*$2)(x); }); }
+                  | INTEGER                                         { $$ = new std::function<double(double)>([](double x) { return $1; }); }
+                  | REAL_NUMBER                                     { $$ = new std::function<double(double)>([](double x) { return $1; }); }
+                  | X                                               { $$ = new std::function<double(double)>([](double x) { return x; }); }
                   ;
 
 MatrixCreate: 
