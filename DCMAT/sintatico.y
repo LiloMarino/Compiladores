@@ -24,7 +24,7 @@
 %type <interval> Interval
 %type <function> Function FunctionExpression
 
-%token PLUS MINUS MULTIPLY DIVIDE EXPONENT MODULO LEFT_PAREN RIGHT_PAREN SIN COS TAN ABS X IDENTIFIER 
+%token PLUS MINUS MULTIPLY DIVIDE EXPONENT MODULO LEFT_PAREN RIGHT_PAREN SIN COS TAN ABS X IDENTIFIER
 PI_CONSTANT EULER_CONSTANT ABOUT FLOAT SETTINGS H_VIEW PLOT SHOW AXIS INTEGRAL_STEPS PRECISION SOLVE 
 CONNECT_DOTS INTEGRATE QUIT SUM LINEAR_SYSTEM RESET SYMBOLS DETERMINANT MATRIX RPN OFF V_VIEW ERASE ON SET COLON 
 EQUAL ASSIGN LEFT_BRACKET RIGHT_BRACKET SEMICOLON COMMA
@@ -60,7 +60,10 @@ Command:
         }
        | SET ERASE PLOT OFF SEMICOLON { dcmat.settings.erase_plot = false; }
        | SET ERASE PLOT ON SEMICOLON { dcmat.settings.erase_plot = true; }
-       | RPN LEFT_PAREN Expression RIGHT_PAREN SEMICOLON
+       | RPN LEFT_PAREN Function RIGHT_PAREN SEMICOLON {
+            std::cout << "Expression in RPN format: " << std::endl << $3->toRPN() << std::endl;
+            delete $3;
+        }
        | SET INTEGRAL_STEPS INTEGER SEMICOLON
        | INTEGRATE LEFT_PAREN Interval COMMA Function RIGHT_PAREN SEMICOLON
        | SUM LEFT_PAREN IDENTIFIER COMMA Interval COMMA Expression RIGHT_PAREN SEMICOLON
@@ -81,105 +84,133 @@ Command:
 Function: FunctionExpression { $$ = $1; }
         ;
 
-FunctionExpression: 
-                  FunctionExpression PLUS FunctionExpression       { 
+FunctionExpression:
+                  FunctionExpression PLUS FunctionExpression { 
                     $$ = new Function(
                         [](double a, double b) { return a + b; },
                         std::unique_ptr<Function>($1),
-                        std::unique_ptr<Function>($3)
+                        std::unique_ptr<Function>($3),
+                        "+"
                     );
                   }
-                  | FunctionExpression MINUS FunctionExpression    { 
+                  | FunctionExpression MINUS FunctionExpression { 
                     $$ = new Function(
                         [](double a, double b) { return a - b; },
                         std::unique_ptr<Function>($1),
-                        std::unique_ptr<Function>($3)
+                        std::unique_ptr<Function>($3),
+                        "-"
                     );
                   }
                   | FunctionExpression MULTIPLY FunctionExpression { 
                     $$ = new Function(
                         [](double a, double b) { return a * b; },
                         std::unique_ptr<Function>($1),
-                        std::unique_ptr<Function>($3)
+                        std::unique_ptr<Function>($3),
+                        "*"
                     );
                   }
-                  | FunctionExpression DIVIDE FunctionExpression   { 
+                  | FunctionExpression DIVIDE FunctionExpression { 
                     $$ = new Function(
                         [](double a, double b) { return a / b; },
                         std::unique_ptr<Function>($1),
-                        std::unique_ptr<Function>($3)
+                        std::unique_ptr<Function>($3),
+                        "/"
                     );
                   }
-                  | FunctionExpression MODULO FunctionExpression   { 
+                  | FunctionExpression MODULO FunctionExpression { 
                     $$ = new Function(
-                        [](double a, double b) { return std::fmod(a,b); },
+                        [](double a, double b) { return std::fmod(a, b); },
                         std::unique_ptr<Function>($1),
-                        std::unique_ptr<Function>($3)
+                        std::unique_ptr<Function>($3),
+                        "%"
                     );
                   }
                   | FunctionExpression EXPONENT FunctionExpression { 
                     $$ = new Function(
-                        [](double a, double b) { return std::pow(a,b); },
+                        [](double a, double b) { return std::pow(a, b); },
                         std::unique_ptr<Function>($1),
-                        std::unique_ptr<Function>($3)
+                        std::unique_ptr<Function>($3),
+                        "^"
                     );
                   }
-                  | LEFT_PAREN FunctionExpression RIGHT_PAREN      { 
+                  | LEFT_PAREN FunctionExpression RIGHT_PAREN { 
                     $$ = new Function(
                         [](double x) { return x; },
-                        std::unique_ptr<Function>($2)
+                        std::unique_ptr<Function>($2),
+                        "\b"
                     );
                   }
-                  | SIN LEFT_PAREN FunctionExpression RIGHT_PAREN  { 
+                  | SIN LEFT_PAREN FunctionExpression RIGHT_PAREN { 
                     $$ = new Function(
                         [](double x) { return std::sin(x); },
-                        std::unique_ptr<Function>($3)
+                        std::unique_ptr<Function>($3),
+                        "SEN"
                     );
                   }
-                  | COS LEFT_PAREN FunctionExpression RIGHT_PAREN  { 
+                  | COS LEFT_PAREN FunctionExpression RIGHT_PAREN { 
                     $$ = new Function(
                         [](double x) { return std::cos(x); },
-                        std::unique_ptr<Function>($3)
+                        std::unique_ptr<Function>($3),
+                        "COS"
                     );
                   }
-                  | TAN LEFT_PAREN FunctionExpression RIGHT_PAREN  { 
+                  | TAN LEFT_PAREN FunctionExpression RIGHT_PAREN { 
                     $$ = new Function(
                         [](double x) { return std::tan(x); },
-                        std::unique_ptr<Function>($3)
+                        std::unique_ptr<Function>($3),
+                        "TAN"
                     );
                   }
-                  | ABS LEFT_PAREN FunctionExpression RIGHT_PAREN  { 
+                  | ABS LEFT_PAREN FunctionExpression RIGHT_PAREN { 
                     $$ = new Function(
                         [](double x) { return std::abs(x); },
-                        std::unique_ptr<Function>($3)
+                        std::unique_ptr<Function>($3),
+                        "ABS"
                     );
                   }
-                  | PI_CONSTANT                                    {
-                    $$ = new Function([](double) { return M_PI; });
+                  | PI_CONSTANT {
+                    $$ = new Function(
+                        [](double) { return M_PI; },
+                        std::to_string(M_PI)
+                    );
                   }
-                  | EULER_CONSTANT                                 {
-                    $$ = new Function([](double) { return M_E; });
+                  | EULER_CONSTANT {
+                    $$ = new Function(
+                        [](double) { return M_E; },
+                        std::to_string(M_E)
+                    );
                   }
-                  | PLUS FunctionExpression                        {
+                  | PLUS FunctionExpression {
                     $$ = new Function(
                         [](double x) { return +x; },
-                        std::unique_ptr<Function>($2)
+                        std::unique_ptr<Function>($2),
+                        "+"
                     );
                   }
-                  | MINUS FunctionExpression                       { 
+                  | MINUS FunctionExpression { 
                     $$ = new Function(
                         [](double x) { return -x; },
-                        std::unique_ptr<Function>($2)
+                        std::unique_ptr<Function>($2),
+                        "-"
                     );
                   }
-                  | INTEGER                                        { 
-                    $$ = new Function([=](double) { return $1; });
+                  | INTEGER { 
+                    $$ = new Function(
+                        [=](double) { return $1; },
+                        std::to_string($1)
+                    );
                   }
-                  | REAL_NUMBER                                    { 
-                    $$ = new Function([=](double) { return $1; });
+                  | REAL_NUMBER { 
+                    $$ = new Function(
+                        [=](double) { return $1; },
+                        std::to_string($1)
+                    );
                   }
-                  | X                                              { 
-                    $$ = new Function([](double x) { return x; });
+                  | X { 
+                    $$ = new Function(
+                        [](double x) { return x; },
+                        "x"
+                    );
                   }
                   ;
 

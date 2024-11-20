@@ -43,14 +43,14 @@ void Settings::setVView(std::pair<double, double> v_view)
     v_view_hi = v_view.second;
 }
 
-Function::Function(std::function<double(double)> op)
-    : unaryOperation(op), left(nullptr), right(nullptr) {}
+Function::Function(std::function<double(double)> op, const std::string &symbol)
+    : unaryOperation(op), operatorSymbol(symbol), left(nullptr), right(nullptr) {}
 
-Function::Function(std::function<double(double)> op, std::unique_ptr<Function> child)
-    : unaryOperation(op), left(std::move(child)), right(nullptr) {}
+Function::Function(std::function<double(double)> op, std::unique_ptr<Function> child, const std::string &symbol)
+    : unaryOperation(op), operatorSymbol(symbol), left(std::move(child)), right(nullptr) {}
 
-Function::Function(std::function<double(double, double)> op, std::unique_ptr<Function> l, std::unique_ptr<Function> r)
-    : binaryOperation(op), left(std::move(l)), right(std::move(r)) {}
+Function::Function(std::function<double(double, double)> op, std::unique_ptr<Function> l, std::unique_ptr<Function> r, const std::string &symbol)
+    : binaryOperation(op), operatorSymbol(symbol), left(std::move(l)), right(std::move(r)) {}
 
 double Function::operator()(double x) const
 {
@@ -75,6 +75,29 @@ double Function::operator()(double x) const
     throw std::runtime_error("Árvore de funções malformada.");
 }
 
+std::string Function::toRPN() const
+{
+    // Se for uma operação binária
+    if (binaryOperation && left && right)
+    {
+        return left->toRPN() + " " + right->toRPN() + " " + operatorSymbol;
+    }
+
+    // Se for uma operação unária
+    if (unaryOperation && left)
+    {
+        return left->toRPN() + " " + operatorSymbol;
+    }
+
+    // Se for uma constante ou variável
+    if (!operatorSymbol.empty())
+    {
+        return operatorSymbol;
+    }
+
+    throw std::runtime_error("Árvore de função malformada.");
+}
+
 DCMAT::DCMAT()
 {
     clearGraph();
@@ -97,7 +120,7 @@ void DCMAT::plot()
     const double x_max = settings.h_view_hi;
     const double y_min = settings.v_view_lo;
     const double y_max = settings.v_view_hi;
-    
+
     if (settings.erase_plot)
     {
         clearGraph();
