@@ -7,7 +7,8 @@
 /**
  * @brief Configurações
  */
-struct Settings {
+struct Settings
+{
     double h_view_lo = -6.5;
     double h_view_hi = 6.5;
     double v_view_lo = -3.5;
@@ -27,6 +28,20 @@ struct Settings {
      * @brief Método para resetar as configurações
      */
     void reset();
+
+    /**
+     * @brief Seta os parâmetros de visualização horizontal do eixo X
+     * @param low Lower Bound
+     * @param high Upper Bound
+     */
+    void setHView(std::pair <double, double> h_view);
+
+    /**
+     * @brief Seta os parâmetros de visualização vertical do eixo Y
+     * @param low Lower Bound
+     * @param high Upper Bound
+     */
+    void setVView(std::pair <double, double> v_view);
 };
 
 /**

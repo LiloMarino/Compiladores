@@ -14,10 +14,13 @@
 
 %union {
     double value;
+    std::pair<double, double>* interval;
 }
+
 
 %token <value> INTEGER REAL_NUMBER
 %type <value> Expression Number
+%type <interval> Interval
 
 %token PLUS MINUS MULTIPLY DIVIDE EXPONENT MODULO LEFT_PAREN RIGHT_PAREN SIN COS TAN ABS VARIABLE IDENTIFIER 
 PI_CONSTANT EULER_CONSTANT ABOUT FLOAT SETTINGS H_VIEW PLOT SHOW AXIS INTEGRAL_STEPS PRECISION SOLVE 
@@ -44,8 +47,8 @@ Program:
 Command:
        SHOW SETTINGS SEMICOLON { settings.show(); }
        | RESET SETTINGS SEMICOLON { settings.reset(); }
-       | SET H_VIEW REAL_NUMBER COLON REAL_NUMBER SEMICOLON
-       | SET V_VIEW REAL_NUMBER COLON REAL_NUMBER SEMICOLON
+       | SET H_VIEW Interval SEMICOLON { settings.setHView(*$3); delete $3; }
+       | SET V_VIEW Interval SEMICOLON { settings.setVView(*$3); delete $3; }
        | SET AXIS ON SEMICOLON
        | SET AXIS OFF SEMICOLON
        | PLOT SEMICOLON
@@ -103,12 +106,20 @@ Expression:
     | EULER_CONSTANT { $$ = M_E; }
     | PLUS Expression { $$ = +$2; }
     | MINUS Expression { $$ = -$2; }
-    | Number { $$ = $1; }
+    | INTEGER { $$ = $1; }
+    | REAL_NUMBER { $$ = $1; }
     ;
 
-Number: INTEGER
-      | REAL_NUMBER
+Number:          
+      REAL_NUMBER { $$ = $1;  }
+      | MINUS REAL_NUMBER { $$ = -$2; }
+      | PLUS REAL_NUMBER { $$ = +$2; }
+      | INTEGER { $$ = $1; }
+      | MINUS INTEGER { $$ = -$2; }
+      | PLUS INTEGER { $$ = +$2; }
       ;
 
-Interval: Number COLON Number
+Interval: Number COLON Number { $$ = new std::pair<double, double>($1, $3); }
+        ;
+
 %%

@@ -27,3 +27,15 @@ void Settings::reset()
     erase_plot = true;
     connect_dots = false;
 }
+
+void Settings::setHView(std::pair <double, double> h_view)
+{
+    h_view_lo = h_view.first;
+    h_view_hi = h_view.second;
+}
+
+void Settings::setVView(std::pair <double, double> v_view)
+{
+    v_view_lo = v_view.first;
+    v_view_hi = v_view.second;
+}

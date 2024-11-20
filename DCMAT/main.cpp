@@ -16,6 +16,7 @@ int main()
 
         yyin = fmemopen(const_cast<char *>(entrada.data()), entrada.size(), "r");
         yyparse();
+        fclose(yyin);
     }
     return 0;
 }
