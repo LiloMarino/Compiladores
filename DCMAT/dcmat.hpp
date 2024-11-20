@@ -4,6 +4,7 @@
 #include <string>
 #include <iostream>
 #include <functional>
+#include <list>
 
 /**
  * @brief Configurações
@@ -46,6 +47,30 @@ struct Settings
 };
 
 /**
+ * @brief Classe das funções
+ */
+class Function {
+private:
+    std::list<std::function<double(double)>> functions;
+
+public:
+     
+    /**
+     * @brief Adiciona uma função à lista usando o operador +=
+     * @param func Função do formato lambda
+     * @return Referência para o próprio objeto
+     */
+    Function& operator+=(std::function<double(double)> func); 
+
+    /**
+     * @brief Torna a classe callable, aplicando todas as funções na ordem
+     * @param x Valor de entrada
+     * @return Retorna o valor da função f(x) aplicada em x
+     */
+    double operator()(double x) const;
+};
+
+/**
  * @brief Plota o gráfico
  * @param func Função a ser plotada
  */
@@ -55,6 +80,6 @@ void plot(std::function<double(double)> func);
  * @brief Declarações globais
  */
 extern Settings settings;
-extern std::function<double(double)> last_function;
+extern Function last_function;
 
 #endif
