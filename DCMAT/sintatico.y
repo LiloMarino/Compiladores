@@ -58,8 +58,8 @@ Command:
             dcmat.setLastFunction(std::unique_ptr<Function>($3));
             dcmat.plot();
         }
-       | SET ERASE PLOT OFF SEMICOLON
-       | SET ERASE PLOT ON SEMICOLON
+       | SET ERASE PLOT OFF SEMICOLON { dcmat.settings.erase_plot = false; }
+       | SET ERASE PLOT ON SEMICOLON { dcmat.settings.erase_plot = true; }
        | RPN LEFT_PAREN Expression RIGHT_PAREN SEMICOLON
        | SET INTEGRAL_STEPS INTEGER SEMICOLON
        | INTEGRATE LEFT_PAREN Interval COMMA Function RIGHT_PAREN SEMICOLON
