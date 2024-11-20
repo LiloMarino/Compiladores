@@ -19,6 +19,11 @@ enum class ExceptionType
 };
 
 /**
+ * @brief Função de inicialização
+ */
+void init();
+
+/**
  * @brief Lança uma mensagem de erro na saída padrão
  * @param level Nível da exceção
  * @param type Tipo da exceção

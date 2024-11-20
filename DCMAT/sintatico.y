@@ -1,5 +1,6 @@
 %code requires {
 // Necessário para evitar problemas de inclusão
+// Coloca na .h
 #include "utils.hpp"
 #include "dcmat.hpp"
 #include <iostream>
@@ -7,10 +8,10 @@
 }
 
 %{
+    // Coloca na .c
     extern int yylex();
 %}
 
-// ARRUMAR TIPOS E UNION
 %union {
     double value;
 }

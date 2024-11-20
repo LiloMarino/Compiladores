@@ -4,15 +4,15 @@ Settings settings;
 
 void Settings::show() const
 {
-    std::cout << "h_view_lo: " << h_view_lo << "\n"
-              << "h_view_hi: " << h_view_hi << "\n"
-              << "v_view_lo: " << v_view_lo << "\n"
-              << "v_view_hi: " << v_view_hi << "\n"
-              << "float precision: " << float_precision << "\n"
-              << "integral_steps: " << integral_steps << "\n"
-              << "Draw Axis: " << (draw_axis ? "ON" : "OFF") << "\n"
-              << "Erase Plot: " << (erase_plot ? "ON" : "OFF") << "\n"
-              << "Connect Dots: " << (connect_dots ? "ON" : "OFF") << "\n";
+    std::cout << std::endl << "h_view_lo: " << h_view_lo << std::endl
+              << "h_view_hi: " << h_view_hi << std::endl
+              << "v_view_lo: " << v_view_lo << std::endl
+              << "v_view_hi: " << v_view_hi << std::endl 
+              << "float precision: " << float_precision << std::endl
+              << "integral_steps: " << integral_steps << std::endl << std::endl
+              << "Draw Axis: " << (draw_axis ? "ON" : "OFF") << std::endl
+              << "Erase Plot: " << (erase_plot ? "ON" : "OFF") << std::endl
+              << "Connect Dots: " << (connect_dots ? "ON" : "OFF") << std::endl << std::endl;
 }
 
 void Settings::reset()

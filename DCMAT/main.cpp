@@ -1,4 +1,5 @@
 #include "sintatico.tab.h"
+#include "dcmat.hpp"
 #include <iostream>
 
 extern int yyparse();
@@ -6,6 +7,7 @@ extern FILE *yyin;
 
 int main()
 {
+    init();
     while (true)
     {
         std::cout << "> ";
