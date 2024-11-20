@@ -49,8 +49,8 @@ Command:
        | RESET SETTINGS SEMICOLON { settings.reset(); }
        | SET H_VIEW Interval SEMICOLON { settings.setHView(*$3); delete $3; }
        | SET V_VIEW Interval SEMICOLON { settings.setVView(*$3); delete $3; }
-       | SET AXIS ON SEMICOLON
-       | SET AXIS OFF SEMICOLON
+       | SET AXIS ON SEMICOLON { settings.draw_axis = true; }
+       | SET AXIS OFF SEMICOLON { settings.draw_axis = false; }
        | PLOT SEMICOLON
        | PLOT LEFT_PAREN Function RIGHT_PAREN SEMICOLON
        | SET ERASE PLOT OFF SEMICOLON
