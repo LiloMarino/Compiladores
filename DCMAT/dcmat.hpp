@@ -4,7 +4,7 @@
 #include <string>
 #include <iostream>
 #include <functional>
-#include <list>
+#include <memory>
 
 /**
  * @brief Configurações
@@ -51,41 +51,51 @@ struct Settings
  */
 class Function {
 private:
-    std::list<std::function<double(double)>> functions;
+    std::function<double(double, double)> binaryOperation; // Para operações binárias
+    std::function<double(double)> unaryOperation;          // Para valores ou operações unárias
+    std::unique_ptr<Function> left;                        // Subárvore esquerda
+    std::unique_ptr<Function> right;                       // Subárvore direita
 
 public:
-     
     /**
-     * @brief Adiciona uma função à lista usando o operador +=
-     * @param func Função do formato lambda
-     * @return Referência para o próprio objeto
+     * @brief Construtor para valores base (folhas)
+     * @param op Função lambda
      */
-    Function& operator+=(std::function<double(double)> func); 
+    Function(std::function<double(double)> op);
 
     /**
-     * @brief Torna a classe callable, aplicando todas as funções na ordem
+     * @brief Construtor para operações unárias
+     * @param op Função lambda
+     * @param child Subárvore
+     */
+    Function(std::function<double(double)> op, std::unique_ptr<Function> child);
+
+    /**
+     * @brief Construtor para operações binárias
+     * @param op Função lambda
+     * @param left Função à esquerda
+     * @param right Função à direita
+     */
+    Function(std::function<double(double, double)> op, std::unique_ptr<Function> left, std::unique_ptr<Function> right);
+
+    /**
+     * @brief Torna a classe callable, aplicando todas as funções na ordem correta
      * @param x Valor de entrada
      * @return Retorna o valor da função f(x) aplicada em x
      */
     double operator()(double x) const;
-
-    /**
-     * @brief Verifica se a lista de funções está vazia
-     * @return True se a lista está vazia, False caso contrário
-     */
-    bool empty() const;
 };
 
 /**
  * @brief Plota o gráfico
  * @param func Função a ser plotada
  */
-void plot(std::function<double(double)> func);
+void plot(const Function& func);
 
 /**
  * @brief Declarações globais
  */
 extern Settings settings;
-extern Function last_function;
+extern std::unique_ptr<Function> last_function;
 
 #endif

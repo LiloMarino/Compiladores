@@ -2,7 +2,7 @@
 
 // Declarações globais
 Settings settings;
-Function last_function;
+std::unique_ptr<Function> last_function = nullptr;
 
 void Settings::show() const
 {
@@ -45,7 +45,7 @@ void Settings::setVView(std::pair<double, double> v_view)
     v_view_hi = v_view.second;
 }
 
-void plot(std::function<double(double)> func)
+void plot(const Function& func)
 {
     const int width = 80;
     const int height = 25;
@@ -79,23 +79,34 @@ void plot(std::function<double(double)> func)
     }
 }
 
-Function &Function::operator+=(std::function<double(double)> func)
-{
-    functions.push_back(func);
-    return *this;
-}
+Function::Function(std::function<double(double)> op)
+    : unaryOperation(op), left(nullptr), right(nullptr) {}
+
+Function::Function(std::function<double(double)> op, std::unique_ptr<Function> child)
+    : unaryOperation(op), left(std::move(child)), right(nullptr) {}
+
+Function::Function(std::function<double(double, double)> op, std::unique_ptr<Function> l, std::unique_ptr<Function> r)
+    : binaryOperation(op), left(std::move(l)), right(std::move(r)) {}
 
 double Function::operator()(double x) const
 {
-    double result = x;
-    for (const auto &func : functions)
+    if (binaryOperation && left && right)
     {
-        result = func(result);
+        // Nó binário
+        double leftVal = (*left)(x);
+        double rightVal = (*right)(x);
+        return binaryOperation(leftVal, rightVal);
     }
-    return result;
-}
-
-bool Function::empty() const
-{
-    return functions.empty();
+    if (unaryOperation && left)
+    {
+        // Nó unário
+        double leftVal = (*left)(x);
+        return unaryOperation(leftVal);
+    }
+    if (unaryOperation)
+    {
+        // Nó folha (variáveis ou constantes)
+        return unaryOperation(x);
+    }
+    throw std::runtime_error("Árvore de funções malformada.");
 }

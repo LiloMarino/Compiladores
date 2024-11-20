@@ -54,16 +54,15 @@ Command:
        | SET AXIS ON SEMICOLON { settings.draw_axis = true; }
        | SET AXIS OFF SEMICOLON { settings.draw_axis = false; }
        | PLOT SEMICOLON {        
-            if (!last_function.empty()) {
-                plot(last_function);
+            if (last_function) {
+                plot(*last_function);
             } else {
                 std::cout << "No function defined!" << std::endl;
             }
         }
        | PLOT LEFT_PAREN Function RIGHT_PAREN SEMICOLON {
-            last_function = *$3;
-            plot(last_function);
-            delete $3;
+            last_function = std::unique_ptr<Function>($3);
+            plot(*last_function);
         }
        | SET ERASE PLOT OFF SEMICOLON
        | SET ERASE PLOT ON SEMICOLON
@@ -90,112 +89,103 @@ Function: FunctionExpression { $$ = $1; }
 
 FunctionExpression: 
                   FunctionExpression PLUS FunctionExpression       { 
-                    if (!$$) {
-                        $$ = new Function(); 
-                    }
-                    (*$$) += [=](double x) { return (*$1)(x) + (*$3)(x); };
+                    $$ = new Function(
+                        [](double a, double b) { return a + b; },
+                        std::unique_ptr<Function>($1),
+                        std::unique_ptr<Function>($3)
+                    );
                   }
                   | FunctionExpression MINUS FunctionExpression    { 
-                    if (!$$) {
-                        $$ = new Function(); 
-                    }
-                    (*$$) += [=](double x) { return (*$1)(x) - (*$3)(x); };
+                    $$ = new Function(
+                        [](double a, double b) { return a - b; },
+                        std::unique_ptr<Function>($1),
+                        std::unique_ptr<Function>($3)
+                    );
                   }
                   | FunctionExpression MULTIPLY FunctionExpression { 
-                    if (!$$) {
-                        $$ = new Function(); 
-                    }
-                    (*$$) += [=](double x) { return (*$1)(x) * (*$3)(x); };
+                    $$ = new Function(
+                        [](double a, double b) { return a * b; },
+                        std::unique_ptr<Function>($1),
+                        std::unique_ptr<Function>($3)
+                    );
                   }
                   | FunctionExpression DIVIDE FunctionExpression   { 
-                    if (!$$) {
-                        $$ = new Function(); 
-                    }
-                    (*$$) += [=](double x) { return (*$1)(x) / (*$3)(x); };
+                    $$ = new Function(
+                        [](double a, double b) { return a / b; },
+                        std::unique_ptr<Function>($1),
+                        std::unique_ptr<Function>($3)
+                    );
                   }
                   | FunctionExpression MODULO FunctionExpression   { 
-                    if (!$$) {
-                        $$ = new Function(); 
-                    }
-                    (*$$) += [=](double x) { return std::fmod((*$1)(x), (*$3)(x)); };
+                    $$ = new Function(
+                        [](double a, double b) { return std::fmod(a,b); },
+                        std::unique_ptr<Function>($1),
+                        std::unique_ptr<Function>($3)
+                    );
                   }
                   | FunctionExpression EXPONENT FunctionExpression { 
-                    if (!$$) {
-                        $$ = new Function(); 
-                    }
-                    (*$$) += [=](double x) { return std::pow((*$1)(x), (*$3)(x)); };
+                    $$ = new Function(
+                        [](double a, double b) { return std::pow(a,b); },
+                        std::unique_ptr<Function>($1),
+                        std::unique_ptr<Function>($3)
+                    );
                   }
                   | LEFT_PAREN FunctionExpression RIGHT_PAREN      { 
-                    if (!$$) {
-                        $$ = new Function(); 
-                    }
-                    (*$$) += [=](double x) { return (*$2)(x); };
+                    $$ = new Function(
+                        [](double x) { return x; },
+                        std::unique_ptr<Function>($2)
+                    );
                   }
                   | SIN LEFT_PAREN FunctionExpression RIGHT_PAREN  { 
-                    if (!$$) {
-                        $$ = new Function(); 
-                    }
-                    (*$$) += [=](double x) { return std::sin((*$3)(x)); };
+                    $$ = new Function(
+                        [](double x) { return std::sin(x); },
+                        std::unique_ptr<Function>($3)
+                    );
                   }
                   | COS LEFT_PAREN FunctionExpression RIGHT_PAREN  { 
-                    if (!$$) {
-                        $$ = new Function(); 
-                    }
-                    (*$$) += [=](double x) { return std::cos((*$3)(x)); };
+                    $$ = new Function(
+                        [](double x) { return std::cos(x); },
+                        std::unique_ptr<Function>($3)
+                    );
                   }
                   | TAN LEFT_PAREN FunctionExpression RIGHT_PAREN  { 
-                    if (!$$) {
-                        $$ = new Function(); 
-                    }
-                    (*$$) += [=](double x) { return std::tan((*$3)(x)); };
+                    $$ = new Function(
+                        [](double x) { return std::tan(x); },
+                        std::unique_ptr<Function>($3)
+                    );
                   }
                   | ABS LEFT_PAREN FunctionExpression RIGHT_PAREN  { 
-                    if (!$$) {
-                        $$ = new Function(); 
-                    }
-                    (*$$) += [=](double x) { return std::abs((*$3)(x)); };
+                    $$ = new Function(
+                        [](double x) { return std::abs(x); },
+                        std::unique_ptr<Function>($3)
+                    );
                   }
-                  | PI_CONSTANT                                    { 
-                    if (!$$) {
-                        $$ = new Function(); 
-                    }
-                    (*$$) += [](double x) { return M_PI; };
+                  | PI_CONSTANT                                    {
+                    $$ = new Function([](double) { return M_PI; });
                   }
-                  | EULER_CONSTANT                                 { 
-                    if (!$$) {
-                        $$ = new Function(); 
-                    }
-                    (*$$) += [](double x) { return M_E; };
+                  | EULER_CONSTANT                                 {
+                    $$ = new Function([](double) { return M_E; });
                   }
-                  | PLUS FunctionExpression                        { 
-                    if (!$$) {
-                        $$ = new Function(); 
-                    }
-                    (*$$) += [=](double x) { return +(*$2)(x); };
+                  | PLUS FunctionExpression                        {
+                    $$ = new Function(
+                        [](double x) { return +x; },
+                        std::unique_ptr<Function>($2)
+                    );
                   }
                   | MINUS FunctionExpression                       { 
-                    if (!$$) {
-                        $$ = new Function(); 
-                    }
-                    (*$$) += [=](double x) { return -(*$2)(x); };
+                    $$ = new Function(
+                        [](double x) { return -x; },
+                        std::unique_ptr<Function>($2)
+                    );
                   }
                   | INTEGER                                        { 
-                    if (!$$) {
-                        $$ = new Function(); 
-                    }
-                    (*$$) += [=](double x) { return $1; };
+                    $$ = new Function([=](double) { return $1; });
                   }
                   | REAL_NUMBER                                    { 
-                    if (!$$) {
-                        $$ = new Function(); 
-                    }
-                    (*$$) += [=](double x) { return $1; };
+                    $$ = new Function([=](double) { return $1; });
                   }
                   | X                                              { 
-                    if (!$$) {
-                        $$ = new Function(); 
-                    }
-                    (*$$) += [](double x) { return x; };
+                    $$ = new Function([](double x) { return x; });
                   }
                   ;
 
