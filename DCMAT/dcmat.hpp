@@ -68,6 +68,12 @@ public:
      * @return Retorna o valor da função f(x) aplicada em x
      */
     double operator()(double x) const;
+
+    /**
+     * @brief Verifica se a lista de funções está vazia
+     * @return True se a lista está vazia, False caso contrário
+     */
+    bool empty() const;
 };
 
 /**

@@ -2,7 +2,7 @@
 
 // Declarações globais
 Settings settings;
-std::function<double(double)> last_function = nullptr;
+Function last_function;
 
 void Settings::show() const
 {
@@ -93,4 +93,9 @@ double Function::operator()(double x) const
         result = func(result);
     }
     return result;
+}
+
+bool Function::empty() const
+{
+    return functions.empty();
 }
