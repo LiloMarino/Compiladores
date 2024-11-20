@@ -3,15 +3,13 @@
 #include "dcmat.hpp"
 #include <iostream>
 #include <iomanip>
-#include <cstring>
 #include <string>
-#include <vector>
 
 bool firstLine = true;
 
 void init()
 {
-    std::cout << std::fixed << std::setprecision(settings.float_precision); 
+    std::cout << std::fixed << std::setprecision(dcmat.settings.float_precision);
 }
 
 void throwException(ExceptionLevel level, ExceptionType type, const std::string &message)
@@ -53,6 +51,7 @@ void throwException(ExceptionLevel level, ExceptionType type, const std::string 
     }
 }
 
-void yyerror(const char *s) {
+void yyerror(const char *s)
+{
     std::cout << s << std::endl;
 }

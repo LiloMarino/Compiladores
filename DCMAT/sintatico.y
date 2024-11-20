@@ -47,22 +47,16 @@ Program:
     ;
 
 Command:
-       SHOW SETTINGS SEMICOLON { settings.show(); }
-       | RESET SETTINGS SEMICOLON { settings.reset(); }
-       | SET H_VIEW Interval SEMICOLON { settings.setHView(*$3); delete $3; }
-       | SET V_VIEW Interval SEMICOLON { settings.setVView(*$3); delete $3; }
-       | SET AXIS ON SEMICOLON { settings.draw_axis = true; }
-       | SET AXIS OFF SEMICOLON { settings.draw_axis = false; }
-       | PLOT SEMICOLON {        
-            if (last_function) {
-                plot(*last_function);
-            } else {
-                std::cout << "No function defined!" << std::endl;
-            }
-        }
+       SHOW SETTINGS SEMICOLON { dcmat.settings.show(); }
+       | RESET SETTINGS SEMICOLON { dcmat.settings.reset(); }
+       | SET H_VIEW Interval SEMICOLON { dcmat.settings.setHView(*$3); delete $3; }
+       | SET V_VIEW Interval SEMICOLON { dcmat.settings.setVView(*$3); delete $3; }
+       | SET AXIS ON SEMICOLON { dcmat.settings.draw_axis = true; }
+       | SET AXIS OFF SEMICOLON { dcmat.settings.draw_axis = false; }
+       | PLOT SEMICOLON { dcmat.plot(); }
        | PLOT LEFT_PAREN Function RIGHT_PAREN SEMICOLON {
-            last_function = std::unique_ptr<Function>($3);
-            plot(*last_function);
+            dcmat.setLastFunction(std::unique_ptr<Function>($3));
+            dcmat.plot();
         }
        | SET ERASE PLOT OFF SEMICOLON
        | SET ERASE PLOT ON SEMICOLON

@@ -36,20 +36,21 @@ struct Settings
      * @param low Lower Bound
      * @param high Upper Bound
      */
-    void setHView(std::pair <double, double> h_view);
+    void setHView(std::pair<double, double> h_view);
 
     /**
      * @brief Seta os parâmetros de visualização vertical do eixo Y
      * @param low Lower Bound
      * @param high Upper Bound
      */
-    void setVView(std::pair <double, double> v_view);
+    void setVView(std::pair<double, double> v_view);
 };
 
 /**
  * @brief Classe das funções
  */
-class Function {
+class Function
+{
 private:
     std::function<double(double, double)> binaryOperation; // Para operações binárias
     std::function<double(double)> unaryOperation;          // Para valores ou operações unárias
@@ -86,16 +87,29 @@ public:
     double operator()(double x) const;
 };
 
-/**
- * @brief Plota o gráfico
- * @param func Função a ser plotada
- */
-void plot(const Function& func);
+class DCMAT
+{
+private:
+    std::unique_ptr<Function> last_function = nullptr;
+public:
+    /**
+     * @brief Configurações
+     */
+    Settings settings;
 
-/**
- * @brief Declarações globais
- */
-extern Settings settings;
-extern std::unique_ptr<Function> last_function;
+    /**
+     * @brief 
+     * @param func 
+     */
+    void setLastFunction(std::unique_ptr<Function> func);
+
+    /**
+     * @brief Plota o gráfico
+     * @param func Função a ser plotada
+     */
+    void plot();
+};
+
+extern DCMAT dcmat;
 
 #endif
