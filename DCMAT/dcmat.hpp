@@ -3,6 +3,7 @@
 
 #include <string>
 #include <iostream>
+#include <functional>
 
 /**
  * @brief Configurações
@@ -45,8 +46,15 @@ struct Settings
 };
 
 /**
- * @brief Declaração global
+ * @brief Plota o gráfico
+ * @param func Função a ser plotada
+ */
+void plot(std::function<double(double)> func);
+
+/**
+ * @brief Declarações globais
  */
 extern Settings settings;
+extern std::function<double(double)> last_function;
 
 #endif

@@ -1,6 +1,8 @@
 #include "dcmat.hpp"
 
+// Declarações globais
 Settings settings;
+std::function<double(double)> last_function = nullptr;
 
 void Settings::show() const
 {
@@ -38,4 +40,32 @@ void Settings::setVView(std::pair <double, double> v_view)
 {
     v_view_lo = v_view.first;
     v_view_hi = v_view.second;
+}
+
+void plot(std::function<double(double)> func) {
+    const int width = 80;
+    const int height = 25;
+    const double x_min = -10.0;
+    const double x_max = 10.0;
+    const double y_min = -10.0;
+    const double y_max = 10.0;
+
+    // Resolução do gráfico (25 linhas por 80 colunas)
+    for (int y = 0; y < height; ++y) {
+        for (int x = 0; x < width; ++x) {
+            // Mapeia os valores x e y para os limites definidos
+            double x_val = x_min + (x_max - x_min) * x / (width - 1);
+            double y_val = func(x_val);
+            
+            // Normaliza a coordenada y para o intervalo de altura
+            int y_pos = static_cast<int>((y_max - y_val) * (height - 1) / (y_max - y_min));
+
+            if (y_pos == y) {
+                std::cout << "*";  // Imprime o pixel
+            } else {
+                std::cout << " ";  // Espaço vazio
+            }
+        }
+        std::cout << std::endl;
+    }
 }
