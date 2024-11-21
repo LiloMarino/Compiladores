@@ -60,6 +60,6 @@
 [xX]                            { return X; }
 [0-9]+                          { yylval.value = atof(yytext); return INTEGER; }
 [0-9]+"."[0-9]+                 { yylval.value = atof(yytext); return REAL_NUMBER; }
-[a-zA-Z]+[_0-9a-zA-Z]*          { return IDENTIFIER; }
+[a-zA-Z]+[_0-9a-zA-Z]*          { yylval.str = new std::string(yytext); return IDENTIFIER; }
 .                               { throwException(ExceptionLevel::ERROR, ExceptionType::LEXICAL, yytext); }
 %%

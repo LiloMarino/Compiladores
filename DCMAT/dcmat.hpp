@@ -5,6 +5,7 @@
 #include <iostream>
 #include <functional>
 #include <memory>
+#include <unordered_map>
 
 /**
  * @brief Configurações
@@ -63,7 +64,7 @@ public:
      * @brief Construtor para valores base (folhas)
      * @param op Função lambda
      */
-    Function(std::function<double(double)> op, const std::string &symbol = "");
+    Function(std::function<double(double)> op, const std::string &symbol);
 
     /**
      * @brief Construtor para operações unárias
@@ -101,6 +102,7 @@ private:
     static const int HEIGHT = 25;
     std::unique_ptr<Function> last_function = nullptr;
     char graph_matrix[HEIGHT][WIDTH];
+    std::unordered_map<std::string, double> symbol_table;
 
 public:
     /**
@@ -132,6 +134,29 @@ public:
      * @return Valor da integral
      */
     double integrate(std::pair<double, double> interval, const Function &f);
+
+    /**
+     * @brief Realiza o somatório
+     * @param variable Variável do somatório
+     * @param interval Intervalo da soma
+     * @param f Função a ser somada
+     * @return Valor da soma
+     */
+    double sum(const std::string &variable, std::pair<int, int> interval, const Function &f);
+
+    /**
+     * @brief Seta a variável
+     * @param identifier Identificador da varíavel
+     * @param var Valor da variável
+     */
+    void setVariable(const std::string &identifier, double value);
+
+    /**
+     * @brief Obtém a variável
+     * @param identifier Identificador da varíavel
+     * @return Valor da varíavel
+     */
+    double getVariable(const std::string &identifier);
 
 private:
     /**

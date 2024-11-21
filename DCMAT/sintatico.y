@@ -14,17 +14,20 @@
 
 %union {
     double value;
+    std::string* str;
+    std::pair<int, int>* int_interval;
     std::pair<double, double>* interval;
     Function *function;
 }
 
-
+%token <str> IDENTIFIER
 %token <value> INTEGER REAL_NUMBER
-%type <value> Expression Number
+%type <value> Expression Number Integer
 %type <interval> Interval
+%type <int_interval> IntegerInterval
 %type <function> Function FunctionExpression
 
-%token PLUS MINUS MULTIPLY DIVIDE EXPONENT MODULO LEFT_PAREN RIGHT_PAREN SIN COS TAN ABS X IDENTIFIER
+%token PLUS MINUS MULTIPLY DIVIDE EXPONENT MODULO LEFT_PAREN RIGHT_PAREN SIN COS TAN ABS X
 PI_CONSTANT EULER_CONSTANT ABOUT FLOAT SETTINGS H_VIEW PLOT SHOW AXIS INTEGRAL_STEPS PRECISION SOLVE 
 CONNECT_DOTS INTEGRATE QUIT SUM LINEAR_SYSTEM RESET SYMBOLS DETERMINANT MATRIX RPN OFF V_VIEW ERASE ON SET COLON 
 EQUAL ASSIGN LEFT_BRACKET RIGHT_BRACKET SEMICOLON COMMA
@@ -70,7 +73,12 @@ Command:
             delete $3;
             delete $5;
         }
-       | SUM LEFT_PAREN IDENTIFIER COMMA Interval COMMA Expression RIGHT_PAREN SEMICOLON
+       | SUM LEFT_PAREN IDENTIFIER COMMA IntegerInterval COMMA FunctionExpression RIGHT_PAREN SEMICOLON {
+            std::cout << dcmat.sum(*$3, *$5, *$7) << std::endl;
+            delete $3;
+            delete $5;
+            delete $7;
+        }
        | MatrixCreate SEMICOLON
        | SHOW MATRIX SEMICOLON
        | SOLVE DETERMINANT SEMICOLON
@@ -216,6 +224,15 @@ FunctionExpression:
                         "x"
                     );
                   }
+                  | IDENTIFIER {
+                    $$ = new Function(
+                      [identifier = std::string(*$1)](double) {
+                          return dcmat.getVariable(identifier); 
+                      },
+                      *$1
+                    );
+                    delete $1;
+                  }
                   ;
 
 MatrixCreate: 
@@ -261,7 +278,15 @@ Number:
       | PLUS INTEGER { $$ = +$2; }
       ;
 
+Integer: INTEGER { $$ = $1; }
+      | MINUS INTEGER { $$ = -$2; }
+      | PLUS INTEGER { $$ = +$2; }
+      ;
+
 Interval: Number COLON Number { $$ = new std::pair<double, double>($1, $3); }
+        ;
+
+IntegerInterval: Integer COLON Integer { $$ = new std::pair<int, int>($1, $3); }
         ;
 
 %%

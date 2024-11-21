@@ -165,6 +165,28 @@ double DCMAT::integrate(std::pair<double, double> interval, const Function &f)
     return sum;
 }
 
+double DCMAT::sum(const std::string &variable, std::pair<int, int> interval, const Function &f)
+{
+    double sum = 0.0;
+    setVariable(variable, interval.first);
+    for (double var = getVariable(variable); var <= interval.second; setVariable(variable, ++var))
+    {
+        sum += f(var);
+    }
+    return sum;
+}
+
+void DCMAT::setVariable(const std::string &identifier, double value)
+{
+    symbol_table[identifier] = value;
+}
+
+double DCMAT::getVariable(const std::string &identifier)
+{
+    double value = symbol_table.at(identifier);
+    return value;
+}
+
 void DCMAT::drawAxis()
 {
     // Definindo a posição do eixo Y (vertical)
