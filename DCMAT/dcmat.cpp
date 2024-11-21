@@ -44,13 +44,13 @@ void Settings::setVView(std::pair<double, double> v_view)
 }
 
 Function::Function(std::function<double(double)> op, const std::string &symbol)
-    : unaryOperation(op), operatorSymbol(symbol), left(nullptr), right(nullptr) {}
+    : unaryOperation(op), binaryOperation(nullptr), left(nullptr), right(nullptr), operatorSymbol(symbol) {}
 
 Function::Function(std::function<double(double)> op, std::unique_ptr<Function> child, const std::string &symbol)
-    : unaryOperation(op), operatorSymbol(symbol), left(std::move(child)), right(nullptr) {}
+    : unaryOperation(op), binaryOperation(nullptr), left(std::move(child)), right(nullptr), operatorSymbol(symbol) {}
 
 Function::Function(std::function<double(double, double)> op, std::unique_ptr<Function> l, std::unique_ptr<Function> r, const std::string &symbol)
-    : binaryOperation(op), operatorSymbol(symbol), left(std::move(l)), right(std::move(r)) {}
+    : unaryOperation(nullptr), binaryOperation(op), left(std::move(l)), right(std::move(r)), operatorSymbol(symbol) {}
 
 double Function::operator()(double x) const
 {
@@ -150,6 +150,19 @@ void DCMAT::plot()
     }
 
     renderGraph();
+}
+
+double DCMAT::integrate(std::pair<double, double> interval, const Function &f)
+{
+    const double step = (interval.second - interval.first) / settings.integral_steps;
+    double sum = 0.0;
+
+    for (double x = interval.first; x < interval.second; x += step)
+    {
+        sum += f(x) * step;
+    }
+
+    return sum;
 }
 
 void DCMAT::drawAxis()

@@ -64,8 +64,12 @@ Command:
             std::cout << "Expression in RPN format: " << std::endl << $3->toRPN() << std::endl;
             delete $3;
         }
-       | SET INTEGRAL_STEPS INTEGER SEMICOLON
-       | INTEGRATE LEFT_PAREN Interval COMMA Function RIGHT_PAREN SEMICOLON
+       | SET INTEGRAL_STEPS INTEGER SEMICOLON { dcmat.settings.integral_steps = $3; }
+       | INTEGRATE LEFT_PAREN Interval COMMA Function RIGHT_PAREN SEMICOLON {
+            std::cout << dcmat.integrate(*$3, *$5) << std::endl;
+            delete $3;
+            delete $5;
+        }
        | SUM LEFT_PAREN IDENTIFIER COMMA Interval COMMA Expression RIGHT_PAREN SEMICOLON
        | MatrixCreate SEMICOLON
        | SHOW MATRIX SEMICOLON

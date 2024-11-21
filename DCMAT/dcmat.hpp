@@ -52,8 +52,8 @@ struct Settings
 class Function
 {
 private:
-    std::function<double(double, double)> binaryOperation; // Para operações binárias
     std::function<double(double)> unaryOperation;          // Para valores ou operações unárias
+    std::function<double(double, double)> binaryOperation; // Para operações binárias
     std::unique_ptr<Function> left;                        // Subárvore esquerda
     std::unique_ptr<Function> right;                       // Subárvore direita
     std::string operatorSymbol;                            // Representação do operador
@@ -124,6 +124,14 @@ public:
      * @param func Função a ser plotada
      */
     void plot();
+
+    /**
+     * @brief Calcula o valor numérico da integral de uma função usando o método da Soma de Riemann à esquerda
+     * @param interval Intervalo de integração
+     * @param f Função a ser integrada
+     * @return Valor da integral
+     */
+    double integrate(std::pair<double, double> interval, const Function &f);
 
 private:
     /**
