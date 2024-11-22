@@ -5,7 +5,7 @@ EXEC_NAME = dcmat
 ZIP_NAME = dcmat
 
 # Lista de arquivos fonte
-SOURCES = main.cpp utils.cpp dcmat.cpp matrix.cpp
+SOURCES = main.cpp utils.cpp dcmat.cpp matrix.cpp function.cpp
 LEXER = lex.yy.c
 PARSER = sintatico.tab.c sintatico.tab.h
 

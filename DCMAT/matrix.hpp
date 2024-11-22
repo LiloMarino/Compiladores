@@ -7,9 +7,9 @@
 class Matrix
 {
 private:
-    std::vector<std::vector<double>> data; // Dados da matriz
     size_t rows;                           // Número de linhas
     size_t cols;                           // Número de colunas
+    std::vector<std::vector<double>> data; // Dados da matriz
 
 public:
     /**
