@@ -117,6 +117,12 @@ public:
      */
     void setLastMatrix(std::unique_ptr<Matrix> matrix);
 
+    /**
+     * @brief Obtém a última matriz
+     * @return Última matriz
+     */
+    Matrix &getLastMatrix() const;
+
 private:
     /**
      * @brief Adiciona os eixos ao gráfico

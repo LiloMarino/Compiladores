@@ -60,6 +60,11 @@ public:
     const double &at(size_t row, size_t col) const;
 
     /**
+     * @brief Inverte as linhas da matriz
+     */
+    void reverse();
+
+    /**
      * @brief Soma 2 matrizes
      * @param other Outra matriz
      * @return Retorna a matriz resultante da soma

@@ -139,6 +139,13 @@ void DCMAT::setLastMatrix(std::unique_ptr<Matrix> matrix)
     last_matrix = std::move(matrix);
 }
 
+Matrix &DCMAT::getLastMatrix() const {
+    if (!last_matrix) {
+        throw std::runtime_error("No Matrix defined!");
+    }
+    return *last_matrix;
+}
+
 void DCMAT::drawAxis()
 {
     // Definindo a posição do eixo Y (vertical)

@@ -1,6 +1,7 @@
 #include "matrix.hpp"
 #include "dcmat.hpp"
 #include <iomanip>
+#include <algorithm>
 
 Matrix::Matrix(size_t rows, size_t cols, double initialValue)
     : rows(rows), cols(cols), matrix(rows, std::vector<double>(cols, initialValue)) {}
@@ -29,6 +30,11 @@ double &Matrix::at(size_t row, size_t col)
 const double &Matrix::at(size_t row, size_t col) const
 {
     return matrix.at(row).at(col);
+}
+
+void Matrix::reverse()
+{
+    std::reverse(matrix.begin(), matrix.end());
 }
 
 Matrix Matrix::operator+(const std::vector<double> &row) const
