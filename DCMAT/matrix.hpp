@@ -72,6 +72,12 @@ public:
     double determinant() const;
 
     /**
+     * @brief Resolve o sistema linear
+     * @return Vetor de soluções
+     */
+    std::vector<double> solveLinearSystem() const;
+
+    /**
      * @brief Imprime a matriz formatada
      */
     void printMatrix() const;
@@ -103,6 +109,13 @@ public:
      * @return Retorna a matriz resultante da concatenação
      */
     Matrix &operator+=(const std::vector<double> &row);
+
+private:
+    /**
+     * @brief Realiza a eliminação de gauss
+     * @return Retorna a matriz triangular superior
+     */
+    std::vector<std::vector<double>> gaussianElimination(bool augmented = false) const;
 
 };
 

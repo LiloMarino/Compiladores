@@ -40,52 +40,69 @@ void Matrix::reverse()
 
 double Matrix::determinant() const {
     if (rows != cols) {
-        throw std::invalid_argument("A matriz deve ser quadrada para calcular o determinante");
+        throw std::invalid_argument("A matriz deve ser quadrada para calcular o determinante.");
     }
 
-    size_t n = rows;
-    std::vector<std::vector<double>> tempMatrix = matrix; // Copia a matriz original
-    double det = 1.0;                                     // Inicializa o determinante
-    int swaps = 0;                                        // Contador de trocas de linhas
+    // Executa a eliminação de Gauss
+    std::vector<std::vector<double>> reducedMatrix = gaussianElimination();
 
-    for (size_t col = 0; col < n; ++col) {
-        // Encontrar o pivot (elemento não zero mais próximo do topo)
-        size_t pivotRow = col;
-        for (size_t row = col + 1; row < n; ++row) {
-            if (std::fabs(tempMatrix[row][col]) > std::fabs(tempMatrix[pivotRow][col])) {
-                pivotRow = row;
-            }
-        }
-
-        // Se o pivot for zero, o determinante é zero
-        if (std::fabs(tempMatrix[pivotRow][col]) < 1e-9) {
-            return 0.0;
-        }
-
-        // Trocar linhas, se necessário
-        if (pivotRow != col) {
-            std::swap(tempMatrix[col], tempMatrix[pivotRow]);
-            swaps++;
-        }
-
-        // Eliminar elementos abaixo do pivot
-        for (size_t row = col + 1; row < n; ++row) {
-            double factor = tempMatrix[row][col] / tempMatrix[col][col];
-            for (size_t k = col; k < n; ++k) {
-                tempMatrix[row][k] -= factor * tempMatrix[col][k];
-            }
-        }
-
-        // Multiplicar pelo elemento da diagonal principal
-        det *= tempMatrix[col][col];
+    if (reducedMatrix.empty()) {
+        return 0.0;
     }
 
-    // Ajustar o determinante com base no número de trocas de linhas
-    if (swaps % 2 != 0) {
-        det = -det;
+    // Calcula o determinante como o produto dos elementos da diagonal principal
+    double det = 1.0;
+    for (size_t i = 0; i < rows; ++i) {
+        det *= reducedMatrix[i][i];
     }
 
     return det;
+}
+
+std::vector<double> Matrix::solveLinearSystem() const {
+    if (rows != cols - 1) {
+        throw std::invalid_argument("A matriz não tem a forma adequada para um sistema linear (n x (n+1)).");
+    }
+
+    // Executa a eliminação de Gauss para a matriz aumentada
+    std::vector<std::vector<double>> augmentedMatrix = gaussianElimination(true);
+
+    // Verifica inconsistência (SI) ou infinitas soluções (SPI)
+    size_t rank = 0;
+    for (size_t i = 0; i < rows; ++i) {
+        bool allZeros = true;
+        for (size_t j = 0; j < cols - 1; ++j) {
+            if (std::fabs(augmentedMatrix[i][j]) > 1e-9) { // Coeficientes diferentes de zero
+                allZeros = false;
+                break;
+            }
+        }
+
+        if (allZeros) {
+            if (std::fabs(augmentedMatrix[i][cols - 1]) > 1e-9) {
+                throw std::runtime_error("SI - The Linear System has no solution");
+            }
+        } else {
+            ++rank;
+        }
+    }
+
+    if (rank < cols - 1) {
+        throw std::runtime_error("SPI - The Linear System has infinitely many solutions");
+    }
+
+    // Resolver o sistema linear por substituição reversa
+    size_t n = rows;
+    std::vector<double> solution(n);
+    for (int i = n - 1; i >= 0; --i) {
+        solution[i] = augmentedMatrix[i][n];
+        for (size_t j = i + 1; j < n; ++j) {
+            solution[i] -= augmentedMatrix[i][j] * solution[j];
+        }
+        solution[i] /= augmentedMatrix[i][i];
+    }
+
+    return solution;
 }
 
 void Matrix::printMatrix() const
@@ -154,4 +171,44 @@ Matrix &Matrix::operator+=(const std::vector<double> &row)
 
     rows += 1;
     return *this;
+}
+
+std::vector<std::vector<double>> Matrix::gaussianElimination(bool augmented) const
+{
+    size_t n = rows;
+    size_t m = augmented ? cols : rows;                   // Se for matriz aumentada, considerar todas as colunas
+    std::vector<std::vector<double>> tempMatrix = matrix; // Copia a matriz original
+
+    // Realiza a eliminação de Gauss
+    for (size_t col = 0; col < n; ++col)
+    {
+        // Encontrar o pivot (elemento não zero mais próximo do topo)
+        size_t pivotRow = col;
+        for (size_t row = col + 1; row < n; ++row)
+        {
+            if (std::fabs(tempMatrix[row][col]) > std::fabs(tempMatrix[pivotRow][col]))
+            {
+                pivotRow = row;
+            }
+        }
+
+        // Trocar linhas, se necessário
+        if (pivotRow != col)
+        {
+            std::swap(tempMatrix[col], tempMatrix[pivotRow]);
+        }
+
+        // Eliminar elementos abaixo do pivot
+        for (size_t row = col + 1; row < n; ++row)
+        {
+            double factor = tempMatrix[row][col] / tempMatrix[col][col];
+            for (size_t k = col; k < m; ++k)
+            { 
+                // Considera todas as colunas (matriz aumentada ou quadrada)
+                tempMatrix[row][k] -= factor * tempMatrix[col][k];
+            }
+        }
+    }
+
+    return tempMatrix;
 }

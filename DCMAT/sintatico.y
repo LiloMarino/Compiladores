@@ -102,7 +102,18 @@ Command:
               std::cout << e.what() << std::endl;
             }
         }
-       | SOLVE LINEAR_SYSTEM SEMICOLON
+       | SOLVE LINEAR_SYSTEM SEMICOLON {
+            try {
+              std::vector<double> solution = dcmat.getLastMatrix().solveLinearSystem();
+              std::cout << std::endl << "Matrix x:" << std::endl;
+              for (double value : solution) {
+                std::cout << value << std::endl;
+              }
+            } catch (const std::runtime_error &e) {
+              std::cout << std::endl << e.what() << std::endl;
+            }
+            std::cout << std::endl;
+        }
        | ABOUT SEMICOLON
        | IDENTIFIER ASSIGN Expression SEMICOLON
        | IDENTIFIER ASSIGN MatrixCreate SEMICOLON
