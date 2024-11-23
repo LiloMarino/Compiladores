@@ -90,12 +90,18 @@ Command:
         }
        | SHOW MATRIX SEMICOLON {
             try {
-                dcmat.getLastMatrix().printMatrix();
+              dcmat.getLastMatrix().printMatrix();
             } catch (const std::runtime_error &e) {
-                std::cout << e.what() << std::endl;
+              std::cout << e.what() << std::endl;
             }
         }
-       | SOLVE DETERMINANT SEMICOLON
+       | SOLVE DETERMINANT SEMICOLON {
+            try {
+              std::cout << dcmat.getLastMatrix().determinant() << std::endl;
+            } catch (const std::runtime_error &e) {
+              std::cout << e.what() << std::endl;
+            }
+        }
        | SOLVE LINEAR_SYSTEM SEMICOLON
        | ABOUT SEMICOLON
        | IDENTIFIER ASSIGN Expression SEMICOLON

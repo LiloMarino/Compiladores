@@ -65,6 +65,18 @@ public:
     void reverse();
 
     /**
+     * @brief Calcula o determinante da matriz pelo método da eliminação de Gauss
+     * @return Determinante da matriz
+     * @throws std::invalid_argument Se a matriz não for quadrada
+     */
+    double determinant() const;
+
+    /**
+     * @brief Imprime a matriz formatada
+     */
+    void printMatrix() const;
+
+    /**
      * @brief Soma 2 matrizes
      * @param other Outra matriz
      * @return Retorna a matriz resultante da soma
@@ -92,10 +104,6 @@ public:
      */
     Matrix &operator+=(const std::vector<double> &row);
 
-    /**
-     * @brief Imprime a matriz formatada
-     */
-    void printMatrix() const;
 };
 
 #endif
