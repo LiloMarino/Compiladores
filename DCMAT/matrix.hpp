@@ -7,9 +7,9 @@
 class Matrix
 {
 private:
-    size_t rows;                           // Número de linhas
-    size_t cols;                           // Número de colunas
-    std::vector<std::vector<double>> data; // Dados da matriz
+    size_t rows;                             // Número de linhas
+    size_t cols;                             // Número de colunas
+    std::vector<std::vector<double>> matrix; // Dados da matriz
 
 public:
     /**
@@ -19,6 +19,17 @@ public:
      * @param initialValue Valor inicial
      */
     Matrix(size_t rows, size_t cols, double initialValue = 0.0);
+
+    /**
+     * @brief Construtor
+     * @param matrix Primeira linha da matriz
+     */
+    Matrix(std::vector<double> row);
+
+    /**
+     * @brief Construtor
+     */
+    Matrix();
 
     /**
      * @brief Obtém o número de linhas
@@ -47,6 +58,34 @@ public:
      * @return Valor M[row][col]
      */
     const double &at(size_t row, size_t col) const;
+
+    /**
+     * @brief Soma 2 matrizes
+     * @param other Outra matriz
+     * @return Retorna a matriz resultante da soma
+     */
+    Matrix operator+(const Matrix &other) const;
+
+    /**
+     * @brief Concatena a linha a matriz
+     * @param row Linha a adicionar
+     * @return Retorna a matriz resultante da concatenação
+     */
+    Matrix operator+(const std::vector<double> &row) const;
+
+    /**
+     * @brief Soma 2 matrizes
+     * @param other Outra matriz
+     * @return Retorna a matriz resultante da soma
+     */
+    Matrix &operator+=(const Matrix &other);
+
+    /**
+     * @brief Concatena a linha a matriz
+     * @param row Linha a adicionar
+     * @return Retorna a matriz resultante da concatenação
+     */
+    Matrix &operator+=(const std::vector<double> &row);
 
     /**
      * @brief Imprime a matriz formatada

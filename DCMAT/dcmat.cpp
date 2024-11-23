@@ -134,6 +134,11 @@ double DCMAT::getVariable(const std::string &identifier)
     return value;
 }
 
+void DCMAT::setLastMatrix(std::unique_ptr<Matrix> matrix)
+{
+    last_matrix = std::move(matrix);
+}
+
 void DCMAT::drawAxis()
 {
     // Definindo a posição do eixo Y (vertical)

@@ -5,6 +5,7 @@
 #include <memory>
 #include <unordered_map>
 #include "function.hpp"
+#include "matrix.hpp"
 
 /**
  * @brief Configurações
@@ -46,16 +47,15 @@ struct Settings
     void setVView(std::pair<double, double> v_view);
 };
 
-
-
 class DCMAT
 {
 private:
     static const int WIDTH = 80;
     static const int HEIGHT = 25;
-    std::unique_ptr<Function> last_function = nullptr;
     char graph_matrix[HEIGHT][WIDTH];
     std::unordered_map<std::string, double> symbol_table;
+    std::unique_ptr<Function> last_function = nullptr;
+    std::unique_ptr<Matrix> last_matrix = nullptr;
 
 public:
     /**
@@ -110,6 +110,12 @@ public:
      * @return Valor da varíavel
      */
     double getVariable(const std::string &identifier);
+
+    /**
+     * @brief Seta a última matriz
+     * @param matrix Matriz
+     */
+    void setLastMatrix(std::unique_ptr<Matrix> matrix);
 
 private:
     /**

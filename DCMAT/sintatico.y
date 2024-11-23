@@ -5,6 +5,7 @@
 #include "dcmat.hpp"
 #include <iostream>
 #include <cmath>
+#include <vector>
 }
 
 %{
@@ -17,7 +18,9 @@
     std::string* str;
     std::pair<int, int>* int_interval;
     std::pair<double, double>* interval;
+    std::vector<double>* vector;
     Function *function;
+    Matrix *matrix;
 }
 
 %token <str> IDENTIFIER
@@ -26,6 +29,8 @@
 %type <interval> Interval
 %type <int_interval> IntegerInterval
 %type <function> Function FunctionExpression
+%type <matrix> MatrixCreate MatrixCreateLoop
+%type <vector> MatrixNumberLoop
 
 %token PLUS MINUS MULTIPLY DIVIDE EXPONENT MODULO LEFT_PAREN RIGHT_PAREN SIN COS TAN ABS X
 PI_CONSTANT EULER_CONSTANT ABOUT FLOAT SETTINGS H_VIEW PLOT SHOW AXIS INTEGRAL_STEPS PRECISION SOLVE 
@@ -63,7 +68,7 @@ Command:
         }
        | SET ERASE PLOT OFF SEMICOLON { dcmat.settings.erase_plot = false; }
        | SET ERASE PLOT ON SEMICOLON { dcmat.settings.erase_plot = true; }
-       | RPN LEFT_PAREN Function RIGHT_PAREN SEMICOLON {
+       | RPN LEFT_PAREN FunctionExpression RIGHT_PAREN SEMICOLON {
             std::cout << "Expression in RPN format: " << std::endl << $3->toRPN() << std::endl;
             delete $3;
         }
@@ -79,7 +84,9 @@ Command:
             delete $5;
             delete $7;
         }
-       | MatrixCreate SEMICOLON
+       | MatrixCreate SEMICOLON { 
+            dcmat.setLastMatrix(std::unique_ptr<Matrix>($1));
+        }
        | SHOW MATRIX SEMICOLON
        | SOLVE DETERMINANT SEMICOLON
        | SOLVE LINEAR_SYSTEM SEMICOLON
@@ -236,17 +243,25 @@ FunctionExpression:
                   ;
 
 MatrixCreate: 
-            MATRIX EQUAL LEFT_BRACKET LEFT_BRACKET Number MatrixNumberLoop RIGHT_BRACKET MatrixCreateLoop RIGHT_BRACKET
+            MATRIX EQUAL LEFT_BRACKET LEFT_BRACKET Number MatrixNumberLoop RIGHT_BRACKET MatrixCreateLoop RIGHT_BRACKET {
+              $6->push_back($5);
+              (*$8) += (*$6);
+              $$ = $8;
+            }
             ;
 
 MatrixNumberLoop:
-                COMMA Number MatrixNumberLoop
-                |
+                COMMA Number MatrixNumberLoop { $3->push_back($2); $$ = $3; }
+                | { $$ = new std::vector<double> {}; }
                 ;
 
 MatrixCreateLoop:
-            COMMA LEFT_BRACKET Number MatrixNumberLoop RIGHT_BRACKET MatrixCreateLoop
-            |
+            COMMA LEFT_BRACKET Number MatrixNumberLoop RIGHT_BRACKET MatrixCreateLoop {
+                $4->push_back($3);
+                (*$6) += (*$4);
+                $$ = $6;
+            }
+            | { $$ = new Matrix(); }
             ;
 
 Expression:
