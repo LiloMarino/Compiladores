@@ -51,7 +51,12 @@ EQUAL ASSIGN LEFT_BRACKET RIGHT_BRACKET SEMICOLON COMMA
 Program:
     Command
     | QUIT { exit(0); }
-    | Expression { printf("%lf\n", $1);}
+    | Expression {
+        if (dcmat.isValidExpression())
+        {
+          std::cout << $1 << std::endl;
+        }
+      }
     |
     ;
 
@@ -64,8 +69,13 @@ Command:
        | SET AXIS OFF SEMICOLON { dcmat.settings.draw_axis = false; }
        | PLOT SEMICOLON { dcmat.plot(); }
        | PLOT LEFT_PAREN Function RIGHT_PAREN SEMICOLON {
-            dcmat.setLastFunction(std::unique_ptr<Function>($3));
-            dcmat.plot();
+            if (dcmat.isValidExpression()) {
+              dcmat.setLastFunction(std::unique_ptr<Function>($3));
+              dcmat.plot();
+            }
+            else {
+              delete $3;
+            }
         }
        | SET ERASE PLOT OFF SEMICOLON { dcmat.settings.erase_plot = false; }
        | SET ERASE PLOT ON SEMICOLON { dcmat.settings.erase_plot = true; }
@@ -75,12 +85,16 @@ Command:
         }
        | SET INTEGRAL_STEPS INTEGER SEMICOLON { dcmat.settings.integral_steps = $3; }
        | INTEGRATE LEFT_PAREN Interval COMMA Function RIGHT_PAREN SEMICOLON {
-            std::cout << dcmat.integrate(*$3, *$5) << std::endl;
+            if (dcmat.isValidExpression()) {
+              std::cout << dcmat.integrate(*$3, *$5) << std::endl;
+            }
             delete $3;
             delete $5;
         }
        | SUM LEFT_PAREN IDENTIFIER COMMA IntegerInterval COMMA FunctionExpression RIGHT_PAREN SEMICOLON {
-            std::cout << dcmat.sum(*$3, *$5, *$7) << std::endl;
+            if (dcmat.isValidExpression()) {
+              std::cout << dcmat.sum(*$3, *$5, *$7) << std::endl;
+            }
             delete $3;
             delete $5;
             delete $7;
@@ -91,14 +105,16 @@ Command:
        | SHOW MATRIX SEMICOLON {
             try {
               dcmat.getLastMatrix().printMatrix();
-            } catch (const std::runtime_error &e) {
+            } 
+            catch (const std::runtime_error &e) {
               std::cout << e.what() << std::endl;
             }
         }
        | SOLVE DETERMINANT SEMICOLON {
             try {
               std::cout << dcmat.getLastMatrix().determinant() << std::endl;
-            } catch (const std::runtime_error &e) {
+            } 
+            catch (const std::runtime_error &e) {
               std::cout << e.what() << std::endl;
             }
         }
@@ -109,15 +125,26 @@ Command:
               for (double value : solution) {
                 std::cout << value << std::endl;
               }
-            } catch (const std::runtime_error &e) {
+            } 
+            catch (const std::runtime_error &e) {
               std::cout << std::endl << e.what() << std::endl;
             }
             std::cout << std::endl;
         }
        | ABOUT SEMICOLON { dcmat.about(); }
-       | IDENTIFIER ASSIGN Expression SEMICOLON
-       | IDENTIFIER ASSIGN MatrixCreate SEMICOLON
-       | IDENTIFIER SEMICOLON
+       | IDENTIFIER ASSIGN Expression SEMICOLON {
+          if (dcmat.isValidExpression()) {
+            dcmat.setVariable(*$1, $3);
+            std::cout << dcmat.getVariable(*$1) << std::endl;
+          }
+          delete $1;
+        }
+       | IDENTIFIER ASSIGN MatrixCreate SEMICOLON {
+
+        }
+       | IDENTIFIER SEMICOLON {
+
+        }
        | SHOW SYMBOLS SEMICOLON
        | SET FLOAT PRECISION INTEGER SEMICOLON
        | SET CONNECT_DOTS ON SEMICOLON
@@ -256,6 +283,8 @@ FunctionExpression:
                     );
                   }
                   | IDENTIFIER {
+                    // Testa para ver se o símbolo existe
+                    dcmat.getVariable(*$1);
                     $$ = new Function(
                       [identifier = std::string(*$1)](double) {
                           return dcmat.getVariable(identifier); 
@@ -315,6 +344,10 @@ Expression:
     | MINUS Expression { $$ = -$2; }
     | INTEGER { $$ = $1; }
     | REAL_NUMBER { $$ = $1; }
+    | IDENTIFIER {
+        $$ = dcmat.getVariable(*$1);
+        delete $1;
+      }
     ;
 
 Number:          

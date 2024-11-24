@@ -130,8 +130,25 @@ void DCMAT::setVariable(const std::string &identifier, double value)
 
 double DCMAT::getVariable(const std::string &identifier)
 {
-    double value = symbol_table.at(identifier);
-    return value;
+    auto it = symbol_table.find(identifier);
+    if (it != symbol_table.end())
+    {
+        return it->second;
+    }
+    else
+    {
+        // Marca a expressão como inválida
+        valid_expression = false;
+        std::cout << "Undefined symbol [" << identifier << "]" << std::endl;
+        return 0;
+    }
+}
+
+bool DCMAT::isValidExpression()
+{
+    bool tmp = valid_expression;
+    valid_expression = true;
+    return tmp;
 }
 
 void DCMAT::setLastMatrix(std::unique_ptr<Matrix> matrix)
@@ -148,7 +165,8 @@ Matrix &DCMAT::getLastMatrix() const
     return *last_matrix;
 }
 
-void DCMAT::about() const {
+void DCMAT::about() const
+{
     const std::string title("202200560390 - Murilo Aldigueri Marino");
     const std::string version("V. 2024.01");
 
@@ -169,7 +187,6 @@ void DCMAT::about() const {
     std::cout << "|" << std::setw(width) << std::setfill(' ') << " " << "|" << std::endl;
     std::cout << "+" << border << "+" << std::endl;
 }
-
 
 void DCMAT::drawAxis()
 {

@@ -49,6 +49,9 @@ struct Settings
 
 class DCMAT
 {
+public:
+    Settings settings;
+
 private:
     static const int WIDTH = 80;
     static const int HEIGHT = 25;
@@ -56,13 +59,9 @@ private:
     std::unordered_map<std::string, double> symbol_table;
     std::unique_ptr<Function> last_function = nullptr;
     std::unique_ptr<Matrix> last_matrix = nullptr;
+    bool valid_expression = true;
 
 public:
-    /**
-     * @brief Configurações
-     */
-    Settings settings;
-
     /**
      * @brief Construtor
      */
@@ -110,6 +109,12 @@ public:
      * @return Valor da varíavel
      */
     double getVariable(const std::string &identifier);
+
+    /**
+     * @brief Avalia se expressão é valida e reseta o estado de validez
+     * @return Retorna true se for válida, false caso contrário
+     */
+    bool isValidExpression();
 
     /**
      * @brief Seta a última matriz
