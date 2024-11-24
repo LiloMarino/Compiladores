@@ -29,9 +29,10 @@
 %type <value> Expression Number Integer
 %type <interval> Interval
 %type <int_interval> IntegerInterval
-%type <function> Function FunctionExpression
+%type <function> FunctionExpression
 %type <matrix> MatrixCreate MatrixCreateLoop
-%type <vector> MatrixRow MatrixNumberLoop 
+%type <vector> MatrixRow MatrixNumberLoop
+%type <str> SumVariable
 
 %token PLUS MINUS MULTIPLY DIVIDE EXPONENT MODULO LEFT_PAREN RIGHT_PAREN SIN COS TAN ABS X
 PI_CONSTANT EULER_CONSTANT ABOUT FLOAT SETTINGS H_VIEW PLOT SHOW AXIS INTEGRAL_STEPS PRECISION SOLVE 
@@ -68,7 +69,7 @@ Command:
        | SET AXIS ON SEMICOLON { dcmat.settings.draw_axis = true; }
        | SET AXIS OFF SEMICOLON { dcmat.settings.draw_axis = false; }
        | PLOT SEMICOLON { dcmat.plot(); }
-       | PLOT LEFT_PAREN Function RIGHT_PAREN SEMICOLON {
+       | PLOT LEFT_PAREN FunctionExpression RIGHT_PAREN SEMICOLON {
             if (dcmat.isValidExpression()) {
               dcmat.setLastFunction(std::unique_ptr<Function>($3));
               dcmat.plot();
@@ -84,14 +85,14 @@ Command:
             delete $3;
         }
        | SET INTEGRAL_STEPS INTEGER SEMICOLON { dcmat.settings.integral_steps = $3; }
-       | INTEGRATE LEFT_PAREN Interval COMMA Function RIGHT_PAREN SEMICOLON {
+       | INTEGRATE LEFT_PAREN Interval COMMA FunctionExpression RIGHT_PAREN SEMICOLON {
             if (dcmat.isValidExpression()) {
               std::cout << dcmat.integrate(*$3, *$5) << std::endl;
             }
             delete $3;
             delete $5;
         }
-       | SUM LEFT_PAREN IDENTIFIER COMMA IntegerInterval COMMA FunctionExpression RIGHT_PAREN SEMICOLON {
+       | SUM LEFT_PAREN SumVariable COMMA IntegerInterval COMMA FunctionExpression RIGHT_PAREN SEMICOLON {
             if (dcmat.isValidExpression()) {
               std::cout << dcmat.sum(*$3, *$5, *$7) << std::endl;
             }
@@ -151,8 +152,7 @@ Command:
        | SET CONNECT_DOTS OFF SEMICOLON
        ;
 
-Function: FunctionExpression { $$ = $1; }
-        ;
+SumVariable: IDENTIFIER { $$ = $1; dcmat.setVariable(*$1, 0); }
 
 FunctionExpression:
                   FunctionExpression PLUS FunctionExpression { 
