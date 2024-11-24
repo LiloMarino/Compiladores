@@ -1,6 +1,6 @@
 #include "dcmat.hpp"
 #include <iostream>
-
+#include <iomanip>
 
 DCMAT dcmat;
 
@@ -139,12 +139,37 @@ void DCMAT::setLastMatrix(std::unique_ptr<Matrix> matrix)
     last_matrix = std::move(matrix);
 }
 
-Matrix &DCMAT::getLastMatrix() const {
-    if (!last_matrix) {
+Matrix &DCMAT::getLastMatrix() const
+{
+    if (!last_matrix)
+    {
         throw std::runtime_error("No Matrix defined!");
     }
     return *last_matrix;
 }
+
+void DCMAT::about() const {
+    const std::string title("202200560390 - Murilo Aldigueri Marino");
+    const std::string version("V. 2024.01");
+
+    // Calcula a largura mínima com base no maior texto (título ou versão)
+    const int padding = 4;
+    const int width = std::max(static_cast<int>(title.length()), static_cast<int>(version.length())) + padding;
+    const std::string border(width, '-'); // Linha superior e inferior do banner
+
+    // Exibição do banner com alinhamento
+    std::cout << "+" << border << "+" << std::endl;
+    std::cout << "|" << std::setw(width) << std::setfill(' ') << " " << "|" << std::endl;
+    std::cout << "|" << std::setw((width + title.length()) / 2)
+              << title
+              << std::setw((width - title.length()) / 2) << " " << "|" << std::endl;
+    std::cout << "|" << std::setw((width + version.length()) / 2)
+              << version
+              << std::setw((width - version.length()) / 2) << " " << "|" << std::endl;
+    std::cout << "|" << std::setw(width) << std::setfill(' ') << " " << "|" << std::endl;
+    std::cout << "+" << border << "+" << std::endl;
+}
+
 
 void DCMAT::drawAxis()
 {

@@ -123,6 +123,11 @@ public:
      */
     Matrix &getLastMatrix() const;
 
+    /**
+     * @brief About
+     */
+    void about() const;
+
 private:
     /**
      * @brief Adiciona os eixos ao gráfico

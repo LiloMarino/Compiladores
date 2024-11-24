@@ -114,7 +114,7 @@ Command:
             }
             std::cout << std::endl;
         }
-       | ABOUT SEMICOLON
+       | ABOUT SEMICOLON { dcmat.about(); }
        | IDENTIFIER ASSIGN Expression SEMICOLON
        | IDENTIFIER ASSIGN MatrixCreate SEMICOLON
        | IDENTIFIER SEMICOLON
