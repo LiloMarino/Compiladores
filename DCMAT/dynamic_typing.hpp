@@ -71,6 +71,12 @@ public:
      * @return A matriz armazenada
      */
     const Matrix &getMatrix() const;
+
+    DynamicTyping &operator=(double num);
+    DynamicTyping &operator=(Matrix &&matrix);
+    DynamicTyping &operator=(const DynamicTyping &other);
+    DynamicTyping &operator=(DynamicTyping &&other) noexcept;
+    friend std::ostream& operator<<(std::ostream& os, const DynamicTyping& dt);
 };
 
 #endif

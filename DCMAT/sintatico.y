@@ -287,7 +287,7 @@ FunctionExpression:
                     dcmat.getVariable(*$1);
                     $$ = new Function(
                       [identifier = std::string(*$1)](double) {
-                          return dcmat.getVariable(identifier); 
+                          return dcmat.getVariable(identifier).getNumber(); 
                       },
                       *$1
                     );
@@ -345,7 +345,7 @@ Expression:
     | INTEGER { $$ = $1; }
     | REAL_NUMBER { $$ = $1; }
     | IDENTIFIER {
-        $$ = dcmat.getVariable(*$1);
+        $$ = dcmat.getVariable(*$1).getNumber();
         delete $1;
       }
     ;

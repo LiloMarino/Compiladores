@@ -116,7 +116,7 @@ double DCMAT::sum(const std::string &variable, std::pair<int, int> interval, con
 {
     double sum = 0.0;
     setVariable(variable, interval.first);
-    for (double var = getVariable(variable); var <= interval.second; setVariable(variable, ++var))
+    for (double var = getVariable(variable).getNumber(); var <= interval.second; setVariable(variable, ++var))
     {
         sum += f(var);
     }
@@ -128,20 +128,19 @@ void DCMAT::setVariable(const std::string &identifier, double value)
     symbol_table[identifier] = value;
 }
 
-double DCMAT::getVariable(const std::string &identifier)
+void DCMAT::setVariable(const std::string &identifier, Matrix &&matrix)
+{
+    symbol_table[identifier] = std::move(matrix);
+}
+
+DynamicTyping &DCMAT::getVariable(const std::string &identifier)
 {
     auto it = symbol_table.find(identifier);
-    if (it != symbol_table.end())
+    if (it == symbol_table.end())
     {
-        return it->second;
+        throw std::runtime_error("Variable not found: " + identifier);
     }
-    else
-    {
-        // Marca a expressão como inválida
-        valid_expression = false;
-        std::cout << "Undefined symbol [" << identifier << "]" << std::endl;
-        return 0;
-    }
+    return it->second;
 }
 
 bool DCMAT::isValidExpression()

@@ -6,6 +6,7 @@
 #include <unordered_map>
 #include "function.hpp"
 #include "matrix.hpp"
+#include "dynamic_typing.hpp"
 
 /**
  * @brief Configurações
@@ -56,7 +57,7 @@ private:
     static const int WIDTH = 80;
     static const int HEIGHT = 25;
     char graph_matrix[HEIGHT][WIDTH];
-    std::unordered_map<std::string, double> symbol_table;
+    std::unordered_map<std::string, DynamicTyping> symbol_table;
     std::unique_ptr<Function> last_function = nullptr;
     std::unique_ptr<Matrix> last_matrix = nullptr;
     bool valid_expression = true;
@@ -104,11 +105,18 @@ public:
     void setVariable(const std::string &identifier, double value);
 
     /**
+     * @brief Seta a variável
+     * @param identifier Identificador da varíavel
+     * @param matrix Matriz
+     */
+    void setVariable(const std::string &identifier, Matrix &&matrix);
+
+    /**
      * @brief Obtém a variável
      * @param identifier Identificador da varíavel
      * @return Valor da varíavel
      */
-    double getVariable(const std::string &identifier);
+    DynamicTyping &getVariable(const std::string &identifier);
 
     /**
      * @brief Avalia se expressão é valida e reseta o estado de validez
