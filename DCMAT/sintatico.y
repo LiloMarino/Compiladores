@@ -100,8 +100,8 @@ Command:
             delete $5;
             delete $7;
         }
-       | MatrixCreate SEMICOLON { 
-            dcmat.setLastMatrix(std::unique_ptr<Matrix>($1));
+       | MATRIX EQUAL MatrixCreate SEMICOLON { 
+            dcmat.setLastMatrix(std::unique_ptr<Matrix>($3));
         }
        | SHOW MATRIX SEMICOLON {
             try {
@@ -141,12 +141,14 @@ Command:
           delete $1;
         }
        | IDENTIFIER ASSIGN MatrixCreate SEMICOLON {
-          
+          dcmat.setVariable(*$1, std::move(*$3));
+          std::cout << dcmat.getVariable(*$1) << std::endl;
+          delete $1;
         }
        | IDENTIFIER SEMICOLON {
           std::cout << dcmat.getVariable(*$1) << std::endl;
           delete $1;
-        }
+        } 
        | SHOW SYMBOLS SEMICOLON
        | SET FLOAT PRECISION INTEGER SEMICOLON
        | SET CONNECT_DOTS ON SEMICOLON
@@ -297,11 +299,11 @@ FunctionExpression:
                   ;
 
 MatrixCreate: 
-            MATRIX EQUAL LEFT_BRACKET MatrixRow MatrixCreateLoop RIGHT_BRACKET {
-              (*$5) += (*$4);
-              $5->reverse();
-              $$ = $5;
-              delete $4;
+            LEFT_BRACKET MatrixRow MatrixCreateLoop RIGHT_BRACKET {
+              (*$3) += (*$2);
+              $3->reverse();
+              $$ = $3;
+              delete $2;
             }
             ;
 
