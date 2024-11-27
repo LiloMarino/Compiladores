@@ -50,6 +50,11 @@ DCMAT::DCMAT()
     clearGraph();
 }
 
+void DCMAT::setUndefinedWarning(bool enable)
+{
+    undefined_warning = enable;
+}
+
 void DCMAT::setLastFunction(std::unique_ptr<Function> func)
 {
     last_function = std::move(func);
@@ -143,7 +148,10 @@ DynamicTyping &DCMAT::getVariable(const std::string &identifier)
     else
     {
         valid_expression = false;
-        std::cout << "Undefined symbol [" << identifier << "]" << std::endl;
+        if(undefined_warning)
+        {
+            std::cout << "Undefined symbol [" << identifier << "]" << std::endl;
+        }
         // Objeto estático para retornar uma referência válida
         static DynamicTyping dummy;
         return dummy;

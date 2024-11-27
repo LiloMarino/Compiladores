@@ -80,8 +80,9 @@ Command:
         }
        | SET ERASE PLOT OFF SEMICOLON { dcmat.settings.erase_plot = false; }
        | SET ERASE PLOT ON SEMICOLON { dcmat.settings.erase_plot = true; }
-       | RPN LEFT_PAREN FunctionExpression RIGHT_PAREN SEMICOLON {
+       | Rpn LEFT_PAREN FunctionExpression RIGHT_PAREN SEMICOLON {
             std::cout << "Expression in RPN format: " << std::endl << $3->toRPN() << std::endl;
+            dcmat.setUndefinedWarning(true);
             delete $3;
         }
        | SET INTEGRAL_STEPS INTEGER SEMICOLON { dcmat.settings.integral_steps = $3; }
@@ -154,6 +155,9 @@ Command:
        | SET CONNECT_DOTS ON SEMICOLON
        | SET CONNECT_DOTS OFF SEMICOLON
        ;
+
+Rpn : RPN { dcmat.setUndefinedWarning(false); } 
+    ;
 
 SumVariable: IDENTIFIER { $$ = $1; dcmat.setVariable(*$1, 0); }
 

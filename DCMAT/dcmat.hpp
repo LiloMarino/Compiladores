@@ -61,12 +61,19 @@ private:
     std::unique_ptr<Function> last_function = nullptr;
     std::unique_ptr<Matrix> last_matrix = nullptr;
     bool valid_expression = true;
+    bool undefined_warning = true;
 
 public:
     /**
      * @brief Construtor
      */
     DCMAT();
+
+    /**
+     * @brief Configura se mostra ou não mensagens de warning de variáveis não definidas
+     * @param enable Se true ativa o warning se false desativa o warning
+     */
+    void setUndefinedWarning(bool enable);
 
     /**
      * @brief Seta a última função plotada
