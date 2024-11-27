@@ -141,10 +141,11 @@ Command:
           delete $1;
         }
        | IDENTIFIER ASSIGN MatrixCreate SEMICOLON {
-
+          
         }
        | IDENTIFIER SEMICOLON {
-
+          std::cout << dcmat.getVariable(*$1) << std::endl;
+          delete $1;
         }
        | SHOW SYMBOLS SEMICOLON
        | SET FLOAT PRECISION INTEGER SEMICOLON
@@ -345,9 +346,13 @@ Expression:
     | INTEGER { $$ = $1; }
     | REAL_NUMBER { $$ = $1; }
     | IDENTIFIER {
-        $$ = dcmat.getVariable(*$1).getNumber();
+        DynamicTyping &var = dcmat.getVariable(*$1);
+        if (dcmat.isValidExpression(false))
+        {
+            $$ = var.isNumber() ? var.getNumber() : 0; // Pega número se existir
+        }
         delete $1;
-      }
+    }
     ;
 
 Number:          

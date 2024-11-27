@@ -120,9 +120,10 @@ public:
 
     /**
      * @brief Avalia se expressão é valida e reseta o estado de validez
+     * @param discard Define se descarta a validez da expressão resetando o estado
      * @return Retorna true se for válida, false caso contrário
      */
-    bool isValidExpression();
+    bool isValidExpression(bool discard = true);
 
     /**
      * @brief Seta a última matriz

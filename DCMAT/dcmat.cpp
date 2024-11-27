@@ -136,17 +136,27 @@ void DCMAT::setVariable(const std::string &identifier, Matrix &&matrix)
 DynamicTyping &DCMAT::getVariable(const std::string &identifier)
 {
     auto it = symbol_table.find(identifier);
-    if (it == symbol_table.end())
+    if (it != symbol_table.end())
     {
-        throw std::runtime_error("Variable not found: " + identifier);
+        return it->second;
     }
-    return it->second;
+    else
+    {
+        valid_expression = false;
+        std::cout << "Undefined symbol [" << identifier << "]" << std::endl;
+        // Objeto estático para retornar uma referência válida
+        static DynamicTyping dummy;
+        return dummy;
+    }
 }
 
-bool DCMAT::isValidExpression()
+bool DCMAT::isValidExpression(bool discard)
 {
     bool tmp = valid_expression;
-    valid_expression = true;
+    if (discard)
+    {
+        valid_expression = true;
+    }
     return tmp;
 }
 
