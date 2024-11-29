@@ -72,6 +72,7 @@ void DCMAT::plot()
     const double x_max = settings.h_view_hi;
     const double y_min = settings.v_view_lo;
     const double y_max = settings.v_view_hi;
+    const double x_step = (x_max - x_min) / (WIDTH - 1);
 
     if (settings.erase_plot)
     {
@@ -82,23 +83,31 @@ void DCMAT::plot()
         drawAxis();
     }
 
-    for (int y = 0; y < HEIGHT; ++y)
+    for (int col = 0; col < WIDTH; ++col)
     {
-        for (int x = 0; x < WIDTH; ++x)
+        double x = x_min + x_step * col;
+        double y = (*last_function)(x);
+
+        // Verificar se y está dentro dos limites y_min e y_max
+        if (y < y_min)
         {
-            // Mapeia os valores de x e y para os limites definidos
-            double x_val = x_min + (x_max - x_min) * x / (WIDTH - 1);
-            double y_val = (*last_function)(x_val);
-
-            // Normaliza a coordenada y para o intervalo de altura
-            int y_pos = static_cast<int>((y_max - y_val) * (HEIGHT - 1) / (y_max - y_min));
-
-            // Se a posição y na matriz coincidir com o valor calculado, desenha o ponto
-            if (y_pos == y)
-            {
-                graph_matrix[y][x] = '*';
-            }
+            y = y_min;
         }
+        else if (y > y_max)
+        {
+            y = y_max;
+        }
+
+        // Mapeia o valor de y para a coordenada da matriz de altura
+        int row = static_cast<int>((y_max - y) * (HEIGHT - 1) / (y_max - y_min));
+
+        // Corrige para bordas da matriz
+        if (row < 0)
+            row = 0;
+        if (row >= HEIGHT)
+            row = HEIGHT - 1;
+
+        graph_matrix[row][col] = '*';
     }
 
     renderGraph();
@@ -148,7 +157,7 @@ DynamicTyping &DCMAT::getVariable(const std::string &identifier)
     else
     {
         valid_expression = false;
-        if(undefined_warning)
+        if (undefined_warning)
         {
             std::cout << "Undefined symbol [" << identifier << "]" << std::endl;
         }
@@ -207,26 +216,44 @@ void DCMAT::about() const
 
 void DCMAT::drawAxis()
 {
-    // Definindo a posição do eixo Y (vertical)
-    int y_axis_pos = HEIGHT / 2;
+    const double x_min = settings.h_view_lo;
+    const double x_max = settings.h_view_hi;
+    const double y_min = settings.v_view_lo;
+    const double y_max = settings.v_view_hi;
 
-    // Desenhando o eixo Y
-    for (int x = 0; x < WIDTH; ++x)
-    {
-        graph_matrix[y_axis_pos][x] = '-'; // Eixo X
-    }
+    // Cálculo da posição do eixo X (horizontal)
+    int y_axis_pos = (y_max >= 0 && y_min <= 0) 
+        ? static_cast<int>((y_max) * (HEIGHT - 1) / (y_max - y_min)) 
+        : (y_min > 0 ? HEIGHT - 1 : 0);
 
-    // Definindo a posição do eixo X (horizontal)
-    int x_axis_pos = WIDTH / 2;
+    // Cálculo da posição do eixo Y (vertical)
+    int x_axis_pos = (x_max > 0 && x_min < 0) 
+        ? static_cast<int>((-x_min) * (WIDTH - 1) / (x_max - x_min)) 
+        : (x_min >= 0 ? 0 : WIDTH - 1);
 
     // Desenhando o eixo X
-    for (int y = 0; y < HEIGHT; ++y)
+    if (y_axis_pos >= 0 && y_axis_pos < HEIGHT)
     {
-        graph_matrix[y][x_axis_pos] = '|'; // Eixo Y
+        for (int x = 0; x < WIDTH; ++x)
+        {
+            graph_matrix[y_axis_pos][x] = '-';
+        }
     }
 
-    // Centralizando a origem (0,0)
-    graph_matrix[y_axis_pos][x_axis_pos] = '+';
+    // Desenhando o eixo Y
+    if (x_axis_pos >= 0 && x_axis_pos < WIDTH)
+    {
+        for (int y = 0; y < HEIGHT; ++y)
+        {
+            graph_matrix[y][x_axis_pos] = '|';
+        }
+    }
+
+    // Marcar a origem se visível
+    if (y_axis_pos >= 0 && y_axis_pos < HEIGHT && x_axis_pos >= 0 && x_axis_pos < WIDTH)
+    {
+        graph_matrix[y_axis_pos][x_axis_pos] = '+';
+    }
 }
 
 void DCMAT::clearGraph()

@@ -273,13 +273,13 @@ FunctionExpression:
                   }
                   | INTEGER { 
                     $$ = new Function(
-                        [=](double) { return $1; },
+                        [val = $1](double) { return val; },
                         std::to_string($1)
                     );
                   }
                   | REAL_NUMBER { 
                     $$ = new Function(
-                        [=](double) { return $1; },
+                        [val = $1](double) { return val; },
                         std::to_string($1)
                     );
                   }
