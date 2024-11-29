@@ -119,6 +119,13 @@ public:
     void setVariable(const std::string &identifier, Matrix &&matrix);
 
     /**
+     * @brief Seta a variável
+     * @param identifier Identificador da varíavel
+     * @param data Dados
+     */
+    void setVariable(const std::string &identifier, DynamicTyping &&data);
+
+    /**
      * @brief Obtém a variável
      * @param identifier Identificador da varíavel
      * @return Valor da varíavel

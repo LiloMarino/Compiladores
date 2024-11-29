@@ -5,6 +5,13 @@ DynamicTyping::Data::~Data() {}
 
 DynamicTyping::DynamicTyping() : type(DataType::NONE) {}
 
+DynamicTyping::DynamicTyping(const DynamicTyping &other)
+    : type(DataType::NONE)
+{
+    *this = other;
+}
+
+
 DynamicTyping::~DynamicTyping()
 {
     clear();

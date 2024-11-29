@@ -29,6 +29,7 @@ private:
 
 public:
     DynamicTyping();
+    DynamicTyping(const DynamicTyping &other);
     ~DynamicTyping();
 
     /**

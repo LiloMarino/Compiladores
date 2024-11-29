@@ -2,6 +2,7 @@
 #include "dcmat.hpp"
 #include <iomanip>
 #include <algorithm>
+#include <stdexcept>
 #include <cmath>
 
 Matrix::Matrix(size_t rows, size_t cols, double initialValue)
@@ -38,29 +39,35 @@ void Matrix::reverse()
     std::reverse(matrix.begin(), matrix.end());
 }
 
-double Matrix::determinant() const {
-    if (rows != cols) {
+double Matrix::determinant() const
+{
+    if (rows != cols)
+    {
         throw std::invalid_argument("A matriz deve ser quadrada para calcular o determinante.");
     }
 
     // Executa a eliminação de Gauss
     std::vector<std::vector<double>> reducedMatrix = gaussianElimination();
 
-    if (reducedMatrix.empty()) {
+    if (reducedMatrix.empty())
+    {
         return 0.0;
     }
 
     // Calcula o determinante como o produto dos elementos da diagonal principal
     double det = 1.0;
-    for (size_t i = 0; i < rows; ++i) {
+    for (size_t i = 0; i < rows; ++i)
+    {
         det *= reducedMatrix[i][i];
     }
 
     return det;
 }
 
-std::vector<double> Matrix::solveLinearSystem() const {
-    if (rows != cols - 1) {
+std::vector<double> Matrix::solveLinearSystem() const
+{
+    if (rows != cols - 1)
+    {
         throw std::invalid_argument("A matriz não tem a forma adequada para um sistema linear (n x (n+1)).");
     }
 
@@ -69,34 +76,44 @@ std::vector<double> Matrix::solveLinearSystem() const {
 
     // Verifica inconsistência (SI) ou infinitas soluções (SPI)
     size_t rank = 0;
-    for (size_t i = 0; i < rows; ++i) {
+    for (size_t i = 0; i < rows; ++i)
+    {
         bool allZeros = true;
-        for (size_t j = 0; j < cols - 1; ++j) {
-            if (std::fabs(augmentedMatrix[i][j]) > 1e-9) { // Coeficientes diferentes de zero
+        for (size_t j = 0; j < cols - 1; ++j)
+        {
+            if (std::fabs(augmentedMatrix[i][j]) > 1e-9)
+            { // Coeficientes diferentes de zero
                 allZeros = false;
                 break;
             }
         }
 
-        if (allZeros) {
-            if (std::fabs(augmentedMatrix[i][cols - 1]) > 1e-9) {
+        if (allZeros)
+        {
+            if (std::fabs(augmentedMatrix[i][cols - 1]) > 1e-9)
+            {
                 throw std::runtime_error("SI - The Linear System has no solution");
             }
-        } else {
+        }
+        else
+        {
             ++rank;
         }
     }
 
-    if (rank < cols - 1) {
+    if (rank < cols - 1)
+    {
         throw std::runtime_error("SPI - The Linear System has infinitely many solutions");
     }
 
     // Resolver o sistema linear por substituição reversa
     size_t n = rows;
     std::vector<double> solution(n);
-    for (int i = n - 1; i >= 0; --i) {
+    for (int i = n - 1; i >= 0; --i)
+    {
         solution[i] = augmentedMatrix[i][n];
-        for (size_t j = i + 1; j < n; ++j) {
+        for (size_t j = i + 1; j < n; ++j)
+        {
             solution[i] -= augmentedMatrix[i][j] * solution[j];
         }
         solution[i] /= augmentedMatrix[i][i];
@@ -136,11 +153,99 @@ void Matrix::printMatrix() const
     std::cout << "-+\n";
 }
 
+Matrix Matrix::operator+(const Matrix &other) const
+{
+    Matrix result = *this;
+    result += other;
+    return result;
+}
+
+Matrix Matrix::operator-(const Matrix &other) const
+{
+    Matrix result = *this;
+    result -= other;
+    return result;
+}
+
+Matrix Matrix::operator*(const Matrix &other) const
+{
+    Matrix result = *this;
+    result *= other;
+    return result;
+}
+
 Matrix Matrix::operator+(const std::vector<double> &row) const
 {
     Matrix result = *this;
     result += row;
     return result;
+}
+
+Matrix Matrix::operator*(int scalar) const
+{
+    Matrix result = *this;
+    result *= scalar;
+    return result;
+}
+
+Matrix Matrix::operator*(double scalar) const
+{
+    Matrix result = *this;
+    result *= scalar;
+    return result;
+}
+
+Matrix &Matrix::operator+=(const Matrix &other)
+{
+    if (rows != other.rows || cols != other.cols)
+    {
+        throw std::invalid_argument("As dimensões das matrizes devem ser iguais para a soma.");
+    }
+    for (size_t i = 0; i < rows; ++i)
+    {
+        for (size_t j = 0; j < cols; ++j)
+        {
+            matrix[i][j] += other.matrix[i][j];
+        }
+    }
+    return *this;
+}
+
+Matrix &Matrix::operator-=(const Matrix &other)
+{
+    if (rows != other.rows || cols != other.cols)
+    {
+        throw std::invalid_argument("As dimensões das matrizes devem ser iguais para a subtração.");
+    }
+    for (size_t i = 0; i < rows; ++i)
+    {
+        for (size_t j = 0; j < cols; ++j)
+        {
+            matrix[i][j] -= other.matrix[i][j];
+        }
+    }
+    return *this;
+}
+
+Matrix &Matrix::operator*=(const Matrix &other)
+{
+    if (cols != other.rows)
+    {
+        throw std::invalid_argument("O número de colunas da matriz atual deve ser igual ao número de linhas da outra matriz.");
+    }
+    Matrix result(rows, other.cols, 0.0);
+    for (size_t i = 0; i < rows; ++i)
+    {
+        for (size_t j = 0; j < other.cols; ++j)
+        {
+            for (size_t k = 0; k < cols; ++k)
+            {
+                result.matrix[i][j] += matrix[i][k] * other.matrix[k][j];
+            }
+        }
+    }
+    *this = std::move(result);
+    return *this;
 }
 
 Matrix &Matrix::operator+=(const std::vector<double> &row)
@@ -170,6 +275,30 @@ Matrix &Matrix::operator+=(const std::vector<double> &row)
     }
 
     rows += 1;
+    return *this;
+}
+
+Matrix &Matrix::operator*=(int scalar)
+{
+    for (size_t i = 0; i < rows; ++i)
+    {
+        for (size_t j = 0; j < cols; ++j)
+        {
+            matrix[i][j] *= scalar;
+        }
+    }
+    return *this;
+}
+
+Matrix &Matrix::operator*=(double scalar)
+{
+    for (size_t i = 0; i < rows; ++i)
+    {
+        for (size_t j = 0; j < cols; ++j)
+        {
+            matrix[i][j] *= scalar;
+        }
+    }
     return *this;
 }
 
@@ -203,7 +332,7 @@ std::vector<std::vector<double>> Matrix::gaussianElimination(bool augmented) con
         {
             double factor = tempMatrix[row][col] / tempMatrix[col][col];
             for (size_t k = col; k < m; ++k)
-            { 
+            {
                 // Considera todas as colunas (matriz aumentada ou quadrada)
                 tempMatrix[row][k] -= factor * tempMatrix[col][k];
             }

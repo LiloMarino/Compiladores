@@ -147,6 +147,11 @@ void DCMAT::setVariable(const std::string &identifier, Matrix &&matrix)
     symbol_table[identifier] = std::move(matrix);
 }
 
+void DCMAT::setVariable(const std::string &identifier, DynamicTyping &&data) {
+    symbol_table[identifier] = std::move(data);
+}
+
+
 DynamicTyping &DCMAT::getVariable(const std::string &identifier)
 {
     auto it = symbol_table.find(identifier);

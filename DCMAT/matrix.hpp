@@ -90,6 +90,20 @@ public:
     Matrix operator+(const Matrix &other) const;
 
     /**
+     * @brief Subtrai 2 matrizes
+     * @param other Outra matriz
+     * @return Retorna a matriz resultante da subtração
+     */
+    Matrix operator-(const Matrix &other) const;
+
+    /**
+     * @brief Multiplica 2 matrizes
+     * @param other Outra matriz
+     * @return Retorna a matriz resultante da multiplicação
+     */
+    Matrix operator*(const Matrix &other) const;
+
+    /**
      * @brief Concatena a linha a matriz
      * @param row Linha a adicionar
      * @return Retorna a matriz resultante da concatenação
@@ -97,11 +111,33 @@ public:
     Matrix operator+(const std::vector<double> &row) const;
 
     /**
-     * @brief Soma 2 matrizes
+     * @brief Multiplica a matriz por um escalar
+     * @param scalar Valor escalar
+     * @return Retorna a matriz resultante da multiplicação
+     */
+    Matrix operator*(int scalar) const;
+    Matrix operator*(double scalar) const;
+
+    /**
+     * @brief Soma a matriz atual com outra matriz
      * @param other Outra matriz
-     * @return Retorna a matriz resultante da soma
+     * @return Referência para a matriz atual após a soma
      */
     Matrix &operator+=(const Matrix &other);
+
+    /**
+     * @brief Subtrai outra matriz da matriz atual
+     * @param other Outra matriz
+     * @return Referência para a matriz atual após a subtração
+     */
+    Matrix &operator-=(const Matrix &other);
+
+    /**
+     * @brief Multiplica a matriz atual por outra matriz
+     * @param other Outra matriz
+     * @return Referência para a matriz atual após a multiplicação
+     */
+    Matrix &operator*=(const Matrix &other);
 
     /**
      * @brief Concatena a linha a matriz
@@ -110,13 +146,20 @@ public:
      */
     Matrix &operator+=(const std::vector<double> &row);
 
+    /**
+     * @brief Multiplica a matriz por um escalar (modificando a própria matriz)
+     * @param scalar Valor escalar
+     * @return Retorna a referência à própria matriz
+     */
+    Matrix &operator*=(int scalar);
+    Matrix &operator*=(double scalar);
+
 private:
     /**
      * @brief Realiza a eliminação de gauss
      * @return Retorna a matriz triangular superior
      */
     std::vector<std::vector<double>> gaussianElimination(bool augmented = false) const;
-
 };
 
 #endif

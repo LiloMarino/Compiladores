@@ -3,6 +3,7 @@
 // Coloca na .h
 #include "utils.hpp"
 #include "dcmat.hpp"
+#include "dynamic_typing.hpp"
 #include <iostream>
 #include <cmath>
 #include <vector>
@@ -16,6 +17,7 @@
 
 %union {
     double value;
+    DynamicTyping* dyn_type;
     std::string* str;
     std::pair<int, int>* int_interval;
     std::pair<double, double>* interval;
@@ -26,13 +28,14 @@
 
 %token <str> IDENTIFIER
 %token <value> INTEGER REAL_NUMBER
-%type <value> Expression Number Integer
+%type <value> Number Integer
 %type <interval> Interval
 %type <int_interval> IntegerInterval
 %type <function> FunctionExpression
 %type <matrix> MatrixCreate MatrixCreateLoop
 %type <vector> MatrixRow MatrixNumberLoop
 %type <str> SumVariable
+%type <dyn_type> Expression
 
 %token PLUS MINUS MULTIPLY DIVIDE EXPONENT MODULO LEFT_PAREN RIGHT_PAREN SIN COS TAN ABS X
 PI_CONSTANT EULER_CONSTANT ABOUT FLOAT SETTINGS H_VIEW PLOT SHOW AXIS INTEGRAL_STEPS PRECISION SOLVE 
@@ -55,7 +58,7 @@ Program:
     | Expression {
         if (dcmat.isValidExpression())
         {
-          std::cout << $1 << std::endl;
+          std::cout << (*$1) << std::endl;
         }
       }
     |
@@ -136,15 +139,17 @@ Command:
        | ABOUT SEMICOLON { dcmat.about(); }
        | IDENTIFIER ASSIGN Expression SEMICOLON {
           if (dcmat.isValidExpression()) {
-            dcmat.setVariable(*$1, $3);
+            dcmat.setVariable(*$1, std::move(*$3));
             std::cout << dcmat.getVariable(*$1) << std::endl;
           }
           delete $1;
+          // delete $3;
         }
        | IDENTIFIER ASSIGN MatrixCreate SEMICOLON {
           dcmat.setVariable(*$1, std::move(*$3));
           std::cout << dcmat.getVariable(*$1) << std::endl;
           delete $1;
+          // delete $3;
         }
        | IDENTIFIER SEMICOLON {
           std::cout << dcmat.getVariable(*$1) << std::endl;
@@ -337,34 +342,156 @@ MatrixNumberLoop:
 
 Expression:
     X {
-        std::cerr << "The x variable cannot be used in expressions." << std::endl;
+        std::cout << "The x variable cannot be used in expressions." << std::endl;
         YYABORT;
       }
-    | Expression PLUS Expression   { $$ = $1 + $3; }
-    | Expression MINUS Expression  { $$ = $1 - $3; }
-    | Expression MULTIPLY Expression { $$ = $1 * $3; }
-    | Expression DIVIDE Expression   { $$ = $1 / $3; }
-    | Expression MODULO Expression { $$ = std::fmod($1, $3); }
-    | Expression EXPONENT Expression { $$ = std::pow($1, $3); }
-    | LEFT_PAREN Expression RIGHT_PAREN { $$ = $2; }
-    | SIN LEFT_PAREN Expression RIGHT_PAREN { $$ = std::sin($3); }
-    | COS LEFT_PAREN Expression RIGHT_PAREN { $$ = std::cos($3); }
-    | TAN LEFT_PAREN Expression RIGHT_PAREN { $$ = std::tan($3); }
-    | ABS LEFT_PAREN Expression RIGHT_PAREN { $$ = std::abs($3); }
-    | PI_CONSTANT { $$ = M_PI; }
-    | EULER_CONSTANT { $$ = M_E; }
-    | PLUS Expression { $$ = +$2; }
-    | MINUS Expression { $$ = -$2; }
-    | INTEGER { $$ = $1; }
-    | REAL_NUMBER { $$ = $1; }
-    | IDENTIFIER {
-        DynamicTyping &var = dcmat.getVariable(*$1);
-        if (dcmat.isValidExpression(false))
-        {
-            $$ = var.isNumber() ? var.getNumber() : 0; // Pega número se existir
+    | Expression PLUS Expression {
+        if ($1->isMatrix() && $3->isMatrix()) {
+            $$ = new DynamicTyping();
+            $$->setMatrix($1->getMatrix() + $3->getMatrix());
+        } else if ($1->isNumber() && $3->isNumber()) {
+            $$ = new DynamicTyping();
+            $$->setNumber($1->getNumber() + $3->getNumber());
+        } else {
+            yyerror("Incompatible types.");
         }
         delete $1;
-      }    
+        delete $3;
+      }
+    | Expression MINUS Expression {
+          if ($1->isMatrix() && $3->isMatrix()) {
+              $$ = new DynamicTyping();
+              $$->setMatrix($1->getMatrix() - $3->getMatrix());
+          } else if ($1->isNumber() && $3->isNumber()) {
+              $$ = new DynamicTyping();
+              $$->setNumber($1->getNumber() - $3->getNumber());
+          } else {
+              yyerror("Incompatible types.");
+          }
+          delete $1;
+          delete $3;
+      }
+    | Expression MULTIPLY Expression { 
+          if ($1->isMatrix() && $3->isMatrix()) {
+              $$ = new DynamicTyping();
+              $$->setMatrix($1->getMatrix() * $3->getMatrix());
+          } else if ($1->isNumber() && $3->isNumber()) {
+              $$ = new DynamicTyping();
+              $$->setNumber($1->getNumber() * $3->getNumber());
+          } else {
+              yyerror("Incompatible types.");
+          }
+          delete $1;
+          delete $3;
+      }
+    | Expression DIVIDE Expression { 
+          if ($1->isNumber() && $3->isNumber()) {
+              $$ = new DynamicTyping();
+              $$->setNumber($1->getNumber() / $3->getNumber());
+          } else {
+              yyerror("Incompatible types.");
+          }
+          delete $1;
+          delete $3;
+      }
+    | Expression MODULO Expression { 
+          if ($1->isNumber() && $3->isNumber()) {
+              $$ = new DynamicTyping();
+              $$->setNumber(std::fmod($1->getNumber(), $3->getNumber()));
+          } else {
+              yyerror("Incompatible types.");
+          }
+          delete $1;
+          delete $3;
+      }
+    | Expression EXPONENT Expression { 
+          if ($1->isNumber() && $3->isNumber()) {
+              $$ = new DynamicTyping();
+              $$->setNumber(std::pow($1->getNumber(), $3->getNumber()));
+          } else {
+              yyerror("Incompatible types.");
+          }
+          delete $1;
+          delete $3;
+      }
+    | LEFT_PAREN Expression RIGHT_PAREN { $$ = $2; }
+    | SIN LEFT_PAREN Expression RIGHT_PAREN  { 
+          if ($3->isNumber()) {
+              $$ = new DynamicTyping();
+              $$->setNumber(std::sin($3->getNumber()));
+          } else {
+              yyerror("Incompatible types.");
+          }
+          delete $3;
+      }
+    | COS LEFT_PAREN Expression RIGHT_PAREN { 
+          if ($3->isNumber()) {
+              $$ = new DynamicTyping();
+              $$->setNumber(std::cos($3->getNumber()));
+          } else {
+              yyerror("Incompatible types.");
+          }
+          delete $3;
+      }
+    | TAN LEFT_PAREN Expression RIGHT_PAREN { 
+          if ($3->isNumber()) {
+              $$ = new DynamicTyping();
+              $$->setNumber(std::tan($3->getNumber()));
+          } else {
+              yyerror("Incompatible types.");
+          }
+          delete $3;
+      }
+    | ABS LEFT_PAREN Expression RIGHT_PAREN { 
+          if ($3->isNumber()) {
+              $$ = new DynamicTyping();
+              $$->setNumber(std::abs($3->getNumber()));
+          } else {
+              yyerror("Incompatible types.");
+          }
+          delete $3;
+      }
+    | PI_CONSTANT {
+        $$ = new DynamicTyping();
+        $$->setNumber(M_PI);
+      }
+    | EULER_CONSTANT {
+        $$ = new DynamicTyping();
+        $$->setNumber(M_E);
+      }
+    | PLUS Expression {
+        if ($2->isNumber()) {
+            $$ = new DynamicTyping();
+            $$->setNumber(+$2->getNumber());
+        } else if ($2->isMatrix()) {
+            $$ = new DynamicTyping();
+            $$->setMatrix($2->getMatrix() * 1);
+        } else {
+            yyerror("Unknown Type.");
+            $$ = nullptr;
+        }
+        delete $2;
+      }
+    | MINUS Expression {
+        if ($2->isNumber()) {
+            $$ = new DynamicTyping();
+            $$->setNumber(-$2->getNumber());
+        } else if ($2->isMatrix()) {
+            $$ = new DynamicTyping();
+            $$->setMatrix($2->getMatrix() * -1);
+        } else {
+            yyerror("Unknown Type.");
+            $$ = nullptr;
+        }
+        delete $2;
+      }
+    | INTEGER { $$ = new DynamicTyping(); $$->setNumber($1); }
+    | REAL_NUMBER { $$ = new DynamicTyping(); $$->setNumber($1); }
+    | IDENTIFIER {
+        DynamicTyping &var = dcmat.getVariable(*$1);
+        $$ = new DynamicTyping(var);
+        delete $1;
+    }  
     ;
 
 Number:          
