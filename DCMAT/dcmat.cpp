@@ -214,6 +214,24 @@ void DCMAT::about() const
     std::cout << "+" << border << "+" << std::endl;
 }
 
+void DCMAT::showSymbols() const
+{
+    std::cout << std::endl;
+    for (const auto& [key, value] : symbol_table) {
+        std::string text = value.isNumber() ? "FLOAT" : "MATRIX";
+        if(value.isMatrix())
+        {
+            text += " [";
+            text += std::to_string(value.getMatrix().getRows());
+            text += "][";
+            text += std::to_string(value.getMatrix().getCols());
+            text += "]";
+        }
+        std::cout << key << " - " << text << std::endl;
+    }
+    std::cout << std::endl;
+}
+
 void DCMAT::drawAxis()
 {
     const double x_min = settings.h_view_lo;

@@ -149,6 +149,11 @@ public:
      */
     void about() const;
 
+    /**
+     * @brief Mostra os símbolos da tabela de símbolos
+     */
+    void showSymbols() const;
+
 private:
     /**
      * @brief Adiciona os eixos ao gráfico

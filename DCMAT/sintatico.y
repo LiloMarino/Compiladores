@@ -150,7 +150,9 @@ Command:
           std::cout << dcmat.getVariable(*$1) << std::endl;
           delete $1;
         } 
-       | SHOW SYMBOLS SEMICOLON
+       | SHOW SYMBOLS SEMICOLON {
+          dcmat.showSymbols();
+        }
        | SET FLOAT PRECISION INTEGER SEMICOLON
        | SET CONNECT_DOTS ON SEMICOLON
        | SET CONNECT_DOTS OFF SEMICOLON
