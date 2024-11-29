@@ -8,7 +8,7 @@
 #include <vector>
 #include <algorithm>
 }
-
+%debug
 %{
     // Coloca na .c
     extern int yylex();
@@ -336,7 +336,11 @@ MatrixNumberLoop:
                 ;
 
 Expression:
-    Expression PLUS Expression   { $$ = $1 + $3; }
+    X {
+        std::cerr << "The x variable cannot be used in expressions." << std::endl;
+        YYABORT;
+      }
+    | Expression PLUS Expression   { $$ = $1 + $3; }
     | Expression MINUS Expression  { $$ = $1 - $3; }
     | Expression MULTIPLY Expression { $$ = $1 * $3; }
     | Expression DIVIDE Expression   { $$ = $1 / $3; }
@@ -360,7 +364,7 @@ Expression:
             $$ = var.isNumber() ? var.getNumber() : 0; // Pega número se existir
         }
         delete $1;
-    }
+      }    
     ;
 
 Number:          
