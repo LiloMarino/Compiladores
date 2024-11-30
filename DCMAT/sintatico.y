@@ -163,7 +163,7 @@ Command:
        | SHOW SYMBOLS SEMICOLON {
           dcmat.showSymbols();
         }
-       | SET FLOAT PRECISION INTEGER SEMICOLON {
+       | SET FLOAT PRECISION Integer SEMICOLON {
           dcmat.settings.setFloatPrecision($4);
         }
        | SET CONNECT_DOTS ON SEMICOLON { dcmat.settings.connect_dots = true; }

@@ -6,6 +6,7 @@ DCMAT dcmat;
 
 void Settings::show() const
 {
+    std::cout << std::fixed << std::setprecision(6);
     std::cout << std::endl
               << "h_view_lo: " << h_view_lo << std::endl
               << "h_view_hi: " << h_view_hi << std::endl
@@ -18,6 +19,7 @@ void Settings::show() const
               << "Erase Plot: " << (erase_plot ? "ON" : "OFF") << std::endl
               << "Connect Dots: " << (connect_dots ? "ON" : "OFF") << std::endl
               << std::endl;
+    std::cout << std::fixed << std::setprecision(float_precision);
 }
 
 void Settings::reset()
