@@ -124,29 +124,42 @@ std::vector<double> Matrix::solveLinearSystem() const
 
 void Matrix::printMatrix() const
 {
+    // Calcula o maior número de dígitos antes e depois do ponto decimal
+    int max_width = dcmat.settings.float_precision + 4;
+    
+    for (const auto &row : matrix)
+    {
+        for (const auto &value : row)
+        {
+            // Calcula o comprimento total (inclui sinal e ponto decimal)
+            int width = std::to_string(static_cast<long long>(value)).length() + dcmat.settings.float_precision + 2;
+            max_width = std::max(max_width, width);
+        }
+    }
+
     // Imprimir o cabeçalho superior
     std::cout << "+-";
-    for (size_t i = 0; i < cols * 10; ++i)
+    for (size_t i = 0; i < cols * max_width; ++i)
     {
         std::cout << " ";
     }
     std::cout << "-+\n";
 
     // Imprimir linhas da matriz
-    std::cout << std::fixed << std::setprecision(6);
+    std::cout << std::fixed << std::setprecision(dcmat.settings.float_precision);
     for (const auto &row : matrix)
     {
         std::cout << "| ";
         for (const auto &value : row)
         {
-            std::cout << std::setw(dcmat.settings.float_precision + 4) << value;
+            std::cout << std::setw(max_width) << value;
         }
         std::cout << " |\n";
     }
 
     // Imprimir o rodapé inferior
     std::cout << "+-";
-    for (size_t i = 0; i < cols * 10; ++i)
+    for (size_t i = 0; i < cols * max_width; ++i)
     {
         std::cout << " ";
     }
@@ -199,7 +212,10 @@ Matrix &Matrix::operator+=(const Matrix &other)
 {
     if (rows != other.rows || cols != other.cols)
     {
-        throw std::invalid_argument("As dimensões das matrizes devem ser iguais para a soma.");
+        dcmat.setErrorMessage("Incorrect dimensions for operator '+' - have MATRIX [" +
+                              std::to_string(rows) + "][" + std::to_string(cols) + "] and MATRIX [" +
+                              std::to_string(other.rows) + "][" + std::to_string(other.cols) + "]");
+        return *this;
     }
     for (size_t i = 0; i < rows; ++i)
     {
@@ -215,7 +231,10 @@ Matrix &Matrix::operator-=(const Matrix &other)
 {
     if (rows != other.rows || cols != other.cols)
     {
-        throw std::invalid_argument("As dimensões das matrizes devem ser iguais para a subtração.");
+        dcmat.setErrorMessage("Incorrect dimensions for operator '-' - have MATRIX [" +
+                              std::to_string(rows) + "][" + std::to_string(cols) + "] and MATRIX [" +
+                              std::to_string(other.rows) + "][" + std::to_string(other.cols) + "]");
+        return *this;
     }
     for (size_t i = 0; i < rows; ++i)
     {
@@ -231,7 +250,10 @@ Matrix &Matrix::operator*=(const Matrix &other)
 {
     if (cols != other.rows)
     {
-        throw std::invalid_argument("O número de colunas da matriz atual deve ser igual ao número de linhas da outra matriz.");
+        dcmat.setErrorMessage("Incorrect dimensions for operator '*' - have MATRIX [" +
+                              std::to_string(rows) + "][" + std::to_string(cols) + "] and MATRIX [" +
+                              std::to_string(other.rows) + "][" + std::to_string(other.cols) + "]");
+        return *this;
     }
     Matrix result(rows, other.cols, 0.0);
     for (size_t i = 0; i < rows; ++i)

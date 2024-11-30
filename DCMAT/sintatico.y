@@ -60,6 +60,11 @@ Program:
         {
           std::cout << (*$1) << std::endl;
         }
+        else
+        {
+          std::cout << dcmat.getErrorMessage() << std::endl << std::endl;
+        }
+        delete $1;
       }
     |
     ;
@@ -143,13 +148,13 @@ Command:
             std::cout << dcmat.getVariable(*$1) << std::endl;
           }
           delete $1;
-          // delete $3;
+          delete $3;
         }
        | IDENTIFIER ASSIGN MatrixCreate SEMICOLON {
           dcmat.setVariable(*$1, std::move(*$3));
           std::cout << dcmat.getVariable(*$1) << std::endl;
           delete $1;
-          // delete $3;
+          delete $3;
         }
        | IDENTIFIER SEMICOLON {
           std::cout << dcmat.getVariable(*$1) << std::endl;
@@ -378,8 +383,12 @@ Expression:
           } else if ($1->isNumber() && $3->isNumber()) {
               $$ = new DynamicTyping();
               $$->setNumber($1->getNumber() * $3->getNumber());
-          } else {
-              yyerror("Incompatible types.");
+          } else if ($1->isMatrix() && $3->isNumber()) {
+              $$ = new DynamicTyping();
+              $$->setMatrix($1->getMatrix() * $3->getNumber());
+          } else if ($1->isNumber() && $3->isMatrix()) {
+              $$ = new DynamicTyping();
+              $$->setMatrix($3->getMatrix() * $1->getNumber());
           }
           delete $1;
           delete $3;

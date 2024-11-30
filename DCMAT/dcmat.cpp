@@ -237,6 +237,17 @@ void DCMAT::showSymbols() const
     std::cout << std::endl;
 }
 
+void DCMAT::setErrorMessage(const std::string &message)
+{
+    valid_expression = false;
+    error_message = message;
+}
+
+std::string DCMAT::getErrorMessage() const
+{
+    return error_message;
+}
+
 void DCMAT::drawAxis()
 {
     const double x_min = settings.h_view_lo;

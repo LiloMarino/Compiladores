@@ -62,6 +62,7 @@ private:
     std::unique_ptr<Matrix> last_matrix = nullptr;
     bool valid_expression = true;
     bool undefined_warning = true;
+    std::string error_message;
 
 public:
     /**
@@ -160,6 +161,18 @@ public:
      * @brief Mostra os símbolos da tabela de símbolos
      */
     void showSymbols() const;
+
+    /**
+     * @brief Seta a mensagem de erro e marca a expressão com inválida
+     * @param message Mensagem de erro
+     */
+    void setErrorMessage(const std::string &message);
+
+    /**
+     * @brief Obtém a mensagem de erro
+     * @return Retorna a mensagem de erro
+     */
+    std::string getErrorMessage() const;
 
 private:
     /**
