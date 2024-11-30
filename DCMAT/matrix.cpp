@@ -124,46 +124,39 @@ std::vector<double> Matrix::solveLinearSystem() const
 
 void Matrix::printMatrix() const
 {
-    // Calcula o maior número de dígitos antes e depois do ponto decimal
-    int max_width = dcmat.settings.float_precision + 4;
-    
+    const int padding = 1;
+
+    // Determina a largura máxima com base no maior número
+    int max_width = 0;
     for (const auto &row : matrix)
     {
         for (const auto &value : row)
         {
-            // Calcula o comprimento total (inclui sinal e ponto decimal)
-            int width = std::to_string(static_cast<long long>(value)).length() + dcmat.settings.float_precision + 2;
+            std::ostringstream oss;
+            oss << std::fixed << std::setprecision(dcmat.settings.float_precision) << value;
+            int width = oss.str().length(); // Obtém a largura da string com o número formatado
             max_width = std::max(max_width, width);
         }
     }
+    max_width += padding;
 
     // Imprimir o cabeçalho superior
-    std::cout << "+-";
-    for (size_t i = 0; i < cols * max_width; ++i)
-    {
-        std::cout << " ";
-    }
-    std::cout << "-+\n";
+    std::cout << "+-" << std::setw(max_width * cols + padding) << "-+" << std::endl;
 
     // Imprimir linhas da matriz
     std::cout << std::fixed << std::setprecision(dcmat.settings.float_precision);
     for (const auto &row : matrix)
     {
-        std::cout << "| ";
+        std::cout << "|";
         for (const auto &value : row)
         {
             std::cout << std::setw(max_width) << value;
         }
-        std::cout << " |\n";
+        std::cout << std::setw(padding + 1) << "|" << std::endl;
     }
 
     // Imprimir o rodapé inferior
-    std::cout << "+-";
-    for (size_t i = 0; i < cols * max_width; ++i)
-    {
-        std::cout << " ";
-    }
-    std::cout << "-+\n";
+    std::cout << "+-" << std::setw(max_width * cols + padding) << "-+" << std::endl;
 }
 
 Matrix Matrix::operator+(const Matrix &other) const
