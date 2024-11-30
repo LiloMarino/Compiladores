@@ -45,6 +45,19 @@ void Settings::setVView(std::pair<double, double> v_view)
     v_view_hi = v_view.second;
 }
 
+void Settings::setFloatPrecision(int precision)
+{
+    if (precision >= 0 && precision <= 8)
+    {
+        float_precision = precision;
+        std::cout << std::fixed << std::setprecision(float_precision);
+    }
+    else
+    {
+        std::cout << "ERROR: float precision must be from 0 to 8" << std::endl;
+    }
+}
+
 DCMAT::DCMAT()
 {
     clearGraph();
@@ -147,10 +160,10 @@ void DCMAT::setVariable(const std::string &identifier, Matrix &&matrix)
     symbol_table[identifier] = std::move(matrix);
 }
 
-void DCMAT::setVariable(const std::string &identifier, DynamicTyping &&data) {
+void DCMAT::setVariable(const std::string &identifier, DynamicTyping &&data)
+{
     symbol_table[identifier] = std::move(data);
 }
-
 
 DynamicTyping &DCMAT::getVariable(const std::string &identifier)
 {
@@ -222,9 +235,10 @@ void DCMAT::about() const
 void DCMAT::showSymbols() const
 {
     std::cout << std::endl;
-    for (const auto& [key, value] : symbol_table) {
+    for (const auto &[key, value] : symbol_table)
+    {
         std::string text = value.isNumber() ? "FLOAT" : "MATRIX";
-        if(value.isMatrix())
+        if (value.isMatrix())
         {
             text += " [";
             text += std::to_string(value.getMatrix().getRows());
@@ -256,14 +270,14 @@ void DCMAT::drawAxis()
     const double y_max = settings.v_view_hi;
 
     // Cálculo da posição do eixo X (horizontal)
-    int y_axis_pos = (y_max >= 0 && y_min <= 0) 
-        ? static_cast<int>((y_max) * (HEIGHT - 1) / (y_max - y_min)) 
-        : (y_min > 0 ? HEIGHT - 1 : 0);
+    int y_axis_pos = (y_max >= 0 && y_min <= 0)
+                         ? static_cast<int>((y_max) * (HEIGHT - 1) / (y_max - y_min))
+                         : (y_min > 0 ? HEIGHT - 1 : 0);
 
     // Cálculo da posição do eixo Y (vertical)
-    int x_axis_pos = (x_max > 0 && x_min < 0) 
-        ? static_cast<int>((-x_min) * (WIDTH - 1) / (x_max - x_min)) 
-        : (x_min >= 0 ? 0 : WIDTH - 1);
+    int x_axis_pos = (x_max > 0 && x_min < 0)
+                         ? static_cast<int>((-x_min) * (WIDTH - 1) / (x_max - x_min))
+                         : (x_min >= 0 ? 0 : WIDTH - 1);
 
     // Desenhando o eixo X
     if (y_axis_pos >= 0 && y_axis_pos < HEIGHT)

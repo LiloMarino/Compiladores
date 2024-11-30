@@ -163,9 +163,11 @@ Command:
        | SHOW SYMBOLS SEMICOLON {
           dcmat.showSymbols();
         }
-       | SET FLOAT PRECISION INTEGER SEMICOLON
-       | SET CONNECT_DOTS ON SEMICOLON
-       | SET CONNECT_DOTS OFF SEMICOLON
+       | SET FLOAT PRECISION INTEGER SEMICOLON {
+          dcmat.settings.setFloatPrecision($4);
+        }
+       | SET CONNECT_DOTS ON SEMICOLON { dcmat.settings.connect_dots = true; }
+       | SET CONNECT_DOTS OFF SEMICOLON { dcmat.settings.connect_dots = false; }
        ;
 
 Rpn : RPN { dcmat.setUndefinedWarning(false); } 

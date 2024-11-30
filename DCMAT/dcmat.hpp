@@ -46,6 +46,12 @@ struct Settings
      * @param high Upper Bound
      */
     void setVView(std::pair<double, double> v_view);
+
+    /**
+     * @brief Seta a precisão de exibição de números decimais
+     * @param precision Número de casas decimais
+     */
+    void setFloatPrecision(int precision);
 };
 
 class DCMAT
