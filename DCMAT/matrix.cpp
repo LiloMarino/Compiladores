@@ -43,7 +43,7 @@ double Matrix::determinant() const
 {
     if (rows != cols)
     {
-        throw std::invalid_argument("A matriz deve ser quadrada para calcular o determinante.");
+        throw std::invalid_argument("Matrix format incorrect!");
     }
 
     // Executa a eliminação de Gauss
@@ -68,7 +68,7 @@ std::vector<double> Matrix::solveLinearSystem() const
 {
     if (rows != cols - 1)
     {
-        throw std::invalid_argument("A matriz não tem a forma adequada para um sistema linear (n x (n+1)).");
+        throw std::invalid_argument("Matrix format incorrect!");
     }
 
     // Executa a eliminação de Gauss para a matriz aumentada
@@ -265,6 +265,7 @@ Matrix &Matrix::operator*=(const Matrix &other)
 
 Matrix &Matrix::operator+=(const std::vector<double> &row)
 {
+    
     if (row.size() < cols)
     {
         // Caso o vetor seja menor, preenche com zeros
@@ -290,6 +291,13 @@ Matrix &Matrix::operator+=(const std::vector<double> &row)
     }
 
     rows += 1;
+
+    if (rows > 10 || row.size() > 10)
+    {
+        // Se a matriz tiver mais de 10 linhas ou o vetor tiver mais de 10 elementos
+        dcmat.setErrorMessage("ERROR: Matrix limits out of boundaries.");
+    }
+
     return *this;
 }
 

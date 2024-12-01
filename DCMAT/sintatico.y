@@ -58,7 +58,7 @@ Program:
     Command EOL
     | QUIT EOL { exit(0); }
     | Expression EOL {
-        if (dcmat.isValidExpression())
+        if (dcmat.isValid())
         {
           std::cout << (*$1) << std::endl;
         }
@@ -80,7 +80,7 @@ Command:
        | SET AXIS OFF SEMICOLON { dcmat.settings.draw_axis = false; }
        | PLOT SEMICOLON { dcmat.plot(); }
        | PLOT LEFT_PAREN FunctionExpression RIGHT_PAREN SEMICOLON {
-            if (dcmat.isValidExpression()) {
+            if (dcmat.isValid()) {
               dcmat.setLastFunction(std::unique_ptr<Function>($3));
               dcmat.plot();
             }
@@ -97,14 +97,21 @@ Command:
         }
        | SET INTEGRAL_STEPS INTEGER SEMICOLON { dcmat.settings.integral_steps = $3; }
        | INTEGRATE LEFT_PAREN Interval COMMA FunctionExpression RIGHT_PAREN SEMICOLON {
-            if (dcmat.isValidExpression()) {
-              std::cout << dcmat.integrate(*$3, *$5) << std::endl;
+            if (dcmat.isValid()) {
+              double result = dcmat.integrate(*$3, *$5);
+              if (dcmat.isValid()) {
+                std::cout << result << std::endl;
+              }
+              else
+              {
+                std::cout << dcmat.getErrorMessage() << std::endl;
+              }
             }
             delete $3;
             delete $5;
         }
        | SUM LEFT_PAREN SumVariable COMMA IntegerInterval COMMA FunctionExpression RIGHT_PAREN SEMICOLON {
-            if (dcmat.isValidExpression()) {
+            if (dcmat.isValid()) {
               std::cout << dcmat.sum(*$3, *$5, *$7) << std::endl;
             }
             delete $3;
@@ -112,13 +119,20 @@ Command:
             delete $7;
         }
        | MATRIX EQUAL MatrixCreate SEMICOLON { 
+          if (dcmat.isValid()) {
             dcmat.setLastMatrix(std::unique_ptr<Matrix>($3));
+          }
+          else
+          {
+            std::cout << dcmat.getErrorMessage() << std::endl;
+            delete $3;
+          }
         }
        | SHOW MATRIX SEMICOLON {
             try {
               dcmat.getLastMatrix().printMatrix();
             } 
-            catch (const std::runtime_error &e) {
+            catch (const std::exception &e) {
               std::cout << e.what() << std::endl;
             }
         }
@@ -126,7 +140,7 @@ Command:
             try {
               std::cout << dcmat.getLastMatrix().determinant() << std::endl;
             } 
-            catch (const std::runtime_error &e) {
+            catch (const std::exception &e) {
               std::cout << e.what() << std::endl;
             }
         }
@@ -138,14 +152,13 @@ Command:
                 std::cout << value << std::endl;
               }
             } 
-            catch (const std::runtime_error &e) {
-              std::cout << std::endl << e.what() << std::endl;
+            catch (const std::exception &e) {
+              std::cout << e.what() << std::endl;
             }
-            std::cout << std::endl;
         }
        | ABOUT SEMICOLON { dcmat.about(); }
        | IDENTIFIER ASSIGN Expression SEMICOLON {
-          if (dcmat.isValidExpression()) {
+          if (dcmat.isValid()) {
             dcmat.setVariable(*$1, std::move(*$3));
             std::cout << dcmat.getVariable(*$1) << std::endl;
           }
@@ -153,8 +166,14 @@ Command:
           delete $3;
         }
        | IDENTIFIER ASSIGN MatrixCreate SEMICOLON {
-          dcmat.setVariable(*$1, std::move(*$3));
-          std::cout << dcmat.getVariable(*$1) << std::endl;
+          if (dcmat.isValid()) {
+            dcmat.setVariable(*$1, std::move(*$3));
+            std::cout << dcmat.getVariable(*$1) << std::endl;
+          }
+          else
+          {
+            std::cout << dcmat.getErrorMessage() << std::endl;
+          }
           delete $1;
           delete $3;
         }
@@ -362,7 +381,10 @@ Expression:
             $$ = new DynamicTyping();
             $$->setNumber($1->getNumber() + $3->getNumber());
         } else {
-            yyerror("Incompatible types.");
+            std::cout << "Incorrect type for operator '+' - have " << $1->getType() << " and " << $3->getType() << std::endl;
+            delete $1;
+            delete $3;
+            YYABORT;
         }
         delete $1;
         delete $3;
@@ -375,7 +397,10 @@ Expression:
               $$ = new DynamicTyping();
               $$->setNumber($1->getNumber() - $3->getNumber());
           } else {
-              yyerror("Incompatible types.");
+            std::cout << "Incorrect type for operator '-' - have " << $1->getType() << " and " << $3->getType() << std::endl;
+            delete $1;
+            delete $3;
+            YYABORT;
           }
           delete $1;
           delete $3;
@@ -402,7 +427,10 @@ Expression:
               $$ = new DynamicTyping();
               $$->setNumber($1->getNumber() / $3->getNumber());
           } else {
-              yyerror("Incompatible types.");
+            std::cout << "Incorrect type for operator '/' - have " << $1->getType() << " and " << $3->getType() << std::endl;
+            delete $1;
+            delete $3;
+            YYABORT;
           }
           delete $1;
           delete $3;
@@ -412,7 +440,10 @@ Expression:
               $$ = new DynamicTyping();
               $$->setNumber(std::fmod($1->getNumber(), $3->getNumber()));
           } else {
-              yyerror("Incompatible types.");
+            std::cout << "Incorrect type for operator '%' - have " << $1->getType() << " and " << $3->getType() << std::endl;
+            delete $1;
+            delete $3;
+            YYABORT;
           }
           delete $1;
           delete $3;
@@ -422,7 +453,10 @@ Expression:
               $$ = new DynamicTyping();
               $$->setNumber(std::pow($1->getNumber(), $3->getNumber()));
           } else {
-              yyerror("Incompatible types.");
+            std::cout << "Incorrect type for operator '^' - have " << $1->getType() << " and " << $3->getType() << std::endl;
+            delete $1;
+            delete $3;
+            YYABORT;
           }
           delete $1;
           delete $3;
@@ -433,7 +467,9 @@ Expression:
               $$ = new DynamicTyping();
               $$->setNumber(std::sin($3->getNumber()));
           } else {
-              yyerror("Incompatible types.");
+            std::cout << "Incorrect type for operator 'SEN' - have " << $3->getType() << std::endl;
+            delete $3;
+            YYABORT;
           }
           delete $3;
       }
@@ -442,7 +478,9 @@ Expression:
               $$ = new DynamicTyping();
               $$->setNumber(std::cos($3->getNumber()));
           } else {
-              yyerror("Incompatible types.");
+            std::cout << "Incorrect type for operator 'COS' - have " << $3->getType() << std::endl;
+            delete $3;
+            YYABORT;
           }
           delete $3;
       }
@@ -451,7 +489,9 @@ Expression:
               $$ = new DynamicTyping();
               $$->setNumber(std::tan($3->getNumber()));
           } else {
-              yyerror("Incompatible types.");
+            std::cout << "Incorrect type for operator 'TAN' - have " << $3->getType() << std::endl;
+            delete $3;
+            YYABORT;
           }
           delete $3;
       }
@@ -460,7 +500,9 @@ Expression:
               $$ = new DynamicTyping();
               $$->setNumber(std::abs($3->getNumber()));
           } else {
-              yyerror("Incompatible types.");
+            std::cout << "Incorrect type for operator 'ABS' - have " << $3->getType() << std::endl;
+            delete $3;
+            YYABORT;
           }
           delete $3;
       }
@@ -480,8 +522,9 @@ Expression:
             $$ = new DynamicTyping();
             $$->setMatrix($2->getMatrix() * 1);
         } else {
-            yyerror("Unknown Type.");
-            $$ = nullptr;
+            std::cout << "Incorrect type for operator '+' - have " << $2->getType() << std::endl;
+            $$ == nullptr;
+            YYABORT;
         }
         delete $2;
       }
@@ -493,8 +536,9 @@ Expression:
             $$ = new DynamicTyping();
             $$->setMatrix($2->getMatrix() * -1);
         } else {
-            yyerror("Unknown Type.");
-            $$ = nullptr;
+            std::cout << "Incorrect type for operator '-' - have " << $2->getType() << std::endl;
+            $$ == nullptr;
+            YYABORT;
         }
         delete $2;
       }

@@ -73,6 +73,12 @@ public:
      */
     const Matrix &getMatrix() const;
 
+    /**
+     * @brief Obtém o tipo atual
+     * @return O tipo atual
+     */
+    std::string getType() const;
+
     DynamicTyping &operator=(double num);
     DynamicTyping &operator=(Matrix &&matrix);
     DynamicTyping &operator=(const DynamicTyping &other);

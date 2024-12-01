@@ -37,14 +37,28 @@ void Settings::reset()
 
 void Settings::setHView(std::pair<double, double> h_view)
 {
-    h_view_lo = h_view.first;
-    h_view_hi = h_view.second;
+    if (h_view.first < h_view_lo)
+    {
+        h_view_lo = h_view.first;
+        h_view_hi = h_view.second;
+    }
+    else
+    {
+        std::cout << "ERROR: h_view_lo must be smaller than h_view_hi" << std::endl;
+    }
 }
 
 void Settings::setVView(std::pair<double, double> v_view)
 {
-    v_view_lo = v_view.first;
-    v_view_hi = v_view.second;
+    if (v_view.first < v_view_lo)
+    {
+        v_view_lo = v_view.first;
+        v_view_hi = v_view.second;
+    }
+    else
+    {
+        std::cout << "ERROR: v_view_lo must be smaller than v_view_hi" << std::endl;
+    }
 }
 
 void Settings::setFloatPrecision(int precision)
@@ -130,6 +144,11 @@ void DCMAT::plot()
 
 double DCMAT::integrate(std::pair<double, double> interval, const Function &f)
 {
+    if (interval.first >= interval.second)
+    {
+        dcmat.setErrorMessage("ERROR: lower limit must be smaller than upper limit");
+        return 0;
+    }
     const double step = (interval.second - interval.first) / settings.integral_steps;
     double sum = 0.0;
 
@@ -187,10 +206,10 @@ DynamicTyping &DCMAT::getVariable(const std::string &identifier)
     }
 }
 
-bool DCMAT::isValidExpression(bool discard)
+bool DCMAT::isValid(bool reset)
 {
     bool tmp = valid_expression;
-    if (discard)
+    if (reset)
     {
         valid_expression = true;
     }

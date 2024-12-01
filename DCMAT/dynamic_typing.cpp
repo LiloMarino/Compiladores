@@ -74,6 +74,22 @@ DynamicTyping &DynamicTyping::operator=(double num)
     return *this;
 }
 
+std::string DynamicTyping::getType() const
+{
+    switch (type)
+    {
+    case DataType::NUMBER:
+        return "FLOAT";
+        break;
+    case DataType::MATRIX:
+        return "MATRIX";
+        break;
+    default:
+        return "UNKNOWN";
+        break;
+    }
+}
+
 DynamicTyping &DynamicTyping::operator=(Matrix &&matrix)
 {
     setMatrix(std::move(matrix));

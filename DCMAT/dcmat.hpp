@@ -140,11 +140,11 @@ public:
     DynamicTyping &getVariable(const std::string &identifier);
 
     /**
-     * @brief Avalia se expressão é valida e reseta o estado de validez
-     * @param discard Define se descarta a validez da expressão resetando o estado
-     * @return Retorna true se for válida, false caso contrário
+     * @brief Verifica a validez, se existem erros não tratados e reseta o estado de validez
+     * @param reset Define se reseta ou não o estado de validez
+     * @return Retorna true caso não existam erros, false caso existam erros
      */
-    bool isValidExpression(bool discard = true);
+    bool isValid(bool reset = true);
 
     /**
      * @brief Seta a última matriz
