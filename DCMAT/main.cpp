@@ -1,6 +1,7 @@
 #include "sintatico.tab.h"
 #include "dcmat.hpp"
 #include <iostream>
+#include <iomanip>
 #include <string>
 #include <cstdio>
 
@@ -11,14 +12,16 @@ extern void yylex_destroy();
 
 int main()
 {
-    init();
+    std::cout << std::fixed << std::setprecision(dcmat.settings.float_precision);
     while (true)
     {
         std::cout << "> ";
         std::string entrada;
         std::getline(std::cin, entrada);
+        entrada += '\n';
 
-        if (entrada.empty()) continue;
+        if (entrada.empty())
+            continue;
 
         // Abre a string como um stream
         yyin = fmemopen(const_cast<char *>(entrada.data()), entrada.size(), "r");

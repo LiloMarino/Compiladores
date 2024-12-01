@@ -1,7 +1,6 @@
 %code requires {
 // Necessário para evitar problemas de inclusão
 // Coloca na .h
-#include "utils.hpp"
 #include "dcmat.hpp"
 #include "dynamic_typing.hpp"
 #include <iostream>
@@ -9,10 +8,13 @@
 #include <vector>
 #include <algorithm>
 }
-%debug
+
 %{
-    // Coloca na .c
-    extern int yylex();
+// Coloca na .c
+#include <memory>
+extern int yylex();
+extern std::unique_ptr<std::string> activeToken;
+void yyerror(const char *msg);
 %}
 
 %union {
@@ -40,7 +42,7 @@
 %token PLUS MINUS MULTIPLY DIVIDE EXPONENT MODULO LEFT_PAREN RIGHT_PAREN SIN COS TAN ABS X
 PI_CONSTANT EULER_CONSTANT ABOUT FLOAT SETTINGS H_VIEW PLOT SHOW AXIS INTEGRAL_STEPS PRECISION SOLVE 
 CONNECT_DOTS INTEGRATE QUIT SUM LINEAR_SYSTEM RESET SYMBOLS DETERMINANT MATRIX RPN OFF V_VIEW ERASE ON SET COLON 
-EQUAL ASSIGN LEFT_BRACKET RIGHT_BRACKET SEMICOLON COMMA
+EQUAL ASSIGN LEFT_BRACKET RIGHT_BRACKET SEMICOLON COMMA EOL
 
 // Definindo precedência e associatividade
 %left PLUS MINUS
@@ -53,20 +55,20 @@ EQUAL ASSIGN LEFT_BRACKET RIGHT_BRACKET SEMICOLON COMMA
 %%
 
 Program:
-    Command
-    | QUIT { exit(0); }
-    | Expression {
+    Command EOL
+    | QUIT EOL { exit(0); }
+    | Expression EOL {
         if (dcmat.isValidExpression())
         {
           std::cout << (*$1) << std::endl;
         }
         else
         {
-          std::cout << dcmat.getErrorMessage() << std::endl << std::endl;
+          std::cout << dcmat.getErrorMessage() << std::endl;
         }
         delete $1;
       }
-    |
+    | EOL
     ;
 
 Command:
@@ -526,3 +528,11 @@ IntegerInterval: Integer COLON Integer { $$ = new std::pair<int, int>($1, $3); }
         ;
 
 %%
+
+void yyerror(const char *) {
+    if (yychar == EOL) {
+        std::cout << "SYNTAX ERROR: Incomplete Command" << std::endl;
+    } else {
+        std::cout << "SYNTAX ERROR: [" << (*activeToken) << "]" << std::endl;
+    }
+}
