@@ -50,6 +50,11 @@ bool DynamicTyping::isMatrix() const
     return type == DataType::MATRIX;
 }
 
+bool DynamicTyping::isDefined() const
+{
+    return type != DataType::NONE;
+}
+
 double DynamicTyping::getNumber() const
 {
     if (!isNumber())

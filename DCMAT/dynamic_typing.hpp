@@ -62,6 +62,12 @@ public:
     bool isMatrix() const;
 
     /**
+     * @brief Verifica se algum valor foi definido
+     * @return True se a variável foi definida, false caso contrário
+     */
+    bool isDefined() const;
+
+    /**
      * @brief Obtém o número armazenado
      * @return O número armazenado
      */
@@ -83,7 +89,7 @@ public:
     DynamicTyping &operator=(Matrix &&matrix);
     DynamicTyping &operator=(const DynamicTyping &other);
     DynamicTyping &operator=(DynamicTyping &&other) noexcept;
-    friend std::ostream& operator<<(std::ostream& os, const DynamicTyping& dt);
+    friend std::ostream &operator<<(std::ostream &os, const DynamicTyping &dt);
 };
 
 #endif

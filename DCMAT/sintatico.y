@@ -374,22 +374,29 @@ Expression:
         YYABORT;
       }
     | Expression PLUS Expression {
-        if ($1->isMatrix() && $3->isMatrix()) {
-            $$ = new DynamicTyping();
-            $$->setMatrix($1->getMatrix() + $3->getMatrix());
-        } else if ($1->isNumber() && $3->isNumber()) {
-            $$ = new DynamicTyping();
-            $$->setNumber($1->getNumber() + $3->getNumber());
-        } else {
-            std::cout << "Incorrect type for operator '+' - have " << $1->getType() << " and " << $3->getType() << std::endl;
-            delete $1;
-            delete $3;
-            YYABORT;
+        if($1->isDefined() && $3->isDefined()) {
+          if ($1->isMatrix() && $3->isMatrix()) {
+              $$ = new DynamicTyping();
+              $$->setMatrix($1->getMatrix() + $3->getMatrix());
+          } else if ($1->isNumber() && $3->isNumber()) {
+              $$ = new DynamicTyping();
+              $$->setNumber($1->getNumber() + $3->getNumber());
+          } else {
+              std::cout << "Incorrect type for operator '+' - have " << $1->getType() << " and " << $3->getType() << std::endl;
+              delete $1;
+              delete $3;
+              YYABORT;
+          }
+        }
+        else
+        {
+          $$ = new DynamicTyping();
         }
         delete $1;
         delete $3;
       }
     | Expression MINUS Expression {
+        if($1->isDefined() && $3->isDefined()) {
           if ($1->isMatrix() && $3->isMatrix()) {
               $$ = new DynamicTyping();
               $$->setMatrix($1->getMatrix() - $3->getMatrix());
@@ -402,10 +409,16 @@ Expression:
             delete $3;
             YYABORT;
           }
-          delete $1;
-          delete $3;
+        }
+        else
+        {
+          $$ = new DynamicTyping();
+        }
+        delete $1;
+        delete $3;
       }
     | Expression MULTIPLY Expression { 
+        if($1->isDefined() && $3->isDefined()) {
           if ($1->isMatrix() && $3->isMatrix()) {
               $$ = new DynamicTyping();
               $$->setMatrix($1->getMatrix() * $3->getMatrix());
@@ -419,10 +432,16 @@ Expression:
               $$ = new DynamicTyping();
               $$->setMatrix($3->getMatrix() * $1->getNumber());
           }
-          delete $1;
-          delete $3;
+        }
+        else
+        {
+          $$ = new DynamicTyping();
+        }
+        delete $1;
+        delete $3;
       }
     | Expression DIVIDE Expression { 
+        if($1->isDefined() && $3->isDefined()) {
           if ($1->isNumber() && $3->isNumber()) {
               $$ = new DynamicTyping();
               $$->setNumber($1->getNumber() / $3->getNumber());
@@ -432,10 +451,16 @@ Expression:
             delete $3;
             YYABORT;
           }
-          delete $1;
-          delete $3;
+        }
+        else
+        {
+          $$ = new DynamicTyping();
+        }
+        delete $1;
+        delete $3;
       }
     | Expression MODULO Expression { 
+        if($1->isDefined() && $3->isDefined()) {
           if ($1->isNumber() && $3->isNumber()) {
               $$ = new DynamicTyping();
               $$->setNumber(std::fmod($1->getNumber(), $3->getNumber()));
@@ -445,10 +470,16 @@ Expression:
             delete $3;
             YYABORT;
           }
-          delete $1;
-          delete $3;
+        }
+        else
+        {
+          $$ = new DynamicTyping();
+        }
+        delete $1;
+        delete $3;
       }
     | Expression EXPONENT Expression { 
+        if($1->isDefined() && $3->isDefined()) {
           if ($1->isNumber() && $3->isNumber()) {
               $$ = new DynamicTyping();
               $$->setNumber(std::pow($1->getNumber(), $3->getNumber()));
@@ -460,9 +491,15 @@ Expression:
           }
           delete $1;
           delete $3;
+        }
+        else
+        {
+          $$ = new DynamicTyping();
+        }
       }
     | LEFT_PAREN Expression RIGHT_PAREN { $$ = $2; }
     | SIN LEFT_PAREN Expression RIGHT_PAREN  { 
+        if($1->isDefined() && $3->isDefined()) {
           if ($3->isNumber()) {
               $$ = new DynamicTyping();
               $$->setNumber(std::sin($3->getNumber()));
@@ -472,8 +509,14 @@ Expression:
             YYABORT;
           }
           delete $3;
+        }
+        else
+        {
+          $$ = new DynamicTyping();
+        }
       }
     | COS LEFT_PAREN Expression RIGHT_PAREN { 
+        if($1->isDefined() && $3->isDefined()) {
           if ($3->isNumber()) {
               $$ = new DynamicTyping();
               $$->setNumber(std::cos($3->getNumber()));
@@ -483,8 +526,14 @@ Expression:
             YYABORT;
           }
           delete $3;
+        }
+        else
+        {
+          $$ = new DynamicTyping();
+        }
       }
     | TAN LEFT_PAREN Expression RIGHT_PAREN { 
+        if($1->isDefined() && $3->isDefined()) {
           if ($3->isNumber()) {
               $$ = new DynamicTyping();
               $$->setNumber(std::tan($3->getNumber()));
@@ -494,8 +543,14 @@ Expression:
             YYABORT;
           }
           delete $3;
+        }
+        else
+        {
+          $$ = new DynamicTyping();
+        }
       }
     | ABS LEFT_PAREN Expression RIGHT_PAREN { 
+        if($1->isDefined() && $3->isDefined()) {
           if ($3->isNumber()) {
               $$ = new DynamicTyping();
               $$->setNumber(std::abs($3->getNumber()));
@@ -505,6 +560,11 @@ Expression:
             YYABORT;
           }
           delete $3;
+        }
+        else
+        {
+          $$ = new DynamicTyping();
+        }
       }
     | PI_CONSTANT {
         $$ = new DynamicTyping();
@@ -515,30 +575,42 @@ Expression:
         $$->setNumber(M_E);
       }
     | PLUS Expression {
-        if ($2->isNumber()) {
-            $$ = new DynamicTyping();
-            $$->setNumber(+$2->getNumber());
-        } else if ($2->isMatrix()) {
-            $$ = new DynamicTyping();
-            $$->setMatrix($2->getMatrix() * 1);
-        } else {
-            std::cout << "Incorrect type for operator '+' - have " << $2->getType() << std::endl;
-            $$ == nullptr;
-            YYABORT;
+        if($1->isDefined() && $3->isDefined()) {
+          if ($2->isNumber()) {
+              $$ = new DynamicTyping();
+              $$->setNumber(+$2->getNumber());
+          } else if ($2->isMatrix()) {
+              $$ = new DynamicTyping();
+              $$->setMatrix($2->getMatrix() * 1);
+          } else {
+              std::cout << "Incorrect type for operator '+' - have " << $2->getType() << std::endl;
+              $$ = nullptr;
+              YYABORT;
+          }
+        }
+        else
+        {
+          $$ = new DynamicTyping();
         }
         delete $2;
       }
     | MINUS Expression {
-        if ($2->isNumber()) {
-            $$ = new DynamicTyping();
-            $$->setNumber(-$2->getNumber());
-        } else if ($2->isMatrix()) {
-            $$ = new DynamicTyping();
-            $$->setMatrix($2->getMatrix() * -1);
-        } else {
-            std::cout << "Incorrect type for operator '-' - have " << $2->getType() << std::endl;
-            $$ == nullptr;
-            YYABORT;
+        if($1->isDefined() && $3->isDefined()) {
+          if ($2->isNumber()) {
+              $$ = new DynamicTyping();
+              $$->setNumber(-$2->getNumber());
+          } else if ($2->isMatrix()) {
+              $$ = new DynamicTyping();
+              $$->setMatrix($2->getMatrix() * -1);
+          } else {
+              std::cout << "Incorrect type for operator '-' - have " << $2->getType() << std::endl;
+              $$ = nullptr;
+              YYABORT;
+          }
+        }
+        else
+        {
+          $$ = new DynamicTyping();
         }
         delete $2;
       }
