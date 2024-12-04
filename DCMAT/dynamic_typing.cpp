@@ -147,9 +147,5 @@ std::ostream &operator<<(std::ostream &os, const DynamicTyping &dt)
     {
         dt.getMatrix().printMatrix();
     }
-    else
-    {
-        os << "No data stored";
-    }
     return os;
 }

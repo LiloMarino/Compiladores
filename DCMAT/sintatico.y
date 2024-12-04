@@ -95,7 +95,15 @@ Command:
             dcmat.setUndefinedWarning(true);
             delete $3;
         }
-       | SET INTEGRAL_STEPS INTEGER SEMICOLON { dcmat.settings.integral_steps = $3; }
+       | SET INTEGRAL_STEPS Integer SEMICOLON { 
+          if($3 > 0) 
+          {
+            dcmat.settings.integral_steps = $3;
+          }
+          else {
+            std::cout << "ERROR: integral_steps must be a positive non-zero integer" << std::endl;
+          }
+        }
        | INTEGRATE LEFT_PAREN Interval COMMA FunctionExpression RIGHT_PAREN SEMICOLON {
             if (dcmat.isValid()) {
               double result = dcmat.integrate(*$3, *$5);
@@ -179,6 +187,7 @@ Command:
         }
        | IDENTIFIER SEMICOLON {
           std::cout << dcmat.getVariable(*$1) << std::endl;
+          dcmat.isValid(); // Consome o erro se existir
           delete $1;
         } 
        | SHOW SYMBOLS SEMICOLON {
@@ -499,7 +508,7 @@ Expression:
       }
     | LEFT_PAREN Expression RIGHT_PAREN { $$ = $2; }
     | SIN LEFT_PAREN Expression RIGHT_PAREN  { 
-        if($1->isDefined() && $3->isDefined()) {
+        if($3->isDefined()) {
           if ($3->isNumber()) {
               $$ = new DynamicTyping();
               $$->setNumber(std::sin($3->getNumber()));
@@ -516,7 +525,7 @@ Expression:
         }
       }
     | COS LEFT_PAREN Expression RIGHT_PAREN { 
-        if($1->isDefined() && $3->isDefined()) {
+        if($3->isDefined()) {
           if ($3->isNumber()) {
               $$ = new DynamicTyping();
               $$->setNumber(std::cos($3->getNumber()));
@@ -533,7 +542,7 @@ Expression:
         }
       }
     | TAN LEFT_PAREN Expression RIGHT_PAREN { 
-        if($1->isDefined() && $3->isDefined()) {
+        if($3->isDefined()) {
           if ($3->isNumber()) {
               $$ = new DynamicTyping();
               $$->setNumber(std::tan($3->getNumber()));
@@ -550,7 +559,7 @@ Expression:
         }
       }
     | ABS LEFT_PAREN Expression RIGHT_PAREN { 
-        if($1->isDefined() && $3->isDefined()) {
+        if($3->isDefined()) {
           if ($3->isNumber()) {
               $$ = new DynamicTyping();
               $$->setNumber(std::abs($3->getNumber()));
@@ -575,7 +584,7 @@ Expression:
         $$->setNumber(M_E);
       }
     | PLUS Expression {
-        if($1->isDefined() && $3->isDefined()) {
+        if($2->isDefined()) {
           if ($2->isNumber()) {
               $$ = new DynamicTyping();
               $$->setNumber(+$2->getNumber());
@@ -595,7 +604,7 @@ Expression:
         delete $2;
       }
     | MINUS Expression {
-        if($1->isDefined() && $3->isDefined()) {
+        if($2->isDefined()) {
           if ($2->isNumber()) {
               $$ = new DynamicTyping();
               $$->setNumber(-$2->getNumber());
