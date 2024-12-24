@@ -1,0 +1,37 @@
+%code requires {
+// Necessário para evitar problemas de inclusão
+// Coloca na .h
+#include <iostream>
+}
+
+%{
+// Coloca na .c
+extern int yylex();
+void yyerror(const char *msg);
+%}
+
+%union {
+    double value;
+    std::string* str;
+}
+
+%token <str> IDENTIFIER STRING CHARACTER
+%token <value> INTEGER
+
+%token GLOBAL VARIABLE CONSTANT PARAMETER VALUE RETURN_TYPE TYPE VOID INT CHAR FUNCTION END_FUNCTION RETURN DO_WHILE 
+WHILE FOR IF PRINTF SCANF EXIT PLUS MINUS MULTIPLY DIVIDE REMAINDER INC DEC BITWISE_AND BITWISE_OR BITWISE_NOT 
+BITWISE_XOR NOT LOGICAL_AND LOGICAL_OR EQUAL NOT_EQUAL LESS_THAN GREATER_THAN LESS_EQUAL GREATER_EQUAL R_SHIFT L_SHIFT 
+ASSIGN ADD_ASSIGN MINUS_ASSIGN SEMICOLON COMMA COLON L_PAREN R_PAREN L_SQUARE_BRACKET R_SQUARE_BRACKET 
+TERNARY_CONDITIONAL EOF_TOKEN
+
+%start AstStart
+
+%%
+
+AstStart:
+        ;
+
+%%
+
+void yyerror(const char *) {
+}
