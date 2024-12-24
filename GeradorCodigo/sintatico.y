@@ -32,14 +32,14 @@ TERNARY_OPERATOR EOF_TOKEN
 AstStart: AstLoop EOF_TOKEN
         ;
 
-AstLoop: Definition AstLoop
+AstLoop: Declaration AstLoop
        |
        ;
 
-Definition: Constant
-          | GlobalVariable
-          | Function
-          ;
+Declaration: Constant
+           | GlobalVariable
+           | Function
+           ;
 
 Constant: CONSTANT COLON IDENTIFIER VALUE COLON Integer
         ;
@@ -92,6 +92,11 @@ Expression: BinaryOperator L_PAREN Expression COMMA Expression R_PAREN
           | UnaryOperator L_PAREN Expression R_PAREN
           | L_PAREN Expression R_PAREN UnaryOperator
           | TERNARY_OPERATOR L_PAREN Expression COMMA Expression COMMA Expression R_PAREN
+          | INTEGER
+          | STRING
+          | CHARACTER
+          | IDENTIFIER L_PAREN Expression R_PAREN
+          | IDENTIFIER L_SQUARE_BRACKET Expression R_SQUARE_BRACKET
           ;
 
 BinaryOperator: PLUS
@@ -133,7 +138,15 @@ ReturnType: Type
 Type: INT StarLoop
     | CHAR StarLoop
     | VOID MULTIPLY StarLoop
+    | INT Dimensions
+    | CHAR Dimensions
     ;
+
+Dimensions: Dimension Dimensions
+          | Dimension
+          ;
+
+Dimension: L_SQUARE_BRACKET INTEGER R_SQUARE_BRACKET
 
 StarLoop: MULTIPLY StarLoop
         | 
