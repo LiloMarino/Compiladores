@@ -62,7 +62,7 @@
 ")"                         { return R_PAREN; }
 "["                         { return L_SQUARE_BRACKET; }
 "]"                         { return R_SQUARE_BRACKET; }
-"?"                         { return TERNARY_CONDITIONAL; }
+"?"                         { return TERNARY_OPERATOR; }
 <<EOF>>                     { return EOF_TOKEN; }
 \"([^\\\"]|\\.)*\"          { yylval.str = new std::string(yytext); return STRING; }
 (_*[a-zA-Z][a-zA-Z0-9_]*)   { yylval.str = new std::string(yytext); return IDENTIFIER; }
