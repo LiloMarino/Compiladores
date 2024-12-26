@@ -5,7 +5,7 @@ EXEC_NAME = gerador
 ZIP_NAME = gerador
 
 # Lista de arquivos fonte
-SOURCES = main.cpp
+SOURCES = main.cpp expression.cpp
 LEXER = lex.yy.c
 PARSER = sintatico.tab.c sintatico.tab.h
 
@@ -34,7 +34,7 @@ $(EXEC_NAME): $(OBJECTS)
 	$(CXX) $(CXXFLAGS) -o $@ $(OBJECTS)
 
 sintatico.tab.c sintatico.tab.h: sintatico.y
-	$(YACC) -d sintatico.y -Wcounterexamples
+	$(YACC) -d sintatico.y
 
 $(LEXER): lexico.l
 	$(LEX) lexico.l

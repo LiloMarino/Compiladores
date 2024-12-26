@@ -2,6 +2,7 @@
 // Necessário para evitar problemas de inclusão
 // Coloca na .h
 #include <iostream>
+#include "expression.hpp"
 }
 
 %{
@@ -11,12 +12,14 @@ void yyerror(const char *msg);
 %}
 
 %union {
-    double value;
+    int value;
     std::string* str;
+    OperatorType op;
 }
 
 %token <str> IDENTIFIER STRING CHARACTER
 %token <value> INTEGER
+%type <op> UnaryOperator BinaryOperator
 %type <value> Integer
 
 %token GLOBAL VARIABLE CONSTANT PARAMETER VALUE RETURN_TYPE TYPE VOID INT CHAR FUNCTION END_FUNCTION RETURN DO_WHILE 
@@ -81,7 +84,7 @@ Command: DO_WHILE L_PAREN Commands COMMA Condition R_PAREN
 Condition: Expression
          ;
 
-Assign:
+Assign: Expression
       ;
 
 Expressions: Expression COMMA Expressions
@@ -99,36 +102,36 @@ Expression: BinaryOperator L_PAREN Expression COMMA Expression R_PAREN
           | IDENTIFIER L_SQUARE_BRACKET Expression R_SQUARE_BRACKET
           ;
 
-BinaryOperator: PLUS
-              | MINUS
-              | MULTIPLY
-              | DIVIDE
-              | REMAINDER
-              | BITWISE_AND
-              | BITWISE_OR
-              | BITWISE_XOR
-              | LOGICAL_AND
-              | LOGICAL_OR
-              | EQUAL
-              | NOT_EQUAL
-              | LESS_THAN
-              | GREATER_THAN
-              | LESS_EQUAL
-              | GREATER_EQUAL
-              | R_SHIFT
-              | L_SHIFT
-              | ASSIGN
-              | ADD_ASSIGN
-              | MINUS_ASSIGN
+BinaryOperator: PLUS { $$ = OperatorType::PLUS; }
+              | MINUS { $$ = OperatorType::MINUS; }
+              | MULTIPLY { $$ = OperatorType::MULTIPLY; }
+              | DIVIDE { $$ = OperatorType::DIVIDE; }
+              | REMAINDER { $$ = OperatorType::REMAINDER; }
+              | BITWISE_AND { $$ = OperatorType::BITWISE_AND; }
+              | BITWISE_OR { $$ = OperatorType::BITWISE_OR; }
+              | BITWISE_XOR { $$ = OperatorType::BITWISE_XOR; }
+              | LOGICAL_AND { $$ = OperatorType::LOGICAL_AND; }
+              | LOGICAL_OR { $$ = OperatorType::LOGICAL_OR; }
+              | EQUAL { $$ = OperatorType::EQUAL; }
+              | NOT_EQUAL { $$ = OperatorType::NOT_EQUAL; }
+              | LESS_THAN { $$ = OperatorType::LESS_THAN; }
+              | GREATER_THAN { $$ = OperatorType::GREATER_THAN; }
+              | LESS_EQUAL { $$ = OperatorType::LESS_EQUAL; }
+              | GREATER_EQUAL { $$ = OperatorType::GREATER_EQUAL; }
+              | R_SHIFT { $$ = OperatorType::R_SHIFT; }
+              | L_SHIFT { $$ = OperatorType::L_SHIFT; }
+              | ASSIGN { $$ = OperatorType::ASSIGN; }
+              | ADD_ASSIGN { $$ = OperatorType::ADD_ASSIGN; }
+              | MINUS_ASSIGN { $$ = OperatorType::MINUS_ASSIGN; }
               ;
 
-UnaryOperator: PLUS
-             | MINUS
-             | MULTIPLY
-             | INC
-             | DEC
-             | BITWISE_NOT
-             | NOT
+UnaryOperator: PLUS { $$ = OperatorType::PLUS; }
+             | MINUS { $$ = OperatorType::MINUS; }
+             | MULTIPLY { $$ = OperatorType::MULTIPLY; }
+             | INC { $$ = OperatorType::INC; }
+             | DEC { $$ = OperatorType::DEC; }
+             | BITWISE_NOT { $$ = OperatorType::BITWISE_NOT; }
+             | NOT { $$ = OperatorType::NOT; }
              ;
 
 ReturnType: Type
@@ -159,5 +162,4 @@ Integer: INTEGER { $$ = $1; }
 %%
 
 void yyerror(const char *msg) {
-    std::cout << msg << std::endl;
 }
