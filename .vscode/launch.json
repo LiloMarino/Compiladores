@@ -8,7 +8,7 @@
             "name": "Depurar",
             "type": "cppdbg",
             "request": "launch",
-            "program": "${fileDirname}/dcmat",
+            "program": "${fileDirname}/gerador",
             "visualizerFile": "${workspaceFolder}/debug/custom.natvis",
             "args": [],
             "stopAtEntry": false,

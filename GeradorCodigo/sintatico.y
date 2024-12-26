@@ -10,7 +10,8 @@
 extern int yylex();
 void yyerror(const char *msg);
 %}
-
+%debug
+%verbose
 %union {
     int value;
     std::string* str;
@@ -19,7 +20,7 @@ void yyerror(const char *msg);
 
 %token <str> IDENTIFIER STRING CHARACTER
 %token <value> INTEGER
-%type <op> UnaryOperator BinaryOperator
+%type <op> Operator
 %type <value> Integer
 
 %token GLOBAL VARIABLE CONSTANT PARAMETER VALUE RETURN_TYPE TYPE VOID INT CHAR FUNCTION END_FUNCTION RETURN DO_WHILE 
@@ -72,12 +73,15 @@ Commands: Command SEMICOLON Commands
 
 Command: DO_WHILE L_PAREN Commands COMMA Condition R_PAREN
        | IF L_PAREN Condition COMMA Commands COMMA Commands R_PAREN
+       | IF L_PAREN Condition COMMA Commands R_PAREN
        | WHILE L_PAREN Condition COMMA Commands R_PAREN
        | FOR L_PAREN Assign COMMA Condition COMMA Assign COMMA Commands R_PAREN
        | PRINTF L_PAREN STRING COMMA Expressions R_PAREN
+       | PRINTF L_PAREN STRING R_PAREN
        | SCANF L_PAREN STRING COMMA BITWISE_AND L_PAREN IDENTIFIER R_PAREN R_PAREN
        | EXIT L_PAREN Expression R_PAREN
        | RETURN L_PAREN Expression R_PAREN
+       | RETURN L_PAREN R_PAREN
        | Expression
        ;
 
@@ -91,48 +95,53 @@ Expressions: Expression COMMA Expressions
            | Expression
            ;
 
-Expression: BinaryOperator L_PAREN Expression COMMA Expression R_PAREN
-          | UnaryOperator L_PAREN Expression R_PAREN
-          | L_PAREN Expression R_PAREN UnaryOperator
-          | TERNARY_OPERATOR L_PAREN Expression COMMA Expression COMMA Expression R_PAREN
+Expression: TernaryExpression 
+          | BinaryExpression
+          | UnaryExpression
           | INTEGER
           | STRING
           | CHARACTER
-          | IDENTIFIER L_PAREN Expression R_PAREN
+          | IDENTIFIER
+          | IDENTIFIER L_PAREN Expressions R_PAREN
           | IDENTIFIER L_SQUARE_BRACKET Expression R_SQUARE_BRACKET
           ;
 
-BinaryOperator: PLUS { $$ = OperatorType::PLUS; }
-              | MINUS { $$ = OperatorType::MINUS; }
-              | MULTIPLY { $$ = OperatorType::MULTIPLY; }
-              | DIVIDE { $$ = OperatorType::DIVIDE; }
-              | REMAINDER { $$ = OperatorType::REMAINDER; }
-              | BITWISE_AND { $$ = OperatorType::BITWISE_AND; }
-              | BITWISE_OR { $$ = OperatorType::BITWISE_OR; }
-              | BITWISE_XOR { $$ = OperatorType::BITWISE_XOR; }
-              | LOGICAL_AND { $$ = OperatorType::LOGICAL_AND; }
-              | LOGICAL_OR { $$ = OperatorType::LOGICAL_OR; }
-              | EQUAL { $$ = OperatorType::EQUAL; }
-              | NOT_EQUAL { $$ = OperatorType::NOT_EQUAL; }
-              | LESS_THAN { $$ = OperatorType::LESS_THAN; }
-              | GREATER_THAN { $$ = OperatorType::GREATER_THAN; }
-              | LESS_EQUAL { $$ = OperatorType::LESS_EQUAL; }
-              | GREATER_EQUAL { $$ = OperatorType::GREATER_EQUAL; }
-              | R_SHIFT { $$ = OperatorType::R_SHIFT; }
-              | L_SHIFT { $$ = OperatorType::L_SHIFT; }
-              | ASSIGN { $$ = OperatorType::ASSIGN; }
-              | ADD_ASSIGN { $$ = OperatorType::ADD_ASSIGN; }
-              | MINUS_ASSIGN { $$ = OperatorType::MINUS_ASSIGN; }
-              ;
+TernaryExpression: TERNARY_OPERATOR L_PAREN Expression COMMA Expression COMMA Expression R_PAREN
 
-UnaryOperator: PLUS { $$ = OperatorType::PLUS; }
-             | MINUS { $$ = OperatorType::MINUS; }
-             | MULTIPLY { $$ = OperatorType::MULTIPLY; }
-             | INC { $$ = OperatorType::INC; }
-             | DEC { $$ = OperatorType::DEC; }
-             | BITWISE_NOT { $$ = OperatorType::BITWISE_NOT; }
-             | NOT { $$ = OperatorType::NOT; }
-             ;
+BinaryExpression: Operator L_PAREN Expression COMMA Expression R_PAREN
+                ;
+
+UnaryExpression:  Operator L_PAREN Expression R_PAREN
+               |  L_PAREN Expression R_PAREN INC
+               |  L_PAREN Expression R_PAREN DEC
+               ;
+
+Operator: PLUS { $$ = OperatorType::PLUS; }
+        | MINUS { $$ = OperatorType::MINUS; }
+        | MULTIPLY { $$ = OperatorType::MULTIPLY; }
+        | DIVIDE { $$ = OperatorType::DIVIDE; }
+        | REMAINDER { $$ = OperatorType::REMAINDER; }
+        | BITWISE_AND { $$ = OperatorType::BITWISE_AND; }
+        | BITWISE_OR { $$ = OperatorType::BITWISE_OR; }
+        | BITWISE_XOR { $$ = OperatorType::BITWISE_XOR; }
+        | LOGICAL_AND { $$ = OperatorType::LOGICAL_AND; }
+        | LOGICAL_OR { $$ = OperatorType::LOGICAL_OR; }
+        | EQUAL { $$ = OperatorType::EQUAL; }
+        | NOT_EQUAL { $$ = OperatorType::NOT_EQUAL; }
+        | LESS_THAN { $$ = OperatorType::LESS_THAN; }
+        | GREATER_THAN { $$ = OperatorType::GREATER_THAN; }
+        | LESS_EQUAL { $$ = OperatorType::LESS_EQUAL; }
+        | GREATER_EQUAL { $$ = OperatorType::GREATER_EQUAL; }
+        | R_SHIFT { $$ = OperatorType::R_SHIFT; }
+        | L_SHIFT { $$ = OperatorType::L_SHIFT; }
+        | ASSIGN { $$ = OperatorType::ASSIGN; }
+        | ADD_ASSIGN { $$ = OperatorType::ADD_ASSIGN; }
+        | MINUS_ASSIGN { $$ = OperatorType::MINUS_ASSIGN; }      
+        | INC { $$ = OperatorType::INC; }
+        | DEC { $$ = OperatorType::DEC; }
+        | BITWISE_NOT { $$ = OperatorType::BITWISE_NOT; }
+        | NOT { $$ = OperatorType::NOT; }
+        ;
 
 ReturnType: Type
           | VOID
@@ -161,5 +170,5 @@ Integer: INTEGER { $$ = $1; }
       ;
 %%
 
-void yyerror(const char *msg) {
+void yyerror(const char *) {
 }
