@@ -4,13 +4,13 @@ EXEC_NAME = gerador
 # Nome do zip
 ZIP_NAME = gerador
 
-# Lista de arquivos fonte
-SOURCES = main.cpp type.cpp expression.cpp
+# Detectar automaticamente os arquivos fonte
+SOURCES = $(wildcard *.cpp)
 LEXER = lex.yy.c
 PARSER = sintatico.tab.c sintatico.tab.h
 
-# Lista de headers automaticamente (qualquer .cpp que não seja main.cpp)
-HEADERS = $(patsubst %.cpp,%.hpp,$(filter-out main.cpp,$(SOURCES)))
+# Detectar automaticamente os headers correspondentes
+HEADERS = $(wildcard *.hpp)
 
 # Lista todos os arquivos envolvidos
 FILES = $(SOURCES) $(HEADERS) Makefile lexico.l sintatico.y
