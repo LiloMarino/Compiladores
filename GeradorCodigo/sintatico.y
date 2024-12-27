@@ -104,7 +104,7 @@ Expressions: Expression COMMA Expressions
 Expression: TernaryExpression
           | BinaryExpression
           | UnaryExpression
-          | INTEGER
+          | Integer
           | STRING
           | CHARACTER
           | IDENTIFIER
@@ -160,13 +160,13 @@ Type: INT StarLoop {
         $$ = new Type(Type::CHAR, $2, nullptr);
       }
     | VOID MULTIPLY StarLoop {
-        $$ = new Type(Type::VOID_POINTER, $3, nullptr);
+        $$ = new Type(Type::VOID_POINTER, $3+1 , nullptr);
       }
     | INT Dimensions {
-        $$ = new Type(Type::ARRAY_INT, 1, std::make_unique<std::vector<int>>(*$2));
+        $$ = new Type(Type::ARRAY_INT, 1, std::unique_ptr<std::vector<int>>($2));
       }
     | CHAR Dimensions {
-        $$ = new Type(Type::ARRAY_CHAR, 1, std::make_unique<std::vector<int>>(*$2));
+        $$ = new Type(Type::ARRAY_CHAR, 1, std::unique_ptr<std::vector<int>>($2));
       }
     ;
 
@@ -180,7 +180,7 @@ Dimensions: Dimension Dimensions  {
 
 Dimension: L_SQUARE_BRACKET INTEGER R_SQUARE_BRACKET { $$ = new std::vector<int> { $2 }; }
 
-StarLoop: MULTIPLY StarLoop { $$ = $2++; }
+StarLoop: MULTIPLY StarLoop { $$ = ++$2; }
         | { $$ = 0; }
         ;
 

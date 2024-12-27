@@ -67,7 +67,7 @@
 \"([^\\\"]|\\.)*\"          { yylval.str = new std::string(yytext); return STRING; }
 (_*[a-zA-Z][a-zA-Z0-9_]*)   { yylval.str = new std::string(yytext); return IDENTIFIER; }
 "'"(\\.|[^\\']){1}"'"       { yylval.str = new std::string(yytext); return CHARACTER; }
-[0-9]+                      { yylval.value = atof(yytext); return INTEGER; }
+[0-9]+                      { yylval.integer = atof(yytext); return INTEGER; }
 .                           { std::cout << "Invalid Symbol: " << yytext << std::endl; }
 
 %%
