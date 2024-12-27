@@ -6,6 +6,7 @@
 #include <variant>
 #include <optional>
 #include <functional>
+#include <deque>
 
 enum class OperatorType
 {
@@ -40,16 +41,43 @@ enum class OperatorType
 class Expression
 {
 private:
-    std::unique_ptr<Expression> left;                          // Subárvore esquerda
-    std::unique_ptr<Expression> right;                         // Subárvore direita
-    std::optional<std::variant<int, char, std::string>> value; // Folha
-    OperatorType operatorSymbol;                               // Representação do operador
+    std::unique_ptr<Expression> left;                                      // Subárvore esquerda
+    std::unique_ptr<Expression> right;                                     // Subárvore direita
+    std::unique_ptr<std::deque<std::unique_ptr<Expression>>> parameters;   // Parâmetros para function call
+    std::optional<std::variant<int, char, std::string>> value;             // Folha
+    OperatorType operatorSymbol;                                           // Representação do operador
 public:
     /**
      * @brief Construtor para valores base (folhas)
-     * @param symbol Símbolo do operador
+     * @param val Valor da folha
      */
-    Expression(const std::variant<int, char, std::string> &val);
+    Expression(const std::string &val);
+
+    /**
+     * @brief Construtor para valores base (folhas)
+     * @param val Valor da folha
+     */
+    Expression(const char val);
+    
+    /**
+     * @brief Construtor para valores base (folhas)
+     * @param val Valor da folha
+     */
+    Expression(const int val);
+
+    /**
+     * @brief Construtor para chamadas de função
+     * @param identifier Identificador da chamada
+     * @param parameters Parâmetros da chamada
+     */
+    Expression(const std::string &identifier, std::unique_ptr<std::deque<std::unique_ptr<Expression>>> parameters);
+
+    /**
+     * @brief Construtor para acesso índices de array
+     * @param identifier Identificador do array
+     * @param index Expressão para o índice do array
+     */
+    Expression(const std::string &identifier, std::unique_ptr<Expression> index);
 
     /**
      * @brief Construtor para operações unárias

@@ -3,6 +3,7 @@
 // Coloca na .h
 #include <iostream>
 #include <memory>
+#include <deque>
 #include "expression.hpp"
 #include "type.hpp"
 }
@@ -17,17 +18,21 @@ void yyerror(const char *msg);
 %union {
     int integer;
     std::string* str;
-    std::vector<int>*  vector_int;
     Type* type;
+    Expression* exp;
     OperatorType op;
+    std::deque<int>*  deque_int;
+    std::deque<std::unique_ptr<Expression>>*  deque_exp;
 }
 
 %token <str> IDENTIFIER STRING CHARACTER
 %token <integer> INTEGER
 %type <op> Operator
 %type <integer> Integer StarLoop
-%type <vector_int> Dimension Dimensions
+%type <deque_int> Dimension Dimensions
 %type <type> Type ReturnType
+%type <exp> Expression TernaryExpression BinaryExpression UnaryExpression
+%type <deque_exp> Expressions
 
 %token GLOBAL VARIABLE CONSTANT PARAMETER VALUE RETURN_TYPE TYPE VOID INT CHAR FUNCTION END_FUNCTION RETURN DO_WHILE
 WHILE FOR IF PRINTF SCANF EXIT PLUS MINUS MULTIPLY DIVIDE REMAINDER INC DEC BITWISE_AND BITWISE_OR BITWISE_NOT
@@ -97,19 +102,25 @@ Condition: Expression
 Assign: Expression
       ;
 
-Expressions: Expression COMMA Expressions
-           | Expression
+Expressions: Expression COMMA Expressions {
+              (*$3).emplace_front(std::move($1));
+              $$ = $3;
+            }
+           | Expression {
+              $$ = new std::deque<std::unique_ptr<Expression>>();
+              (*$$).emplace_front(std::move($1));
+            }
            ;
 
-Expression: TernaryExpression
-          | BinaryExpression
-          | UnaryExpression
-          | Integer
-          | STRING
-          | CHARACTER
-          | IDENTIFIER
-          | IDENTIFIER L_PAREN Expressions R_PAREN
-          | IDENTIFIER L_SQUARE_BRACKET Expression R_SQUARE_BRACKET
+Expression: TernaryExpression { $$ = $1; }
+          | BinaryExpression { $$ = $1; }
+          | UnaryExpression { $$ = $1; }
+          | Integer { $$ = new Expression($1); }
+          | STRING { $$ = new Expression(*$1); }
+          | CHARACTER { $$ = new Expression(*$1); }
+          | IDENTIFIER { $$ = new Expression(*$1); }
+          | IDENTIFIER L_PAREN Expressions R_PAREN { $$ = new Expression(*$1,std::unique_ptr<std::deque<std::unique_ptr<Expression>>>($3)); }
+          | IDENTIFIER L_SQUARE_BRACKET Expression R_SQUARE_BRACKET { $$ = new Expression(*$1,std::unique_ptr<Expression>($3)); }
           ;
 
 TernaryExpression: TERNARY_OPERATOR L_PAREN Expression COMMA Expression COMMA Expression R_PAREN
@@ -163,10 +174,10 @@ Type: INT StarLoop {
         $$ = new Type(Type::VOID_POINTER, $3+1 , nullptr);
       }
     | INT Dimensions {
-        $$ = new Type(Type::ARRAY_INT, 1, std::unique_ptr<std::vector<int>>($2));
+        $$ = new Type(Type::ARRAY_INT, 1, std::unique_ptr<std::deque<int>>($2));
       }
     | CHAR Dimensions {
-        $$ = new Type(Type::ARRAY_CHAR, 1, std::unique_ptr<std::vector<int>>($2));
+        $$ = new Type(Type::ARRAY_CHAR, 1, std::unique_ptr<std::deque<int>>($2));
       }
     ;
 
@@ -178,7 +189,7 @@ Dimensions: Dimension Dimensions  {
           | Dimension { $$ = $1; }
           ;
 
-Dimension: L_SQUARE_BRACKET INTEGER R_SQUARE_BRACKET { $$ = new std::vector<int> { $2 }; }
+Dimension: L_SQUARE_BRACKET INTEGER R_SQUARE_BRACKET { $$ = new std::deque<int> { $2 }; }
 
 StarLoop: MULTIPLY StarLoop { $$ = ++$2; }
         | { $$ = 0; }

@@ -1,7 +1,7 @@
 #ifndef TYPE_HPP
 #define TYPE_HPP
 
-#include <vector>
+#include <deque>
 #include <memory>
 
 struct Type
@@ -17,11 +17,11 @@ struct Type
 
 private:
     TypeEnum type;
-    std::unique_ptr<std::vector<int>>  dimensions;
+    std::unique_ptr<std::deque<int>>  dimensions;
     int pointerLevel;
 
 public:
-    Type(TypeEnum type, int pointerLevel, std::unique_ptr<std::vector<int>> dimensions);
+    Type(TypeEnum type, int pointerLevel, std::unique_ptr<std::deque<int>> dimensions);
 };
 
 #endif

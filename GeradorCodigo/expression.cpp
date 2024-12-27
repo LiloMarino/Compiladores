@@ -1,14 +1,28 @@
 #include "expression.hpp"
 #include <stdexcept>
 
-Expression::Expression(const std::variant<int, char, std::string> &val)
-    : left(nullptr), right(nullptr), value(val), operatorSymbol(OperatorType::NONE) {}
+Expression::Expression(const char val)
+    : left(nullptr), right(nullptr), parameters(nullptr), value(val), operatorSymbol(OperatorType::NONE) {}
+
+Expression::Expression(const int val)
+    : left(nullptr), right(nullptr), parameters(nullptr), value(val), operatorSymbol(OperatorType::NONE) {}
+
+Expression::Expression(const std::string &val)
+    : left(nullptr), right(nullptr), parameters(nullptr), value(val), operatorSymbol(OperatorType::NONE) {}
+
+Expression::Expression(const std::string &identifier, std::unique_ptr<std::deque<std::unique_ptr<Expression>>> parameters)
+    : left(nullptr), right(nullptr), parameters(std::move(parameters)), value(identifier),
+      operatorSymbol(OperatorType::NONE) {}
+
+Expression::Expression(const std::string &identifier, std::unique_ptr<Expression> index)
+    : left(std::move(index)), right(nullptr), parameters(nullptr), value(identifier),
+      operatorSymbol(OperatorType::NONE) {}
 
 Expression::Expression(std::unique_ptr<Expression> child, const OperatorType symbol)
-    : left(std::move(child)), right(nullptr), value(std::nullopt), operatorSymbol(symbol) {}
+    : left(std::move(child)), right(nullptr), parameters(nullptr), value(std::nullopt), operatorSymbol(symbol) {}
 
 Expression::Expression(std::unique_ptr<Expression> l, std::unique_ptr<Expression> r, const OperatorType symbol)
-    : left(std::move(l)), right(std::move(r)), value(std::nullopt), operatorSymbol(symbol) {}
+    : left(std::move(l)), right(std::move(r)), parameters(nullptr), value(std::nullopt), operatorSymbol(symbol) {}
 
 OperatorType Expression::getOperator() const
 {
