@@ -2,7 +2,9 @@
 // Necessário para evitar problemas de inclusão
 // Coloca na .h
 #include <iostream>
+#include <memory>
 #include "expression.hpp"
+#include "type.hpp"
 }
 
 %{
@@ -13,20 +15,24 @@ void yyerror(const char *msg);
 %debug
 %verbose
 %union {
-    int value;
+    int integer;
     std::string* str;
+    std::vector<int>*  vector_int;
+    Type* type;
     OperatorType op;
 }
 
 %token <str> IDENTIFIER STRING CHARACTER
-%token <value> INTEGER
+%token <integer> INTEGER
 %type <op> Operator
-%type <value> Integer
+%type <integer> Integer StarLoop
+%type <vector_int> Dimension Dimensions
+%type <type> Type ReturnType
 
-%token GLOBAL VARIABLE CONSTANT PARAMETER VALUE RETURN_TYPE TYPE VOID INT CHAR FUNCTION END_FUNCTION RETURN DO_WHILE 
-WHILE FOR IF PRINTF SCANF EXIT PLUS MINUS MULTIPLY DIVIDE REMAINDER INC DEC BITWISE_AND BITWISE_OR BITWISE_NOT 
-BITWISE_XOR NOT LOGICAL_AND LOGICAL_OR EQUAL NOT_EQUAL LESS_THAN GREATER_THAN LESS_EQUAL GREATER_EQUAL R_SHIFT L_SHIFT 
-ASSIGN ADD_ASSIGN MINUS_ASSIGN SEMICOLON COMMA COLON L_PAREN R_PAREN L_SQUARE_BRACKET R_SQUARE_BRACKET 
+%token GLOBAL VARIABLE CONSTANT PARAMETER VALUE RETURN_TYPE TYPE VOID INT CHAR FUNCTION END_FUNCTION RETURN DO_WHILE
+WHILE FOR IF PRINTF SCANF EXIT PLUS MINUS MULTIPLY DIVIDE REMAINDER INC DEC BITWISE_AND BITWISE_OR BITWISE_NOT
+BITWISE_XOR NOT LOGICAL_AND LOGICAL_OR EQUAL NOT_EQUAL LESS_THAN GREATER_THAN LESS_EQUAL GREATER_EQUAL R_SHIFT L_SHIFT
+ASSIGN ADD_ASSIGN MINUS_ASSIGN SEMICOLON COMMA COLON L_PAREN R_PAREN L_SQUARE_BRACKET R_SQUARE_BRACKET
 TERNARY_OPERATOR EOF_TOKEN
 
 %start AstStart
@@ -95,7 +101,7 @@ Expressions: Expression COMMA Expressions
            | Expression
            ;
 
-Expression: TernaryExpression 
+Expression: TernaryExpression
           | BinaryExpression
           | UnaryExpression
           | INTEGER
@@ -136,32 +142,46 @@ Operator: PLUS { $$ = OperatorType::PLUS; }
         | L_SHIFT { $$ = OperatorType::L_SHIFT; }
         | ASSIGN { $$ = OperatorType::ASSIGN; }
         | ADD_ASSIGN { $$ = OperatorType::ADD_ASSIGN; }
-        | MINUS_ASSIGN { $$ = OperatorType::MINUS_ASSIGN; }      
+        | MINUS_ASSIGN { $$ = OperatorType::MINUS_ASSIGN; }
         | INC { $$ = OperatorType::INC; }
         | DEC { $$ = OperatorType::DEC; }
         | BITWISE_NOT { $$ = OperatorType::BITWISE_NOT; }
         | NOT { $$ = OperatorType::NOT; }
         ;
 
-ReturnType: Type
-          | VOID
+ReturnType: Type { $$ = $1; }
+          | VOID { $$ = nullptr; }
           ;
 
-Type: INT StarLoop
-    | CHAR StarLoop
-    | VOID MULTIPLY StarLoop
-    | INT Dimensions
-    | CHAR Dimensions
+Type: INT StarLoop {
+        $$ = new Type(Type::INT, $2, nullptr);
+      }
+    | CHAR StarLoop {
+        $$ = new Type(Type::CHAR, $2, nullptr);
+      }
+    | VOID MULTIPLY StarLoop {
+        $$ = new Type(Type::VOID_POINTER, $3, nullptr);
+      }
+    | INT Dimensions {
+        $$ = new Type(Type::ARRAY_INT, 1, std::make_unique<std::vector<int>>(*$2));
+      }
+    | CHAR Dimensions {
+        $$ = new Type(Type::ARRAY_CHAR, 1, std::make_unique<std::vector<int>>(*$2));
+      }
     ;
 
-Dimensions: Dimension Dimensions
-          | Dimension
+Dimensions: Dimension Dimensions  {
+              (*$2).insert((*$2).begin(),(*$1).begin(), (*$1).end());
+              delete $1;
+              $$ = $2;
+            }
+          | Dimension { $$ = $1; }
           ;
 
-Dimension: L_SQUARE_BRACKET INTEGER R_SQUARE_BRACKET
+Dimension: L_SQUARE_BRACKET INTEGER R_SQUARE_BRACKET { $$ = new std::vector<int> { $2 }; }
 
-StarLoop: MULTIPLY StarLoop
-        | 
+StarLoop: MULTIPLY StarLoop { $$ = $2++; }
+        | { $$ = 0; }
         ;
 
 Integer: INTEGER { $$ = $1; }

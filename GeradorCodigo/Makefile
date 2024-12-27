@@ -5,7 +5,7 @@ EXEC_NAME = gerador
 ZIP_NAME = gerador
 
 # Lista de arquivos fonte
-SOURCES = main.cpp expression.cpp
+SOURCES = main.cpp type.cpp expression.cpp
 LEXER = lex.yy.c
 PARSER = sintatico.tab.c sintatico.tab.h
 
