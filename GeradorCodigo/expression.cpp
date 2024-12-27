@@ -2,27 +2,36 @@
 #include <stdexcept>
 
 Expression::Expression(const char val)
-    : left(nullptr), right(nullptr), parameters(nullptr), value(val), operatorSymbol(OperatorType::NONE) {}
+    : condition(nullptr), left(nullptr), right(nullptr), parameters(nullptr), value(val),
+      operatorSymbol(OperatorType::NONE) {}
 
 Expression::Expression(const int val)
-    : left(nullptr), right(nullptr), parameters(nullptr), value(val), operatorSymbol(OperatorType::NONE) {}
+    : condition(nullptr), left(nullptr), right(nullptr), parameters(nullptr), value(val),
+      operatorSymbol(OperatorType::NONE) {}
 
 Expression::Expression(const std::string &val)
-    : left(nullptr), right(nullptr), parameters(nullptr), value(val), operatorSymbol(OperatorType::NONE) {}
+    : condition(nullptr), left(nullptr), right(nullptr), parameters(nullptr), value(val),
+      operatorSymbol(OperatorType::NONE) {}
 
 Expression::Expression(const std::string &identifier, std::unique_ptr<std::deque<std::unique_ptr<Expression>>> parameters)
-    : left(nullptr), right(nullptr), parameters(std::move(parameters)), value(identifier),
+    : condition(nullptr), left(nullptr), right(nullptr), parameters(std::move(parameters)), value(identifier),
       operatorSymbol(OperatorType::NONE) {}
 
 Expression::Expression(const std::string &identifier, std::unique_ptr<Expression> index)
-    : left(std::move(index)), right(nullptr), parameters(nullptr), value(identifier),
+    : condition(nullptr), left(std::move(index)), right(nullptr), parameters(nullptr), value(identifier),
       operatorSymbol(OperatorType::NONE) {}
 
 Expression::Expression(std::unique_ptr<Expression> child, const OperatorType symbol)
-    : left(std::move(child)), right(nullptr), parameters(nullptr), value(std::nullopt), operatorSymbol(symbol) {}
+    : condition(nullptr), left(std::move(child)), right(nullptr), parameters(nullptr), value(std::nullopt),
+      operatorSymbol(symbol) {}
 
 Expression::Expression(std::unique_ptr<Expression> l, std::unique_ptr<Expression> r, const OperatorType symbol)
-    : left(std::move(l)), right(std::move(r)), parameters(nullptr), value(std::nullopt), operatorSymbol(symbol) {}
+    : condition(nullptr), left(std::move(l)), right(std::move(r)), parameters(nullptr), value(std::nullopt),
+      operatorSymbol(symbol) {}
+
+Expression::Expression(std::unique_ptr<Expression> condition, std::unique_ptr<Expression> true_expr, std::unique_ptr<Expression> false_expr)
+    : condition(std::move(condition)), left(std::move(true_expr)), right(std::move(false_expr)), parameters(nullptr),
+      value(std::nullopt), operatorSymbol(OperatorType::NONE) {}
 
 OperatorType Expression::getOperator() const
 {

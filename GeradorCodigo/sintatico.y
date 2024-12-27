@@ -31,7 +31,7 @@ void yyerror(const char *msg);
 %type <integer> Integer StarLoop
 %type <deque_int> Dimension Dimensions
 %type <type> Type ReturnType
-%type <exp> Expression TernaryExpression BinaryExpression UnaryExpression
+%type <exp> Expression TernaryExpression BinaryExpression UnaryExpression Condition Assign
 %type <deque_exp> Expressions
 
 %token GLOBAL VARIABLE CONSTANT PARAMETER VALUE RETURN_TYPE TYPE VOID INT CHAR FUNCTION END_FUNCTION RETURN DO_WHILE
@@ -96,10 +96,10 @@ Command: DO_WHILE L_PAREN Commands COMMA Condition R_PAREN
        | Expression
        ;
 
-Condition: Expression
+Condition: Expression { $$ = $1; }
          ;
 
-Assign: Expression
+Assign: Expression { $$ = $1; }
       ;
 
 Expressions: Expression COMMA Expressions {
@@ -123,14 +123,25 @@ Expression: TernaryExpression { $$ = $1; }
           | IDENTIFIER L_SQUARE_BRACKET Expression R_SQUARE_BRACKET { $$ = new Expression(*$1,std::unique_ptr<Expression>($3)); }
           ;
 
-TernaryExpression: TERNARY_OPERATOR L_PAREN Expression COMMA Expression COMMA Expression R_PAREN
+TernaryExpression: TERNARY_OPERATOR L_PAREN Expression COMMA Expression COMMA Expression R_PAREN {
+                    $$ = new Expression(std::unique_ptr<Expression>($3), std::unique_ptr<Expression>($5), std::unique_ptr<Expression>($7));
+                  }
+                 ;
 
-BinaryExpression: Operator L_PAREN Expression COMMA Expression R_PAREN
+BinaryExpression: Operator L_PAREN Expression COMMA Expression R_PAREN {
+                    $$ = new Expression(std::unique_ptr<Expression>($3), std::unique_ptr<Expression>($5), $1);
+                  }
                 ;
 
-UnaryExpression:  Operator L_PAREN Expression R_PAREN
-               |  L_PAREN Expression R_PAREN INC
-               |  L_PAREN Expression R_PAREN DEC
+UnaryExpression:  Operator L_PAREN Expression R_PAREN {
+                  $$ = new Expression(std::unique_ptr<Expression>($3), $1);
+                }
+               |  L_PAREN Expression R_PAREN INC {
+                  $$ = new Expression(std::unique_ptr<Expression>($2), OperatorType::INC);
+                }
+               |  L_PAREN Expression R_PAREN DEC {
+                  $$ = new Expression(std::unique_ptr<Expression>($2), OperatorType::DEC);
+                }
                ;
 
 Operator: PLUS { $$ = OperatorType::PLUS; }

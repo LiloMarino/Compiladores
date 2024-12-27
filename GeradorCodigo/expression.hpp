@@ -41,6 +41,7 @@ enum class OperatorType
 class Expression
 {
 private:
+    std::unique_ptr<Expression> condition;                                 // Condição para expressão ternária
     std::unique_ptr<Expression> left;                                      // Subárvore esquerda
     std::unique_ptr<Expression> right;                                     // Subárvore direita
     std::unique_ptr<std::deque<std::unique_ptr<Expression>>> parameters;   // Parâmetros para function call
@@ -93,6 +94,14 @@ public:
      * @param symbol Símbolo do operador
      */
     Expression(std::unique_ptr<Expression> left, std::unique_ptr<Expression> right, const OperatorType symbol);
+
+    /**
+     * @brief Construtor para operações ternárias
+     * @param condition Condição da operação
+     * @param true_expr Expressão verdadeira
+     * @param false_expr Expressão falsa
+     */
+    Expression(std::unique_ptr<Expression> condition, std::unique_ptr<Expression> true_expr, std::unique_ptr<Expression> false_expr);
 
     /**
      * @brief Obtém o operador associado ao nó, caso ele seja um nó operador.
