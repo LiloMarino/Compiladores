@@ -8,6 +8,7 @@
 #include "type.hpp"
 #include "command.hpp"
 #include "variable.hpp"
+#include "function.hpp"
 }
 
 %{
@@ -24,6 +25,7 @@ void yyerror(const char *msg);
     Expression* exp;
     Command* cmd;
     Variable* var;
+    Function* func;
     OperatorType op;
     std::deque<int>*  deque_int;
     std::deque<std::unique_ptr<Expression>>*  deque_exp;
@@ -43,6 +45,7 @@ void yyerror(const char *msg);
 %type <deque_cmd> Commands
 %type <var> Constant LocalVariable GlobalVariable Parameter
 %type <deque_var> Variables Parameters
+%type <func> Function
 
 %token GLOBAL VARIABLE CONSTANT PARAMETER VALUE RETURN_TYPE TYPE VOID INT CHAR FUNCTION END_FUNCTION RETURN DO_WHILE
 WHILE FOR IF PRINTF SCANF EXIT PLUS MINUS MULTIPLY DIVIDE REMAINDER INC DEC BITWISE_AND BITWISE_OR BITWISE_NOT
@@ -76,7 +79,12 @@ GlobalVariable: GLOBAL VARIABLE COLON IDENTIFIER TYPE COLON Type {
                }
               ;
 
-Function: FUNCTION COLON IDENTIFIER RETURN_TYPE COLON ReturnType Parameters Variables Commands END_FUNCTION
+Function: FUNCTION COLON IDENTIFIER RETURN_TYPE COLON ReturnType Parameters Variables Commands END_FUNCTION {
+            $$ = new Function(*$3, std::unique_ptr<Type>($6), 
+                              std::unique_ptr<std::deque<std::unique_ptr<Variable>>>($7), 
+                              std::unique_ptr<std::deque<std::unique_ptr<Variable>>>($8), 
+                              std::unique_ptr<std::deque<std::unique_ptr<Command>>>($9));
+         }
         ;
 
 Parameters: Parameter Parameters {
