@@ -64,7 +64,6 @@ public:
     /**
      * @brief Construtor para EXIT, RETURN e EXPRESSION
      * @param type Tipo do comando
-     * @param string String a ser impressa
      * @param expression Expressão a ser avaliada
      */
     Command(CommandType type, std::unique_ptr<Expression> expression = nullptr);
@@ -82,7 +81,7 @@ public:
      * @param parameters Argumentos a serem impressos
      */
     Command(const std::optional<std::string> &string,
-            std::unique_ptr<std::deque<std::unique_ptr<Expression>>> parameters);
+            std::unique_ptr<std::deque<std::unique_ptr<Expression>>> parameters = nullptr);
 };
 
 #endif

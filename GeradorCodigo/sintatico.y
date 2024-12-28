@@ -6,6 +6,7 @@
 #include <deque>
 #include "expression.hpp"
 #include "type.hpp"
+#include "command.hpp"
 }
 
 %{
@@ -20,9 +21,11 @@ void yyerror(const char *msg);
     std::string* str;
     Type* type;
     Expression* exp;
+    Command* cmd;
     OperatorType op;
     std::deque<int>*  deque_int;
     std::deque<std::unique_ptr<Expression>>*  deque_exp;
+    std::deque<std::unique_ptr<Command>>*  deque_cmd;
 }
 
 %token <str> IDENTIFIER STRING CHARACTER
@@ -33,6 +36,8 @@ void yyerror(const char *msg);
 %type <type> Type ReturnType
 %type <exp> Expression TernaryExpression BinaryExpression UnaryExpression Condition Assign
 %type <deque_exp> Expressions
+%type <cmd> Command
+%type <deque_cmd> Commands
 
 %token GLOBAL VARIABLE CONSTANT PARAMETER VALUE RETURN_TYPE TYPE VOID INT CHAR FUNCTION END_FUNCTION RETURN DO_WHILE
 WHILE FOR IF PRINTF SCANF EXIT PLUS MINUS MULTIPLY DIVIDE REMAINDER INC DEC BITWISE_AND BITWISE_OR BITWISE_NOT
@@ -78,22 +83,58 @@ Variables: LocalVariable Variables
 LocalVariable: VARIABLE COLON IDENTIFIER TYPE COLON Type
              ;
 
-Commands: Command SEMICOLON Commands
-        | Command
+Commands: Command SEMICOLON Commands {
+            (*$3).emplace_front(std::move($1));
+            $$ = $3;
+         }
+        | Command {
+            $$ = new std::deque<std::unique_ptr<Command>>();
+            (*$$).emplace_front(std::move($1));
+         }
         ;
 
-Command: DO_WHILE L_PAREN Commands COMMA Condition R_PAREN
-       | IF L_PAREN Condition COMMA Commands COMMA Commands R_PAREN
-       | IF L_PAREN Condition COMMA Commands R_PAREN
-       | WHILE L_PAREN Condition COMMA Commands R_PAREN
-       | FOR L_PAREN Assign COMMA Condition COMMA Assign COMMA Commands R_PAREN
-       | PRINTF L_PAREN STRING COMMA Expressions R_PAREN
-       | PRINTF L_PAREN STRING R_PAREN
-       | SCANF L_PAREN STRING COMMA BITWISE_AND L_PAREN IDENTIFIER R_PAREN R_PAREN
-       | EXIT L_PAREN Expression R_PAREN
-       | RETURN L_PAREN Expression R_PAREN
-       | RETURN L_PAREN R_PAREN
-       | Expression
+Command: DO_WHILE L_PAREN Commands COMMA Condition R_PAREN {
+          $$ = new Command(CommandType::DO_WHILE, std::unique_ptr<Expression>($5), 
+                           std::unique_ptr<std::deque<std::unique_ptr<Command>>>($3));
+        }
+       | IF L_PAREN Condition COMMA Commands COMMA Commands R_PAREN {
+          $$ = new Command(std::unique_ptr<Expression>($3),
+                           std::unique_ptr<std::deque<std::unique_ptr<Command>>>($5),
+                           std::unique_ptr<std::deque<std::unique_ptr<Command>>>($7));
+        }
+       | IF L_PAREN Condition COMMA Commands R_PAREN {
+          $$ = new Command(CommandType::IF, std::unique_ptr<Expression>($3), 
+                           std::unique_ptr<std::deque<std::unique_ptr<Command>>>($5));
+        }
+       | WHILE L_PAREN Condition COMMA Commands R_PAREN {
+          $$ = new Command(CommandType::WHILE, std::unique_ptr<Expression>($3), 
+                           std::unique_ptr<std::deque<std::unique_ptr<Command>>>($5));
+        }
+       | FOR L_PAREN Assign COMMA Condition COMMA Assign COMMA Commands R_PAREN {
+          $$ = new Command(std::unique_ptr<Expression>($3), std::unique_ptr<Expression>($5),
+                           std::unique_ptr<Expression>($7), std::unique_ptr<std::deque<std::unique_ptr<Command>>>($9));
+        }
+       | PRINTF L_PAREN STRING COMMA Expressions R_PAREN {
+          $$ = new Command(*$3, std::unique_ptr<std::deque<std::unique_ptr<Expression>>>($5));
+        }
+       | PRINTF L_PAREN STRING R_PAREN {
+          $$ = new Command(*$3);
+        }
+       | SCANF L_PAREN STRING COMMA BITWISE_AND L_PAREN IDENTIFIER R_PAREN R_PAREN {
+          $$ = new Command(*$3, std::make_unique<Expression>(*$7));
+        }
+       | EXIT L_PAREN Expression R_PAREN {
+          $$ = new Command(CommandType::EXIT, std::unique_ptr<Expression>($3));
+        }
+       | RETURN L_PAREN Expression R_PAREN {
+          $$ = new Command(CommandType::RETURN, std::unique_ptr<Expression>($3));
+        }
+       | RETURN L_PAREN R_PAREN {
+          $$ = new Command(CommandType::RETURN);
+        }
+       | Expression {
+          $$ = new Command(CommandType::EXPRESSION, std::unique_ptr<Expression>($1));
+        }
        ;
 
 Condition: Expression { $$ = $1; }
