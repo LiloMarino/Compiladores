@@ -33,6 +33,12 @@ public:
      * @param identifier Identificador da constante
      */
     Variable(const std::string &identifier, const int value);
+
+    /**
+     * @brief Obtém o identificador
+     * @return Identificador da variável
+     */
+    std::string getIdentifier() const;
 };
 
 #endif

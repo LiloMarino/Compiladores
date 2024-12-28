@@ -5,3 +5,8 @@ Variable::Variable(VariableCategory category, std::unique_ptr<Type> type, const 
 
 Variable::Variable(const std::string &identifier, const int value)
     : category(VariableCategory::CONSTANT), identifier(identifier), value(value) {}
+
+std::string Variable::getIdentifier() const
+{
+    return identifier;
+}

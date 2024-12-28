@@ -9,6 +9,7 @@
 #include "command.hpp"
 #include "variable.hpp"
 #include "function.hpp"
+#include "ast.hpp"
 }
 
 %{
@@ -57,16 +58,16 @@ TERNARY_OPERATOR EOF_TOKEN
 
 %%
 
-AstStart: AstLoop EOF_TOKEN
+AstStart: AstLoop EOF_TOKEN { Ast::translate(); }
         ;
 
 AstLoop: Declaration AstLoop
        |
        ;
 
-Declaration: Constant
-           | GlobalVariable
-           | Function
+Declaration: Constant { Ast::addVariable(std::unique_ptr<Variable>($1)); }
+           | GlobalVariable { Ast::addVariable(std::unique_ptr<Variable>($1)); }
+           | Function { Ast::addFunction(std::unique_ptr<Function>($1)); }
            ;
 
 Constant: CONSTANT COLON IDENTIFIER VALUE COLON Integer {

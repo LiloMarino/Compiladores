@@ -27,6 +27,12 @@ public:
              std::unique_ptr<std::deque<std::unique_ptr<Variable>>> parameters,
              std::unique_ptr<std::deque<std ::unique_ptr<Variable>>> variables,
              std::unique_ptr<std::deque<std::unique_ptr<Command>>> commands);
+
+    /**
+     * @brief Obtém o identificador
+     * @return Identificador da variável
+     */
+    std::string getIdentifier() const;
 };
 
 #endif
