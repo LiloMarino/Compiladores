@@ -72,19 +72,22 @@ Declaration: Constant { Ast::addVariable(std::unique_ptr<Variable>($1)); }
 
 Constant: CONSTANT COLON IDENTIFIER VALUE COLON Integer {
           $$ = new Variable(*$3, $6);
+          delete $3;
          }
         ;
 
 GlobalVariable: GLOBAL VARIABLE COLON IDENTIFIER TYPE COLON Type {
                 $$ = new Variable(VariableCategory::GLOBAL_VARIABLE, std::unique_ptr<Type>($7), *$4);
+                delete $4;
                }
               ;
 
 Function: FUNCTION COLON IDENTIFIER RETURN_TYPE COLON ReturnType Parameters Variables Commands END_FUNCTION {
-            $$ = new Function(*$3, std::unique_ptr<Type>($6), 
-                              std::unique_ptr<std::deque<std::unique_ptr<Variable>>>($7), 
-                              std::unique_ptr<std::deque<std::unique_ptr<Variable>>>($8), 
+            $$ = new Function(*$3, std::unique_ptr<Type>($6),
+                              std::unique_ptr<std::deque<std::unique_ptr<Variable>>>($7),
+                              std::unique_ptr<std::deque<std::unique_ptr<Variable>>>($8),
                               std::unique_ptr<std::deque<std::unique_ptr<Command>>>($9));
+            delete $3;
          }
         ;
 
@@ -92,13 +95,14 @@ Parameters: Parameter Parameters {
             (*$2).emplace_front(std::move($1));
             $$ = $2;
            }
-          | { 
+          | {
             $$ = new std::deque<std::unique_ptr<Variable>>();
            }
           ;
 
 Parameter: PARAMETER COLON IDENTIFIER TYPE COLON Type {
             $$ = new Variable(VariableCategory::PARAMETER, std::unique_ptr<Type>($6), *$3);
+            delete $3;
           }
          ;
 
@@ -106,13 +110,14 @@ Variables: LocalVariable Variables {
             (*$2).emplace_front(std::move($1));
             $$ = $2;
           }
-         | { 
+         | {
             $$ = new std::deque<std::unique_ptr<Variable>>();
           }
          ;
 
 LocalVariable: VARIABLE COLON IDENTIFIER TYPE COLON Type {
-                $$ = new Variable(VariableCategory::LOCAL_VARIABLE, std::unique_ptr<Type>($6), *$3); 
+                $$ = new Variable(VariableCategory::LOCAL_VARIABLE, std::unique_ptr<Type>($6), *$3);
+                delete $3;
               }
              ;
 
@@ -127,7 +132,7 @@ Commands: Command SEMICOLON Commands {
         ;
 
 Command: DO_WHILE L_PAREN Commands COMMA Condition R_PAREN {
-          $$ = new Command(CommandType::DO_WHILE, std::unique_ptr<Expression>($5), 
+          $$ = new Command(CommandType::DO_WHILE, std::unique_ptr<Expression>($5),
                            std::unique_ptr<std::deque<std::unique_ptr<Command>>>($3));
         }
        | IF L_PAREN Condition COMMA Commands COMMA Commands R_PAREN {
@@ -136,11 +141,11 @@ Command: DO_WHILE L_PAREN Commands COMMA Condition R_PAREN {
                            std::unique_ptr<std::deque<std::unique_ptr<Command>>>($7));
         }
        | IF L_PAREN Condition COMMA Commands R_PAREN {
-          $$ = new Command(CommandType::IF, std::unique_ptr<Expression>($3), 
+          $$ = new Command(CommandType::IF, std::unique_ptr<Expression>($3),
                            std::unique_ptr<std::deque<std::unique_ptr<Command>>>($5));
         }
        | WHILE L_PAREN Condition COMMA Commands R_PAREN {
-          $$ = new Command(CommandType::WHILE, std::unique_ptr<Expression>($3), 
+          $$ = new Command(CommandType::WHILE, std::unique_ptr<Expression>($3),
                            std::unique_ptr<std::deque<std::unique_ptr<Command>>>($5));
         }
        | FOR L_PAREN Assign COMMA Condition COMMA Assign COMMA Commands R_PAREN {
@@ -149,12 +154,16 @@ Command: DO_WHILE L_PAREN Commands COMMA Condition R_PAREN {
         }
        | PRINTF L_PAREN STRING COMMA Expressions R_PAREN {
           $$ = new Command(*$3, std::unique_ptr<std::deque<std::unique_ptr<Expression>>>($5));
+          delete $3;
         }
        | PRINTF L_PAREN STRING R_PAREN {
           $$ = new Command(*$3);
+          delete $3;
         }
        | SCANF L_PAREN STRING COMMA BITWISE_AND L_PAREN IDENTIFIER R_PAREN R_PAREN {
           $$ = new Command(*$3, std::make_unique<Expression>(*$7));
+          delete $3;
+          delete $7;
         }
        | EXIT L_PAREN Expression R_PAREN {
           $$ = new Command(CommandType::EXIT, std::unique_ptr<Expression>($3));
@@ -190,11 +199,11 @@ Expression: TernaryExpression { $$ = $1; }
           | BinaryExpression { $$ = $1; }
           | UnaryExpression { $$ = $1; }
           | Integer { $$ = new Expression($1); }
-          | STRING { $$ = new Expression(*$1); }
-          | CHARACTER { $$ = new Expression(*$1); }
-          | IDENTIFIER { $$ = new Expression(*$1); }
-          | IDENTIFIER L_PAREN Expressions R_PAREN { $$ = new Expression(*$1,std::unique_ptr<std::deque<std::unique_ptr<Expression>>>($3)); }
-          | IDENTIFIER L_SQUARE_BRACKET Expression R_SQUARE_BRACKET { $$ = new Expression(*$1,std::unique_ptr<Expression>($3)); }
+          | STRING { $$ = new Expression(*$1); delete $1; }
+          | CHARACTER { $$ = new Expression(*$1); delete $1; }
+          | IDENTIFIER { $$ = new Expression(*$1); delete $1; }
+          | IDENTIFIER L_PAREN Expressions R_PAREN { $$ = new Expression(*$1,std::unique_ptr<std::deque<std::unique_ptr<Expression>>>($3)); delete $1; }
+          | IDENTIFIER L_SQUARE_BRACKET Expression R_SQUARE_BRACKET { $$ = new Expression(*$1,std::unique_ptr<Expression>($3)); delete $1; }
           ;
 
 TernaryExpression: TERNARY_OPERATOR L_PAREN Expression COMMA Expression COMMA Expression R_PAREN {
