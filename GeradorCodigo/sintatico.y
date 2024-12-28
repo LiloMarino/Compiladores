@@ -7,6 +7,7 @@
 #include "expression.hpp"
 #include "type.hpp"
 #include "command.hpp"
+#include "variable.hpp"
 }
 
 %{
@@ -22,10 +23,12 @@ void yyerror(const char *msg);
     Type* type;
     Expression* exp;
     Command* cmd;
+    Variable* var;
     OperatorType op;
     std::deque<int>*  deque_int;
     std::deque<std::unique_ptr<Expression>>*  deque_exp;
     std::deque<std::unique_ptr<Command>>*  deque_cmd;
+    std::deque<std::unique_ptr<Variable>>*  deque_var;
 }
 
 %token <str> IDENTIFIER STRING CHARACTER
@@ -38,6 +41,8 @@ void yyerror(const char *msg);
 %type <deque_exp> Expressions
 %type <cmd> Command
 %type <deque_cmd> Commands
+%type <var> Constant LocalVariable GlobalVariable Parameter
+%type <deque_var> Variables Parameters
 
 %token GLOBAL VARIABLE CONSTANT PARAMETER VALUE RETURN_TYPE TYPE VOID INT CHAR FUNCTION END_FUNCTION RETURN DO_WHILE
 WHILE FOR IF PRINTF SCANF EXIT PLUS MINUS MULTIPLY DIVIDE REMAINDER INC DEC BITWISE_AND BITWISE_OR BITWISE_NOT
@@ -61,26 +66,45 @@ Declaration: Constant
            | Function
            ;
 
-Constant: CONSTANT COLON IDENTIFIER VALUE COLON Integer
+Constant: CONSTANT COLON IDENTIFIER VALUE COLON Integer {
+          $$ = new Variable(*$3, $6);
+         }
         ;
 
-GlobalVariable: GLOBAL VARIABLE COLON IDENTIFIER TYPE COLON Type
+GlobalVariable: GLOBAL VARIABLE COLON IDENTIFIER TYPE COLON Type {
+                $$ = new Variable(VariableCategory::GLOBAL_VARIABLE, std::unique_ptr<Type>($7), *$4);
+               }
               ;
 
 Function: FUNCTION COLON IDENTIFIER RETURN_TYPE COLON ReturnType Parameters Variables Commands END_FUNCTION
         ;
 
-Parameters: Parameter Parameters
-          |
+Parameters: Parameter Parameters {
+            (*$2).emplace_front(std::move($1));
+            $$ = $2;
+           }
+          | { 
+            $$ = new std::deque<std::unique_ptr<Variable>>();
+           }
           ;
 
-Parameter: PARAMETER COLON IDENTIFIER TYPE COLON Type
-
-Variables: LocalVariable Variables
-         |
+Parameter: PARAMETER COLON IDENTIFIER TYPE COLON Type {
+            $$ = new Variable(VariableCategory::PARAMETER, std::unique_ptr<Type>($6), *$3);
+          }
          ;
 
-LocalVariable: VARIABLE COLON IDENTIFIER TYPE COLON Type
+Variables: LocalVariable Variables {
+            (*$2).emplace_front(std::move($1));
+            $$ = $2;
+          }
+         | { 
+            $$ = new std::deque<std::unique_ptr<Variable>>();
+          }
+         ;
+
+LocalVariable: VARIABLE COLON IDENTIFIER TYPE COLON Type {
+                $$ = new Variable(VariableCategory::LOCAL_VARIABLE, std::unique_ptr<Type>($6), *$3); 
+              }
              ;
 
 Commands: Command SEMICOLON Commands {
