@@ -41,12 +41,12 @@ enum class OperatorType
 class Expression
 {
 private:
-    std::unique_ptr<Expression> condition;                                 // Condição para expressão ternária
-    std::unique_ptr<Expression> left;                                      // Subárvore esquerda
-    std::unique_ptr<Expression> right;                                     // Subárvore direita
-    std::unique_ptr<std::deque<std::unique_ptr<Expression>>> parameters;   // Parâmetros para function call
-    std::optional<std::variant<int, char, std::string>> value;             // Folha
-    OperatorType operatorSymbol;                                           // Representação do operador
+    std::unique_ptr<Expression> condition;                               // Condição para expressão ternária
+    std::unique_ptr<Expression> left;                                    // Subárvore esquerda
+    std::unique_ptr<Expression> right;                                   // Subárvore direita
+    std::unique_ptr<std::deque<std::unique_ptr<Expression>>> parameters; // Parâmetros para function call
+    std::optional<std::variant<int, char, std::string>> value;           // Folha
+    OperatorType operatorSymbol;                                         // Representação do operador
 public:
     /**
      * @brief Construtor para valores base (folhas)
@@ -59,7 +59,7 @@ public:
      * @param val Valor da folha
      */
     Expression(const char val);
-    
+
     /**
      * @brief Construtor para valores base (folhas)
      * @param val Valor da folha
@@ -142,6 +142,11 @@ public:
      * @param func Função que recebe uma referência constante a um objeto `Expression` e será aplicada ao nó atual.
      */
     void applyPreOrder(const std::function<void(const Expression &)> &func) const;
+
+    /**
+     * @brief Traduz a Expressão para código MIPS
+     */
+    void translate(bool reverse = false, const std::optional<std::string> &jumpTo = std::nullopt);
 };
 
 #endif

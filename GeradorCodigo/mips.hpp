@@ -17,9 +17,9 @@ private:
     static bool temp_registers[TEMPORARY_REGISTER];
     static bool save_registers[SAVE_REGISTER];
     static int string_count;
-    static int if_count;
-    static int while_count;
-    static int for_count;
+    static std::pair<int, int> if_count;
+    static std::pair<int, int> while_count;
+    static std::pair<int, int> for_count;
 
 public:
     /**
@@ -97,18 +97,79 @@ public:
     static void createGlobalVar(const std::string &identifier, const int value);
 
     /**
-     * @brief Cria uma label
-     * @param label Nome da label
-     */
-    static void createLabel(const std::string &label);
-
-    /**
      * @brief Traduz uma expressão para MIPS
      * @param op Operador da expressão
      * @param r1 Índice do primeiro registrador
      * @param r2 Índice do segundo registrador
      */
     static void createExpression(const OperatorType op, const int r1, const int r2);
+
+    /**
+     * @brief Inicia um loop de while
+     * @return Label do while
+     */
+    static std::string startWhile();
+
+    /**
+     * @brief Obtém a label do fim do while atual
+     * @return Label do fim do while
+     */
+    static std::string getEndWhile();
+
+    /**
+     * @brief Finaliza um loop de while
+     */
+    static void endWhile();
+
+    /**
+     *
+     * @brief Inicia um if
+     */
+    static void startIf();
+
+    /**
+     * @brief Obtém a label do else do if atual
+     * @return Label do else
+     */
+    static std::string getElse();
+
+    /**
+     * @brief Inicia um else
+     */
+    static void startElse();
+
+    /**
+     * @brief Obtém a label do fim do if atual
+     * @return Label do fim do if
+     */
+    static std::string getEndIf();
+
+    /**
+     * @brief Finaliza um if
+     */
+    static void endIf();
+
+    /**
+     * @brief Inicia um loop de for
+     */
+    static void startFor();
+
+    /**
+     * @brief Finaliza um loop de for
+     */
+    static void endFor();
+
+    /**
+     * @brief Cria uma label
+     * @param label Nome da label
+     */
+    static void createLabel(const std::string &label);
+
+    /**
+     * @brief Faz um salto para uma label
+     * @param label Nome da label
+     */
+    static void jumpTo(const std::string &label);
 
     /**
      * @brief Traduz uma chamada de função para MIPS

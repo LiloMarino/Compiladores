@@ -1,4 +1,5 @@
 #include "command.hpp"
+#include "mips.hpp"
 
 Command::Command(CommandType type, std::unique_ptr<Expression> condition,
                  std::unique_ptr<std::deque<std::unique_ptr<Command>>> commands)
@@ -24,3 +25,73 @@ Command::Command(const std::optional<std::string> &string, std::unique_ptr<Expre
 Command::Command(const std::optional<std::string> &string,
                  std::unique_ptr<std::deque<std::unique_ptr<Expression>>> parameters)
     : type(CommandType::PRINTF), parameters(std::move(parameters)), string(string) {}
+
+void Command::translate()
+{
+    switch (type)
+    {
+    case CommandType::DO_WHILE:
+    {
+        std::string label = MIPS::startWhile();
+        for (auto &cmd : *commands)
+        {
+            cmd->translate();
+        }
+        condition->translate(false, label);
+        MIPS::endWhile();
+    }
+    break;
+    case CommandType::IF:
+    {
+        MIPS::startIf();
+        condition->translate(true, MIPS::getEndIf());
+        for (auto &cmd : *commands)
+        {
+            cmd->translate();
+        }
+        MIPS::endIf();
+    }
+    break;
+    case CommandType::IF_ELSE:
+    {
+        MIPS::startIf();
+        condition->translate(true, MIPS::getElse());
+        for (auto &cmd : *commands)
+        {
+            cmd->translate();
+        }
+        MIPS::jumpTo(MIPS::getEndIf());
+        MIPS::startElse();
+        for (auto &cmd : *second_commands)
+        {
+            cmd->translate();
+        }
+        MIPS::endIf();
+    }
+    break;
+    case CommandType::WHILE:
+    {
+        std::string label = MIPS::startWhile();
+        condition->translate(true, MIPS::getEndWhile());
+        for (auto &cmd : *commands)
+        {
+            cmd->translate();
+        }
+        MIPS::jumpTo(label);
+        MIPS::endWhile();
+    }
+    break;
+    case CommandType::FOR:
+        break;
+    case CommandType::PRINTF:
+        break;
+    case CommandType::SCANF:
+        break;
+    case CommandType::EXIT:
+        break;
+    case CommandType::RETURN:
+        break;
+    case CommandType::EXPRESSION:
+        break;
+    }
+}

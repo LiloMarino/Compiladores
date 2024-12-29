@@ -7,9 +7,9 @@ bool MIPS::arg_registers[ARGUMENT_REGISTER];
 bool MIPS::temp_registers[TEMPORARY_REGISTER];
 bool MIPS::save_registers[SAVE_REGISTER];
 int MIPS::string_count = 0;
-int MIPS::if_count = 0;
-int MIPS::while_count = 0;
-int MIPS::for_count = 0;
+std::pair<int,int> MIPS::if_count = {0,0};
+std::pair<int,int> MIPS::while_count = {0,0};
+std::pair<int,int> MIPS::for_count = {0,0};
 
 void MIPS::initialize()
 {
