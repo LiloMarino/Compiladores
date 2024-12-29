@@ -1,4 +1,5 @@
 #include "mips.hpp"
+#include <iostream>
 
 MIPS::MIPS()
 {
@@ -40,17 +41,17 @@ int MIPS::getSaveRegister()
     return -1;
 }
 
-void MIPS::freeTemporaryRegister(int index)
+void MIPS::freeTemporaryRegister(const int index)
 {
     temp_registers[index] = true;
 }
 
-void MIPS::freeSaveRegister(int index)
+void MIPS::freeSaveRegister(const int index)
 {
     save_registers[index] = true;
 }
 
-std::string MIPS::getRegisterName(int index)
+std::string MIPS::getRegisterName(const int index)
 {
     if (index < TEMPORARY_REGISTER)
     {
@@ -59,5 +60,22 @@ std::string MIPS::getRegisterName(int index)
     else
     {
         return "s" + std::to_string(index - TEMPORARY_REGISTER);
+    }
+}
+
+void MIPS::printCode()
+{
+    std::cout << ".data" << std::endl;
+    while (!data.empty())
+    {
+        std::cout << "\t" << data.front() << std::endl;
+        data.pop();
+    }
+    std::cout << std::endl;
+    std::cout << ".text" << std::endl;
+    while (!text.empty())
+    {
+        std::cout << "\t" << text.front() << std::endl;
+        text.pop();
     }
 }

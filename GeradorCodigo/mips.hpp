@@ -2,6 +2,7 @@
 #define MIPS_HPP
 
 #include "expression.hpp"
+#include <queue>
 
 #define TEMPORARY_REGISTER 10
 #define SAVE_REGISTER 8
@@ -9,6 +10,8 @@
 class MIPS
 {
 private:
+    std::queue<std::string> data;
+    std::queue<std::string> text;
     bool temp_registers[TEMPORARY_REGISTER];
     bool save_registers[SAVE_REGISTER];
     int string_count = 0;
@@ -38,20 +41,25 @@ public:
      * @brief Marca o registrador temporário como livre
      * @param index Índice do registrador temporário
      */
-    void freeTemporaryRegister(int index);
+    void freeTemporaryRegister(const int index);
 
     /**
      * @brief Marca o registrador salvo como livre
      * @param index Índice do registrador salvo
      */
-    void freeSaveRegister(int index);
+    void freeSaveRegister(const int index);
 
     /**
      * @brief Obtém o nome do registrador
      * @param index Índice do registrador
      * @return Nome do registrador
      */
-    std::string getRegisterName(int index);
+    std::string getRegisterName(const int index);
+
+    /**
+     * @brief Imprime o código MIPS
+     */
+    void printCode();
 
     /**
      * @brief Cria uma constante em MIPS
@@ -74,17 +82,42 @@ public:
     void createGlobalVar(const std::string &identifier, const int value);
 
     /**
-     * @brief
-     * @param op
-     * @param r1
-     * @param r2
+     * @brief Traduz uma expressão para MIPS
+     * @param op Operador da expressão
+     * @param r1 Índice do primeiro registrador
+     * @param r2 Índice do segundo registrador
      */
-    void printExpression(OperatorType op, const int r1, const int r2);
+    void createExpression(const OperatorType op, const int r1, const int r2);
 
-    void callFunction();
-    void callPrintf();
-    void callScanf();
-    void callExit();
+    /**
+     * @brief Traduz uma chamada de função para MIPS
+     * @param function_name Nome da função
+     */
+    void callFunction(const std::string &function_name);
+
+    /**
+     * @brief Imprime uma string
+     * @param string String a ser impressa
+     */
+    void callPrintf(const std::string &string);
+
+    /**
+     * @brief Imprime um valor inteiro
+     * @param value Valor a ser impresso
+     */
+    void callPrintf(const int value);
+
+    /**
+     * @brief Lê um valor inteiro e salva na variável
+     * @param identifier Nome da variável
+     */
+    void callScanf(const std::string &identifier);
+    
+    /**
+     * @brief Sai do programa com o status de saída
+     * @param status Status de saída
+     */
+    void callExit(const int status);
 };
 
 #endif
