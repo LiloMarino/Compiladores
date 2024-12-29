@@ -1,4 +1,5 @@
 #include "function.hpp"
+#include "mips.hpp"
 
 Function::Function(const std::string &identifier, std::unique_ptr<Type> return_type,
                    std::unique_ptr<std::deque<std::unique_ptr<Variable>>> parameters,
@@ -19,4 +20,17 @@ std::string Function::getIdentifier() const
 
 void Function::translate()
 {
+    MIPS::createLabel(identifier);
+    for (auto &param : *parameters)
+    {
+        param->translate(this);
+    }
+    for (auto &var : *variables)
+    {
+        var->translate(this);
+    }
+    for (auto &cmd : *commands)
+    {
+        cmd->translate();
+    }
 }

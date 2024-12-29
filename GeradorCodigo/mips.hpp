@@ -97,6 +97,12 @@ public:
     static void createGlobalVar(const std::string &identifier, const int value);
 
     /**
+     * @brief Cria uma label
+     * @param label Nome da label
+     */
+    static void createLabel(const std::string &label);
+
+    /**
      * @brief Traduz uma expressão para MIPS
      * @param op Operador da expressão
      * @param r1 Índice do primeiro registrador

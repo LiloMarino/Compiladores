@@ -74,7 +74,7 @@ public:
      * @param assign Atribuição do SCANF
      */
     Command(const std::optional<std::string> &string, std::unique_ptr<Expression> assign);
-    
+
     /**
      * @brief Construtor para PRINTF
      * @param string String a ser impressa
@@ -82,6 +82,11 @@ public:
      */
     Command(const std::optional<std::string> &string,
             std::unique_ptr<std::deque<std::unique_ptr<Expression>>> parameters = nullptr);
+
+    /**
+     * @brief Traduz o Comando para código MIPS
+     */
+    void translate();
 };
 
 #endif
