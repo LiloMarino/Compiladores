@@ -4,6 +4,9 @@
 #include <string>
 #include "type.hpp"
 
+// Declaração antecipada para evitar dependência circular
+class Function; 
+
 enum class VariableCategory {
     CONSTANT,
     PARAMETER,
@@ -39,6 +42,12 @@ public:
      * @return Identificador da variável
      */
     std::string getIdentifier() const;
+
+    /**
+     * @brief Traduz a Variável para código MIPS
+     * @param func_context Contexto da função
+     */
+    void translate(Function *func_context = nullptr);
 };
 
 #endif

@@ -4,6 +4,7 @@
 #include "expression.hpp"
 #include <queue>
 
+#define ARGUMENT_REGISTER 4
 #define TEMPORARY_REGISTER 10
 #define SAVE_REGISTER 8
 
@@ -12,6 +13,7 @@ class MIPS
 private:
     static std::queue<std::string> data;
     static std::queue<std::string> text;
+    static bool arg_registers[ARGUMENT_REGISTER];
     static bool temp_registers[TEMPORARY_REGISTER];
     static bool save_registers[SAVE_REGISTER];
     static int string_count;
@@ -26,6 +28,12 @@ public:
     static void initialize();
 
     /**
+     * @brief Obtém o índice de um registrador argumento e marca ele como em uso
+     * @return Índice do registrador argumento
+     */
+    static int getArgumentRegister();
+
+    /**
      * @brief Obtém o índice de um registrador temporário e marca ele como em uso
      * @return Índice do registrador temporário
      */
@@ -36,6 +44,12 @@ public:
      * @return Índice do registrador salvo
      */
     static int getSaveRegister();
+
+    /**
+     * @brief Marca o registrador argumento como livre
+     * @param index Índice do registrador argumento
+     */
+    static void freeArgumentRegister(const int index);
 
     /**
      * @brief Marca o registrador temporário como livre
@@ -63,9 +77,10 @@ public:
 
     /**
      * @brief Cria uma constante em MIPS
+     * @param identifier Identificador da constante
      * @param constant Valor da constante
      */
-    static void createConstant(const int constant);
+    static void createConstant(const std::string &identifier, const int constant);
 
     /**
      * @brief Cria uma string em MIPS
@@ -112,7 +127,7 @@ public:
      * @param identifier Nome da variável
      */
     static void callScanf(const std::string &identifier);
-    
+
     /**
      * @brief Sai do programa com o status de saída
      * @param status Status de saída

@@ -4,6 +4,7 @@
 #include "type.hpp"
 #include "variable.hpp"
 #include "command.hpp"
+#include <unordered_map>
 
 class Function
 {
@@ -13,6 +14,7 @@ private:
     std::unique_ptr<std::deque<std::unique_ptr<Variable>>> parameters;
     std::unique_ptr<std::deque<std::unique_ptr<Variable>>> variables;
     std::unique_ptr<std::deque<std::unique_ptr<Command>>> commands;
+    std::unordered_map<std::string, int> registers;
 
 public:
     /**
@@ -29,10 +31,22 @@ public:
              std::unique_ptr<std::deque<std::unique_ptr<Command>>> commands);
 
     /**
+     * @brief Associa uma varíavel a um registrador
+     * @param identifier Identificador da variável
+     * @param rg Registrador associado
+     */
+    void addRegister(std::string& identifier, int rg);
+
+    /**
      * @brief Obtém o identificador
-     * @return Identificador da variável
+     * @return Identificador da função
      */
     std::string getIdentifier() const;
+
+    /**
+     * @brief Traduz a Função para código MIPS
+     */
+    void translate();
 };
 
 #endif
