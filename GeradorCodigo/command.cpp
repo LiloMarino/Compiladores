@@ -1,5 +1,6 @@
 #include "command.hpp"
 #include "mips.hpp"
+#include <stdexcept>
 
 Command::Command(CommandType type, std::unique_ptr<Expression> condition,
                  std::unique_ptr<std::deque<std::unique_ptr<Command>>> commands)
@@ -82,11 +83,116 @@ void Command::translate()
     }
     break;
     case CommandType::FOR:
-        break;
+    {
+        assign->translate();
+        std::string label = MIPS::startFor();
+        condition->translate(true, MIPS::getEndFor());
+        for (auto &cmd : *commands)
+        {
+            cmd->translate();
+        }
+        step->translate();
+        MIPS::jumpTo(label);
+        MIPS::endFor();
+    }
+    break;
     case CommandType::PRINTF:
-        break;
+    {
+        const std::string &format = string.value();
+        size_t pos = 0;
+        size_t start = 0;
+        auto param_iter = parameters->begin();
+
+        // Percorre a string para encontrar '%' seguido de um especificador
+        while ((pos = format.find('%', start)) != std::string::npos)
+        {
+            // Extrai o texto antes do '%'
+            if (pos > start)
+            {
+                std::string text = format.substr(start, pos - start);
+                MIPS::callPrintf(text); // Imprime o texto antes do '%'
+            }
+            char specifier = format[pos + 1];
+            switch (specifier)
+            {
+            case 'd': // Inteiro
+                if (param_iter != parameters->end())
+                {
+                    (*param_iter)->translate();             // Gera código MIPS para a expressão
+                    int reg = (*param_iter)->getRegister(); // Obtém o registrador da expressão
+                    MIPS::callPrintf(reg);                  // Imprime o valor do registrador
+                    ++param_iter;
+                }
+                else
+                {
+                    throw std::runtime_error("Not enough parameters for '%d'.");
+                }
+                break;
+
+            case 's': // String
+                if (param_iter != parameters->end())
+                {
+                    (*param_iter)->translate();             // Gera código MIPS para a expressão
+                    int reg = (*param_iter)->getRegister(); // Registrador com o endereço da string
+                    MIPS::callPrintfAsString(reg);          // Imprime o endereço como string
+                    ++param_iter;
+                }
+                else
+                {
+                    throw std::runtime_error("Not enough parameters for '%s'.");
+                }
+                break;
+
+            case 'c': // Caractere
+                if (param_iter != parameters->end())
+                {
+                    (*param_iter)->translate();             // Gera código MIPS para a expressão
+                    int reg = (*param_iter)->getRegister(); // Registrador com o caractere
+                    MIPS::callPrintfAsChar(reg);            // Imprime o caractere
+                    ++param_iter;
+                }
+                else
+                {
+                    throw std::runtime_error("Not enough parameters for '%c'.");
+                }
+                break;
+
+            default:
+                throw std::runtime_error("Unsupported format specifier: %" + std::string(1, specifier));
+            }
+            // Avança para o próximo trecho da string
+            start = pos + 2;
+        }
+
+        // Imprime o restante da string, se houver
+        if (start < format.size())
+        {
+            std::string remaining = format.substr(start);
+            MIPS::callPrintf(remaining);
+        }
+    }
+    break;
     case CommandType::SCANF:
-        break;
+    {
+        const std::string &format = string.value();
+        size_t pos = 0;
+        if ((pos = format.find('%', 0)) != std::string::npos)
+        {
+            char specifier = format[pos + 1];
+            switch (specifier)
+            {
+            case 'd': // Inteiro
+            {
+                const auto &var = assign->getValue().value();
+                MIPS::callScanf(std::get<std::string>(var));
+            }
+            break;
+            default:
+                throw std::runtime_error("Unsupported format specifier: %" + std::string(1, specifier));
+            }
+        }
+    }
+    break;
     case CommandType::EXIT:
         break;
     case CommandType::RETURN:

@@ -41,6 +41,7 @@ enum class OperatorType
 class Expression
 {
 private:
+    int expression_register = -1;                                        // Registrador resultante da expressão
     std::unique_ptr<Expression> condition;                               // Condição para expressão ternária
     std::unique_ptr<Expression> left;                                    // Subárvore esquerda
     std::unique_ptr<Expression> right;                                   // Subárvore direita
@@ -144,9 +145,16 @@ public:
     void applyPreOrder(const std::function<void(const Expression &)> &func) const;
 
     /**
+     * @brief Obtém o registrador da expressão
+     * @return O registrador da expressão
+     */
+    int getRegister() const;
+
+    /**
      * @brief Traduz a Expressão para código MIPS
      */
     void translate(bool reverse = false, const std::optional<std::string> &jumpTo = std::nullopt);
+
 };
 
 #endif

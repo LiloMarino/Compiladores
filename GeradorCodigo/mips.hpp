@@ -151,8 +151,15 @@ public:
 
     /**
      * @brief Inicia um loop de for
+     * @return Label do for
      */
-    static void startFor();
+    static std::string startFor();
+
+    /**
+     * @brief Obtém a label do fim do for atual
+     * @return Label do fim do for
+     */
+    static std::string getEndFor();
 
     /**
      * @brief Finaliza um loop de for
@@ -188,6 +195,18 @@ public:
      * @param value Valor a ser impresso
      */
     static void callPrintf(const int value);
+
+    /**
+     * @brief Imprime uma string a partir de um registrador
+     * @param rg Registrador com endereço da string
+     */
+    static void callPrintfAsString(const int rg);
+
+    /**
+     * @brief Imprime o caractere
+     * @param rg Registrador com caractere
+     */
+    static void callPrintfAsChar(const int rg);
 
     /**
      * @brief Lê um valor inteiro e salva na variável
