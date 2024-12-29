@@ -152,8 +152,11 @@ public:
 
     /**
      * @brief Traduz a Expressão para código MIPS
+     * @param reverse Indica se a condição da expressão deve ser avaliada invertida/negada
+     * @param jumpTo Label que indica para onde deve saltar em caso da expressão ser avaliada como verdadeira
+     * @return O registrador da expressão
      */
-    void translate(bool reverse = false, const std::optional<std::string> &jumpTo = std::nullopt);
+    int translate(bool reverse = false, const std::optional<std::string> &jumpTo = std::nullopt);
 
 };
 

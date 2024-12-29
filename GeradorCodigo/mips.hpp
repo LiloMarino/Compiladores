@@ -215,10 +215,17 @@ public:
     static void callScanf(const std::string &identifier);
 
     /**
-     * @brief Sai do programa com o status de saída
-     * @param status Status de saída
+     * @brief Retorna a função com o valor de um registrador
+     * @param rg Registrador com valor a ser retornado
+     * @note O registrador -1 indica que não retorna nada
      */
-    static void callExit(const int status);
+    static void callReturn(const int rg);
+
+    /**
+     * @brief Sai do programa com o status de saída
+     * @param rg Registrador com status de saída
+     */
+    static void callExit(const int rg);
 };
 
 #endif

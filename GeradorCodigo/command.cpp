@@ -118,9 +118,8 @@ void Command::translate()
             case 'd': // Inteiro
                 if (param_iter != parameters->end())
                 {
-                    (*param_iter)->translate();             // Gera código MIPS para a expressão
-                    int reg = (*param_iter)->getRegister(); // Obtém o registrador da expressão
-                    MIPS::callPrintf(reg);                  // Imprime o valor do registrador
+                    int reg = (*param_iter)->translate(); // Gera código MIPS para a expressão
+                    MIPS::callPrintf(reg);                // Imprime o valor do registrador
                     ++param_iter;
                 }
                 else
@@ -132,9 +131,8 @@ void Command::translate()
             case 's': // String
                 if (param_iter != parameters->end())
                 {
-                    (*param_iter)->translate();             // Gera código MIPS para a expressão
-                    int reg = (*param_iter)->getRegister(); // Registrador com o endereço da string
-                    MIPS::callPrintfAsString(reg);          // Imprime o endereço como string
+                    int reg = (*param_iter)->translate(); // Gera código MIPS para a expressão
+                    MIPS::callPrintfAsString(reg);        // Imprime o endereço como string
                     ++param_iter;
                 }
                 else
@@ -146,9 +144,8 @@ void Command::translate()
             case 'c': // Caractere
                 if (param_iter != parameters->end())
                 {
-                    (*param_iter)->translate();             // Gera código MIPS para a expressão
-                    int reg = (*param_iter)->getRegister(); // Registrador com o caractere
-                    MIPS::callPrintfAsChar(reg);            // Imprime o caractere
+                    int reg = (*param_iter)->translate(); // Gera código MIPS para a expressão
+                    MIPS::callPrintfAsChar(reg);          // Imprime o caractere
                     ++param_iter;
                 }
                 else
@@ -194,10 +191,28 @@ void Command::translate()
     }
     break;
     case CommandType::EXIT:
-        break;
+    {
+        int rg = assign->translate();
+        MIPS::callExit(rg);
+    }
+    break;
     case CommandType::RETURN:
-        break;
+    {
+        if (assign)
+        {
+            int rg = assign->translate();
+            MIPS::callReturn(rg);
+        }
+        else
+        {
+            MIPS::callReturn(-1);
+        }
+    }
+    break;
     case CommandType::EXPRESSION:
-        break;
+    {
+        assign->translate();
+    }
+    break;
     }
 }
