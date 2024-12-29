@@ -1,7 +1,16 @@
 #include "mips.hpp"
 #include <iostream>
 
-MIPS::MIPS()
+std::queue<std::string> MIPS::data;
+std::queue<std::string> MIPS::text;
+bool MIPS::temp_registers[TEMPORARY_REGISTER];
+bool MIPS::save_registers[SAVE_REGISTER];
+int MIPS::string_count = 0;
+int MIPS::if_count = 0;
+int MIPS::while_count = 0;
+int MIPS::for_count = 0;
+
+void MIPS::initialize()
 {
     // Inicializa todos os registradores temporários como true
     for (int i = 0; i < TEMPORARY_REGISTER; ++i)
