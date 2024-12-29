@@ -8,26 +8,26 @@
 class Ast
 {
 private:
-    static std::unordered_map<std::string, std::unique_ptr<Variable>> variables;
-    static std::unordered_map<std::string, std::unique_ptr<Function>> functions;
+    std::unordered_map<std::string, std::unique_ptr<Variable>> variables;
+    std::unordered_map<std::string, std::unique_ptr<Function>> functions;
 
 public:
     /**
      * @brief Adiciona uma variável a AST
      * @param var Variável
      */
-    static void addVariable(std::unique_ptr<Variable> var);
+    void addVariable(std::unique_ptr<Variable> var);
 
     /**
      * @brief Adiciona uma função a AST
      * @param func Função
      */
-    static void addFunction(std::unique_ptr<Function> func);
+    void addFunction(std::unique_ptr<Function> func);
 
     /**
      * @brief Traduz a AST para código MIPS
      */
-    static void translate();
+    void translate();
 };
 
 #endif

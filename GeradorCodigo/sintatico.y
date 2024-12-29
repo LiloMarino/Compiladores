@@ -9,13 +9,14 @@
 #include "command.hpp"
 #include "variable.hpp"
 #include "function.hpp"
-#include "ast.hpp"
 }
 
 %{
 // Coloca na .c
+#include "ast.hpp"
 extern int yylex();
 void yyerror(const char *msg);
+Ast ast;
 %}
 %debug
 %verbose
@@ -58,16 +59,16 @@ TERNARY_OPERATOR EOF_TOKEN
 
 %%
 
-AstStart: AstLoop EOF_TOKEN { Ast::translate(); }
+AstStart: AstLoop EOF_TOKEN { ast.translate(); }
         ;
 
 AstLoop: Declaration AstLoop
        |
        ;
 
-Declaration: Constant { Ast::addVariable(std::unique_ptr<Variable>($1)); }
-           | GlobalVariable { Ast::addVariable(std::unique_ptr<Variable>($1)); }
-           | Function { Ast::addFunction(std::unique_ptr<Function>($1)); }
+Declaration: Constant { ast.addVariable(std::unique_ptr<Variable>($1)); }
+           | GlobalVariable { ast.addVariable(std::unique_ptr<Variable>($1)); }
+           | Function { ast.addFunction(std::unique_ptr<Function>($1)); }
            ;
 
 Constant: CONSTANT COLON IDENTIFIER VALUE COLON Integer {

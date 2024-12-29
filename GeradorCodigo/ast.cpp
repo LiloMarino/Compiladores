@@ -1,7 +1,5 @@
 #include "ast.hpp"
-
-std::unordered_map<std::string, std::unique_ptr<Variable>> Ast::variables;
-std::unordered_map<std::string, std::unique_ptr<Function>> Ast::functions;
+#include "mips.hpp"
 
 void Ast::addVariable(std::unique_ptr<Variable> var)
 {
