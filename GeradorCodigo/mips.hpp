@@ -307,6 +307,15 @@ public:
      * @param rg Registrador com status de saída
      */
     static void callExit(const int rg);
+private:
+    /**
+     * @brief Cria uma instrução a partir de registradores
+     * @param instruction Instrução a ser criada
+     * @param r1 Primeiro registrador
+     * @param r2 Segundo registrador
+     * @param r3 Terceiro registrador
+     */
+    static std::string createInstruction(const std::string &instruction, const int r1, const int r2, const int r3);
 };
 
 #endif
