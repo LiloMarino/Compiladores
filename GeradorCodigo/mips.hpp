@@ -17,6 +17,7 @@ private:
     static bool temp_registers[TEMPORARY_REGISTER];
     static bool save_registers[SAVE_REGISTER];
     static int string_count;
+    static std::pair<int, int> ternary_count;
     static std::pair<int, int> if_count;
     static std::pair<int, int> while_count;
     static std::pair<int, int> for_count;
@@ -97,12 +98,36 @@ public:
     static void createGlobalVar(const std::string &identifier, const int value);
 
     /**
-     * @brief Traduz uma expressão para MIPS
+     * @brief Traduz uma expressão binária para MIPS
      * @param op Operador da expressão
      * @param r1 Índice do primeiro registrador
      * @param r2 Índice do segundo registrador
+     * @param rg_result Índice do registrador de resultado
      */
-    static void createExpression(const OperatorType op, const int r1, const int r2);
+    static void createExpression(const OperatorType op, const int r1, const int r2, const int rg_result);
+
+    /**
+     * @brief Traduz uma expressão unária para MIPS
+     * @param op Operador da expressão
+     * @param r1 Índice do registrador
+     * @param rg_result Índice do registrador de resultado
+     */
+    static void createExpression(const OperatorType op, const int r1, const int rg_result);
+
+    /**
+     * @brief Traduz uma expressão de acesso a um array para MIPS
+     * @param array_identifier Identificador do array
+     * @param rg_index Índice do registrador de índice
+     * @param rg_result Índice do registrador de resultado
+     */
+    static void createArrayAcess(const std::string &array_identifier, const int rg_index, const int rg_result);
+
+    /**
+     * @brief Inicializa uma constante em um registrador
+     * @param rg_dst Índice do registrador de resultado
+     * @param value Valor da constante
+     */
+    static void initializeConstant(const int rg_dst, const int value);
 
     /**
      * @brief Inicia um loop de while
@@ -167,6 +192,34 @@ public:
     static void endFor();
 
     /**
+     *
+     * @brief Inicia um ternário
+     */
+    static void startTernary();
+
+    /**
+     * @brief Obtém a label do else do ternário atual
+     * @return Label do else do ternário
+     */
+    static std::string getElseTernary();
+
+    /**
+     * @brief Inicia um else de um ternário
+     */
+    static void startElseTernary();
+
+    /**
+     * @brief Obtém a label do fim do ternário atual
+     * @return Label do fim do ternário
+     */
+    static std::string getEndTernary();
+
+    /**
+     * @brief Finaliza um ternário
+     */
+    static void endTernary();
+
+    /**
      * @brief Cria uma label
      * @param label Nome da label
      */
@@ -177,6 +230,34 @@ public:
      * @param label Nome da label
      */
     static void jumpTo(const std::string &label);
+
+    /**
+     * @brief Movimenta o valor do registrador r_src para r_dst
+     * @param r_src Registrador de origem
+     * @param r_dst Registrador de destino
+     */
+    static void moveTo(const int r_src, const int r_dst);
+
+    /**
+     * @brief Faz um salto para uma label se uma condição for igual a zero
+     * @param rg Registrador que contém o resultado da condição
+     * @param label Nome da label
+     */
+    static void branchEqualZero(const int rg, const std::string &label);
+
+    /**
+     * @brief Faz um salto para uma label se o registrador for diferente de zero
+     * @param rg Registrador que contém o resultado da condição
+     * @param label Nome da label
+     */
+    static void branchNotEqualZero(const int rg, const std::string &label);
+
+    /**
+     * @brief Obtém a endereço de uma label
+     * @param rg Registrador que irá conter o endereço da label
+     * @param label Nome da label
+     */
+    static void getAddress(const int rg, const std::string &label);
 
     /**
      * @brief Traduz uma chamada de função para MIPS

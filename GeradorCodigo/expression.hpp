@@ -5,7 +5,6 @@
 #include <memory>
 #include <variant>
 #include <optional>
-#include <functional>
 #include <deque>
 
 enum class OperatorType
@@ -35,13 +34,13 @@ enum class OperatorType
     INC,
     DEC,
     BITWISE_NOT,
-    NOT
+    NOT,
+    TERNARY
 };
 
 class Expression
 {
 private:
-    int expression_register = -1;                                        // Registrador resultante da expressão
     std::unique_ptr<Expression> condition;                               // Condição para expressão ternária
     std::unique_ptr<Expression> left;                                    // Subárvore esquerda
     std::unique_ptr<Expression> right;                                   // Subárvore direita
@@ -136,28 +135,13 @@ public:
     bool isOperatorNode() const;
 
     /**
-     * @brief Aplica uma função ao nó atual da expressão e recursivamente aos filhos em pré-ordem.
-     *
-     * A função é aplicada ao nó atual, seguida das subárvores esquerda e direita, se existirem.
-     *
-     * @param func Função que recebe uma referência constante a um objeto `Expression` e será aplicada ao nó atual.
-     */
-    void applyPreOrder(const std::function<void(const Expression &)> &func) const;
-
-    /**
-     * @brief Obtém o registrador da expressão
-     * @return O registrador da expressão
-     */
-    int getRegister() const;
-
-    /**
      * @brief Traduz a Expressão para código MIPS
      * @param reverse Indica se a condição da expressão deve ser avaliada invertida/negada
      * @param jumpTo Label que indica para onde deve saltar em caso da expressão ser avaliada como verdadeira
+     * @param useRegister Indica qual registrador deve ser usado para resultado
      * @return O registrador da expressão
      */
-    int translate(bool reverse = false, const std::optional<std::string> &jumpTo = std::nullopt);
-
+    int translate(bool reverse = false, const std::optional<std::string> &jumpTo = std::nullopt, int useRegister = -1);
 };
 
 #endif
