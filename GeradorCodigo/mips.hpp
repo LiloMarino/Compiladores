@@ -3,6 +3,7 @@
 
 #include "expression.hpp"
 #include <queue>
+#include <stack>
 #include <functional>
 
 #define ARGUMENT_REGISTER 4
@@ -18,10 +19,10 @@ private:
     static bool temp_registers[TEMPORARY_REGISTER];
     static bool save_registers[SAVE_REGISTER];
     static int string_count;
-    static std::pair<int, int> ternary_count;
-    static std::pair<int, int> if_count;
-    static std::pair<int, int> while_count;
-    static std::pair<int, int> for_count;
+    static std::pair<int, std::stack<int>> ternary_data;
+    static std::pair<int, std::stack<int>> if_data;
+    static std::pair<int, std::stack<int>> while_data;
+    static std::pair<int, std::stack<int>> for_data;
 
 public:
     /**

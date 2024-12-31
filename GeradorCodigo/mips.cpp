@@ -7,10 +7,10 @@ bool MIPS::arg_registers[ARGUMENT_REGISTER];
 bool MIPS::temp_registers[TEMPORARY_REGISTER];
 bool MIPS::save_registers[SAVE_REGISTER];
 int MIPS::string_count = 0;
-std::pair<int, int> MIPS::ternary_count = {0, 0};
-std::pair<int, int> MIPS::if_count = {0, 0};
-std::pair<int, int> MIPS::while_count = {0, 0};
-std::pair<int, int> MIPS::for_count = {0, 0};
+std::pair<int, std::stack<int>> MIPS::ternary_data = {0, {}};
+std::pair<int, std::stack<int>> MIPS::if_data = {0, {}};
+std::pair<int, std::stack<int>> MIPS::while_data = {0, {}};
+std::pair<int, std::stack<int>> MIPS::for_data = {0, {}};
 
 int MIPS::getArgumentRegister()
 {
@@ -318,86 +318,122 @@ void MIPS::initializeConstant(const int rg_dst, const int value)
 
 std::string MIPS::startWhile()
 {
-    std::string label = "while_" + std::to_string(++while_count.first);
+    int new_index = ++while_data.first;
+    while_data.second.push(new_index);
+    std::string label = "while_" + std::to_string(new_index);
     createLabel(label);
     return label;
 }
 
 std::string MIPS::getEndWhile()
 {
-    return "end_while_" + std::to_string(while_count.first);
+    if (while_data.second.empty())
+        throw std::runtime_error("No active 'while' block to end.");
+    return "end_while_" + std::to_string(while_data.second.top());
 }
 
 void MIPS::endWhile()
 {
-    createLabel("end_while_" + std::to_string(++while_count.second));
+    if (while_data.second.empty())
+        throw std::runtime_error("No active 'while' block to end.");
+    createLabel("end_while_" + std::to_string(while_data.second.top()));
+    while_data.second.pop();
 }
 
 void MIPS::startIf()
 {
-    createLabel("if_" + std::to_string(++if_count.first));
+    int new_index = ++if_data.first;
+    if_data.second.push(new_index);
+    createLabel("if_" + std::to_string(new_index));
 }
 
 std::string MIPS::getElse()
 {
-    return "else_" + std::to_string(if_count.first);
+    if (if_data.second.empty())
+        throw std::runtime_error("No active 'if' block to get 'else'.");
+    return "else_" + std::to_string(if_data.second.top());
 }
 
 void MIPS::startElse()
 {
-    createLabel("else_" + std::to_string(if_count.first));
+    if (if_data.second.empty())
+        throw std::runtime_error("No active 'if' block to start 'else'.");
+    createLabel("else_" + std::to_string(if_data.second.top()));
 }
 
 std::string MIPS::getEndIf()
 {
-    return "end_if_" + std::to_string(if_count.first);
+    if (if_data.second.empty())
+        throw std::runtime_error("No active 'if' block to end.");
+    return "end_if_" + std::to_string(if_data.second.top());
 }
 
 void MIPS::endIf()
 {
-    createLabel("end_if_" + std::to_string(++if_count.second));
+    if (if_data.second.empty())
+        throw std::runtime_error("No active 'if' block to end.");
+    createLabel("end_if_" + std::to_string(if_data.second.top()));
+    if_data.second.pop();
 }
 
 std::string MIPS::startFor()
 {
-    std::string label = "for_" + std::to_string(++for_count.first);
+    int new_index = ++for_data.first;
+    for_data.second.push(new_index);
+    std::string label = "for_" + std::to_string(new_index);
     createLabel(label);
     return label;
 }
 
 std::string MIPS::getEndFor()
 {
-    return "end_for_" + std::to_string(for_count.first);
+    if (for_data.second.empty())
+        throw std::runtime_error("No active 'for' block to end.");
+    return "end_for_" + std::to_string(for_data.second.top());
 }
 
 void MIPS::endFor()
 {
-    createLabel("end_for_" + std::to_string(++for_count.second));
+    if (for_data.second.empty())
+        throw std::runtime_error("No active 'for' block to end.");
+    createLabel("end_for_" + std::to_string(for_data.second.top()));
+    for_data.second.pop();
 }
 
 void MIPS::startTernary()
 {
-    createLabel("ternary_" + std::to_string(++ternary_count.first));
+     int new_index = ++ternary_data.first;
+    ternary_data.second.push(new_index);
+    createLabel("ternary_" + std::to_string(new_index));
 }
 
 std::string MIPS::getElseTernary()
 {
-    return "else_ternary_" + std::to_string(ternary_count.first);
+    if (ternary_data.second.empty())
+        throw std::runtime_error("No active 'ternary' block to get 'else'.");
+    return "else_ternary_" + std::to_string(ternary_data.second.top());
 }
 
 void MIPS::startElseTernary()
 {
-    createLabel("else_ternary_" + std::to_string(ternary_count.first));
+    if (ternary_data.second.empty())
+        throw std::runtime_error("No active 'ternary' block to start 'else'.");
+    createLabel("else_ternary_" + std::to_string(ternary_data.second.top()));
 }
 
 std::string MIPS::getEndTernary()
 {
-    return "end_ternary_" + std::to_string(ternary_count.first);
+    if (ternary_data.second.empty())
+        throw std::runtime_error("No active 'ternary' block to end.");
+    return "end_ternary_" + std::to_string(ternary_data.second.top());
 }
 
 void MIPS::endTernary()
 {
-    createLabel("end_ternary_" + std::to_string(++ternary_count.second));
+    if (ternary_data.second.empty())
+        throw std::runtime_error("No active 'ternary' block to end.");
+    createLabel("end_ternary_" + std::to_string(ternary_data.second.top()));
+    ternary_data.second.pop();
 }
 
 void MIPS::createLabel(const std::string &label)
