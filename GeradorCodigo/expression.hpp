@@ -7,6 +7,19 @@
 #include <optional>
 #include <deque>
 
+enum class ExpressionType
+{
+    INTEGER,
+    CHARACTER,
+    STRING_LITERAL,
+    IDENTIFIER,
+    FUNCTION_CALL,
+    ARRAY_ACCESS,
+    UNARY,
+    BINARY,
+    TERNARY,
+};
+
 enum class OperatorType
 {
     NONE,
@@ -41,18 +54,19 @@ enum class OperatorType
 class Expression
 {
 private:
-    std::unique_ptr<Expression> condition;                               // Condição para expressão ternária
-    std::unique_ptr<Expression> left;                                    // Subárvore esquerda
-    std::unique_ptr<Expression> right;                                   // Subárvore direita
-    std::unique_ptr<std::deque<std::unique_ptr<Expression>>> parameters; // Parâmetros para function call
-    std::optional<std::variant<int, char, std::string>> value;           // Folha
-    OperatorType operatorSymbol;                                         // Representação do operador
+    std::unique_ptr<Expression> condition = nullptr;                               // Condição para expressão ternária
+    std::unique_ptr<Expression> left = nullptr;                                    // Subárvore esquerda
+    std::unique_ptr<Expression> right = nullptr;                                   // Subárvore direita
+    std::unique_ptr<std::deque<std::unique_ptr<Expression>>> parameters = nullptr; // Parâmetros para function call
+    std::optional<std::variant<int, char, std::string>> value = std::nullopt;      // Folha
+    OperatorType operatorSymbol;                                                   // Representação do operador
+    ExpressionType type;                                                           // Tipo da expressão
 public:
     /**
      * @brief Construtor para valores base (folhas)
      * @param val Valor da folha
      */
-    Expression(const std::string &val);
+    Expression(const std::string &val, ExpressionType type);
 
     /**
      * @brief Construtor para valores base (folhas)
