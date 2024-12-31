@@ -40,14 +40,14 @@ void Command::translate(Function *func_context)
         {
             cmd->translate();
         }
-        condition->translate(false, label);
+        condition->translate(func_context, false, label);
         MIPS::endWhile();
     }
     break;
     case CommandType::IF:
     {
         MIPS::startIf();
-        condition->translate(true, MIPS::getEndIf());
+        condition->translate(func_context, true, MIPS::getEndIf());
         for (auto &cmd : *commands)
         {
             cmd->translate();
@@ -58,7 +58,7 @@ void Command::translate(Function *func_context)
     case CommandType::IF_ELSE:
     {
         MIPS::startIf();
-        condition->translate(true, MIPS::getElse());
+        condition->translate(func_context, true, MIPS::getElse());
         for (auto &cmd : *commands)
         {
             cmd->translate();
@@ -75,7 +75,7 @@ void Command::translate(Function *func_context)
     case CommandType::WHILE:
     {
         std::string label = MIPS::startWhile();
-        condition->translate(true, MIPS::getEndWhile());
+        condition->translate(func_context, true, MIPS::getEndWhile());
         for (auto &cmd : *commands)
         {
             cmd->translate();
@@ -86,14 +86,14 @@ void Command::translate(Function *func_context)
     break;
     case CommandType::FOR:
     {
-        assign->translate();
+        assign->translate(func_context);
         std::string label = MIPS::startFor();
-        condition->translate(true, MIPS::getEndFor());
+        condition->translate(func_context, true, MIPS::getEndFor());
         for (auto &cmd : *commands)
         {
             cmd->translate();
         }
-        step->translate();
+        step->translate(func_context);
         MIPS::jumpTo(label);
         MIPS::endFor();
     }
@@ -125,7 +125,7 @@ void Command::translate(Function *func_context)
                 case 'd': // Inteiro
                     if (param_iter != parameters->end())
                     {
-                        int reg = (*param_iter)->translate();
+                        int reg = (*param_iter)->translate(func_context);
                         MIPS::callPrintf(reg);
                         ++param_iter;
                     }
@@ -138,7 +138,7 @@ void Command::translate(Function *func_context)
                 case 's': // String
                     if (param_iter != parameters->end())
                     {
-                        int reg = (*param_iter)->translate();
+                        int reg = (*param_iter)->translate(func_context);
                         MIPS::callPrintfAsString(reg);
                         ++param_iter;
                     }
@@ -151,7 +151,7 @@ void Command::translate(Function *func_context)
                 case 'c': // Caractere
                     if (param_iter != parameters->end())
                     {
-                        int reg = (*param_iter)->translate();
+                        int reg = (*param_iter)->translate(func_context);
                         MIPS::callPrintfAsChar(reg);
                         ++param_iter;
                     }
@@ -199,7 +199,7 @@ void Command::translate(Function *func_context)
     break;
     case CommandType::EXIT:
     {
-        int rg = assign->translate();
+        int rg = assign->translate(func_context);
         MIPS::callExit(rg);
     }
     break;
@@ -207,7 +207,7 @@ void Command::translate(Function *func_context)
     {
         if (assign)
         {
-            int rg = assign->translate();
+            int rg = assign->translate(func_context);
             MIPS::callReturn(rg);
         }
         else
@@ -218,7 +218,7 @@ void Command::translate(Function *func_context)
     break;
     case CommandType::EXPRESSION:
     {
-        assign->translate();
+        assign->translate(func_context);
     }
     break;
     }

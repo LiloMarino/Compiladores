@@ -7,6 +7,8 @@
 #include <optional>
 #include <deque>
 
+class Function;
+
 enum class ExpressionType
 {
     INTEGER,
@@ -155,7 +157,7 @@ public:
      * @param useRegister Indica qual registrador deve ser usado para resultado
      * @return O registrador da expressão
      */
-    int translate(bool reverse = false, const std::optional<std::string> &jumpTo = std::nullopt, int useRegister = -1);
+    int translate(Function *func_context, bool reverse = false, const std::optional<std::string> &jumpTo = std::nullopt, int useRegister = -1);
 };
 
 #endif

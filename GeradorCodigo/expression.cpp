@@ -1,5 +1,6 @@
 #include "expression.hpp"
 #include "mips.hpp"
+#include "function.hpp"
 #include <stdexcept>
 
 Expression::Expression(const char val)
@@ -55,7 +56,7 @@ bool Expression::isOperatorNode() const
     return operatorSymbol != OperatorType::NONE;
 }
 
-int Expression::translate(bool reverse, const std::optional<std::string> &jumpTo, int useRegister)
+int Expression::translate(Function *func_context, bool reverse, const std::optional<std::string> &jumpTo, int useRegister)
 {
     // Registrador de resultado
     int result = (useRegister != -1) ? useRegister : MIPS::getTemporaryRegister();
@@ -65,25 +66,25 @@ int Expression::translate(bool reverse, const std::optional<std::string> &jumpTo
     {
         // Operação ternária
         MIPS::startTernary();
-        int r1 = condition->translate();
+        int r1 = condition->translate(func_context);
         MIPS::branchEqualZero(r1, MIPS::getElseTernary());
         MIPS::freeTemporaryRegister(r1);
 
         // True Expression
-        left->translate(false, std::nullopt, result);
+        left->translate(func_context, false, std::nullopt, result);
         MIPS::jumpTo(MIPS::getEndTernary());
         MIPS::startElseTernary();
 
         // False Expression
-        right->translate(false, std::nullopt, result);
+        right->translate(func_context, false, std::nullopt, result);
         MIPS::endTernary();
     }
     break;
     case ExpressionType::BINARY:
     {
         // Operação binária
-        int r1 = left->translate();
-        int r2 = right->translate();
+        int r1 = left->translate(func_context);
+        int r2 = right->translate(func_context);
         MIPS::createExpression(operatorSymbol, r1, r2, result);
         MIPS::freeTemporaryRegister(r1);
         MIPS::freeTemporaryRegister(r2);
@@ -92,14 +93,14 @@ int Expression::translate(bool reverse, const std::optional<std::string> &jumpTo
     case ExpressionType::UNARY:
     {
         // Operação unária
-        left->translate(false, std::nullopt, result);
+        left->translate(func_context, false, std::nullopt, result);
         MIPS::createExpression(operatorSymbol, result, result);
     }
     break;
     case ExpressionType::ARRAY_ACCESS:
     {
         // Acesso a índices de array
-        int rg_index = left->translate();
+        int rg_index = left->translate(func_context);
         MIPS::createArrayAccess(std::get<std::string>(value.value()), rg_index, result);
     }
     break;
@@ -109,7 +110,7 @@ int Expression::translate(bool reverse, const std::optional<std::string> &jumpTo
         MIPS::freeTemporaryRegister(result);
         for (auto &param : *parameters)
         {
-            int r1 = param->translate();
+            int r1 = param->translate(func_context);
             MIPS::moveTo(r1, MIPS::getArgumentRegister());
             MIPS::freeTemporaryRegister(r1);
         }
@@ -141,7 +142,9 @@ int Expression::translate(bool reverse, const std::optional<std::string> &jumpTo
     case ExpressionType::IDENTIFIER:
     {
         // Identificador
-        // TODO
+        MIPS::freeTemporaryRegister(result);
+        const int rg = func_context->getRegister(std::get<std::string>(value.value()));
+        return rg;
     }
     break;
     }

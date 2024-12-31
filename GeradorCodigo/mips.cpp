@@ -53,17 +53,26 @@ int MIPS::getSaveRegister()
 
 void MIPS::freeArgumentRegister(const int index)
 {
-    arg_registers[index - 1] = true;
+    if (index > 0 && index <= ARGUMENT_REGISTER)
+    {
+        arg_registers[index - 1] = true;
+    }
 }
 
 void MIPS::freeTemporaryRegister(const int index)
 {
-    temp_registers[index - (ARGUMENT_REGISTER + 1)] = true;
+    if (index > ARGUMENT_REGISTER && index <= (ARGUMENT_REGISTER + TEMPORARY_REGISTER))
+    {
+        temp_registers[index - (ARGUMENT_REGISTER + 1)] = true;
+    }
 }
 
 void MIPS::freeSaveRegister(const int index)
 {
-    save_registers[index - (ARGUMENT_REGISTER + TEMPORARY_REGISTER + 1)] = true;
+    if (index > (ARGUMENT_REGISTER + TEMPORARY_REGISTER) && index <= (ARGUMENT_REGISTER + TEMPORARY_REGISTER + SAVE_REGISTER))
+    {
+        save_registers[index - (ARGUMENT_REGISTER + TEMPORARY_REGISTER + 1)] = true;
+    }
 }
 
 void MIPS::freeAllRegisters()
