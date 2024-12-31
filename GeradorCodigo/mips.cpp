@@ -313,7 +313,7 @@ void MIPS::createArrayAccess(const std::string &array_identifier, const int rg_i
 
 void MIPS::initializeConstant(const int rg_dst, const int value)
 {
-    text.push(createInstruction("addi", rg_dst, 0, value));
+    text.push("addi " + getRegisterName(rg_dst) + ", " + getRegisterName(0) + ", " + std::to_string(value));
 }
 
 std::string MIPS::startWhile()
