@@ -18,8 +18,6 @@ extern int yylex();
 void yyerror(const char *msg);
 Ast ast;
 %}
-%debug
-%verbose
 %union {
     int integer;
     std::string* str;

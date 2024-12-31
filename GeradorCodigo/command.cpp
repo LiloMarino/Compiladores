@@ -101,64 +101,69 @@ void Command::translate()
         const std::string &format = string.value();
         size_t pos = 0;
         size_t start = 0;
-        auto param_iter = parameters->begin();
 
-        // Percorre a string para encontrar '%' seguido de um especificador
-        while ((pos = format.find('%', start)) != std::string::npos)
+        if (parameters)
         {
-            // Extrai o texto antes do '%'
-            if (pos > start)
+            auto param_iter = parameters->begin();
+
+            // Percorre a string para encontrar '%' seguido de um especificador
+            while ((pos = format.find('%', start)) != std::string::npos)
             {
-                std::string text = format.substr(start, pos - start);
-                MIPS::callPrintf(text); // Imprime o texto antes do '%'
+                // Extrai o texto antes do '%'
+                if (pos > start)
+                {
+                    std::string text = format.substr(start, pos - start);
+                    MIPS::callPrintf(text);
+                }
+
+                char specifier = format[pos + 1];
+                switch (specifier)
+                {
+                case 'd': // Inteiro
+                    if (param_iter != parameters->end())
+                    {
+                        int reg = (*param_iter)->translate();
+                        MIPS::callPrintf(reg);
+                        ++param_iter;
+                    }
+                    else
+                    {
+                        throw std::runtime_error("Not enough parameters for '%d'.");
+                    }
+                    break;
+
+                case 's': // String
+                    if (param_iter != parameters->end())
+                    {
+                        int reg = (*param_iter)->translate();
+                        MIPS::callPrintfAsString(reg);
+                        ++param_iter;
+                    }
+                    else
+                    {
+                        throw std::runtime_error("Not enough parameters for '%s'.");
+                    }
+                    break;
+
+                case 'c': // Caractere
+                    if (param_iter != parameters->end())
+                    {
+                        int reg = (*param_iter)->translate();
+                        MIPS::callPrintfAsChar(reg);
+                        ++param_iter;
+                    }
+                    else
+                    {
+                        throw std::runtime_error("Not enough parameters for '%c'.");
+                    }
+                    break;
+
+                default:
+                    throw std::runtime_error("Unsupported format specifier: %" + std::string(1, specifier));
+                }
+                // Avança para o próximo trecho da string
+                start = pos + 2;
             }
-            char specifier = format[pos + 1];
-            switch (specifier)
-            {
-            case 'd': // Inteiro
-                if (param_iter != parameters->end())
-                {
-                    int reg = (*param_iter)->translate(); // Gera código MIPS para a expressão
-                    MIPS::callPrintf(reg);                // Imprime o valor do registrador
-                    ++param_iter;
-                }
-                else
-                {
-                    throw std::runtime_error("Not enough parameters for '%d'.");
-                }
-                break;
-
-            case 's': // String
-                if (param_iter != parameters->end())
-                {
-                    int reg = (*param_iter)->translate(); // Gera código MIPS para a expressão
-                    MIPS::callPrintfAsString(reg);        // Imprime o endereço como string
-                    ++param_iter;
-                }
-                else
-                {
-                    throw std::runtime_error("Not enough parameters for '%s'.");
-                }
-                break;
-
-            case 'c': // Caractere
-                if (param_iter != parameters->end())
-                {
-                    int reg = (*param_iter)->translate(); // Gera código MIPS para a expressão
-                    MIPS::callPrintfAsChar(reg);          // Imprime o caractere
-                    ++param_iter;
-                }
-                else
-                {
-                    throw std::runtime_error("Not enough parameters for '%c'.");
-                }
-                break;
-
-            default:
-                throw std::runtime_error("Unsupported format specifier: %" + std::string(1, specifier));
-            }
-            // Avança para o próximo trecho da string
-            start = pos + 2;
         }
 
         // Imprime o restante da string, se houver
