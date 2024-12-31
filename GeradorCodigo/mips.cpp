@@ -12,25 +12,6 @@ std::pair<int, int> MIPS::if_count = {0, 0};
 std::pair<int, int> MIPS::while_count = {0, 0};
 std::pair<int, int> MIPS::for_count = {0, 0};
 
-void MIPS::initialize()
-{
-    // Inicializa todos os registradores argumentos como true
-    for (int i = 0; i < ARGUMENT_REGISTER; ++i)
-    {
-        arg_registers[i] = true;
-    }
-    // Inicializa todos os registradores temporários como true
-    for (int i = 0; i < TEMPORARY_REGISTER; ++i)
-    {
-        temp_registers[i] = true;
-    }
-    // Inicializa todos os registradores salvos como true
-    for (int i = 0; i < SAVE_REGISTER; ++i)
-    {
-        save_registers[i] = true;
-    }
-}
-
 int MIPS::getArgumentRegister()
 {
     for (int i = 0; i < ARGUMENT_REGISTER; ++i)
@@ -83,6 +64,22 @@ void MIPS::freeTemporaryRegister(const int index)
 void MIPS::freeSaveRegister(const int index)
 {
     save_registers[index - (ARGUMENT_REGISTER + TEMPORARY_REGISTER + 1)] = true;
+}
+
+void MIPS::freeAllRegisters()
+{
+    for (int i = 0; i < ARGUMENT_REGISTER; ++i)
+    {
+        arg_registers[i] = true;
+    }
+    for (int i = 0; i < TEMPORARY_REGISTER; ++i)
+    {
+        temp_registers[i] = true;
+    }
+    for (int i = 0; i < SAVE_REGISTER; ++i)
+    {
+        save_registers[i] = true;
+    }
 }
 
 std::string MIPS::getRegisterName(const int index)
@@ -386,7 +383,7 @@ void MIPS::callPrintf(const std::string &string)
     int reg = getTemporaryRegister();
     text.push("move " + getRegisterName(reg) + ", $a0");
     text.push("li $v0, 4");
-    text.push("la $a0, " + string);
+    text.push("la $a0, " + createString(string));
     text.push("syscall");
     text.push("move $a0, " + getRegisterName(reg));
     freeTemporaryRegister(reg);

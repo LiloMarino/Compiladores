@@ -33,4 +33,5 @@ void Function::translate()
     {
         cmd->translate();
     }
+    MIPS::freeAllRegisters();
 }

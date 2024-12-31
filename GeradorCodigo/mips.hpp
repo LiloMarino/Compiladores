@@ -24,11 +24,6 @@ private:
 
 public:
     /**
-     * @brief Inicializador do MIPS
-     */
-    static void initialize();
-
-    /**
      * @brief Obtém o índice de um registrador argumento e marca ele como em uso
      * @return Índice do registrador argumento
      */
@@ -63,6 +58,11 @@ public:
      * @param index Índice do registrador salvo
      */
     static void freeSaveRegister(const int index);
+
+    /**
+     * @brief Marca todos os registradores como livres
+     */
+    static void freeAllRegisters();
 
     /**
      * @brief Obtém o nome do registrador
@@ -307,6 +307,7 @@ public:
      * @param rg Registrador com status de saída
      */
     static void callExit(const int rg);
+
 private:
     /**
      * @brief Cria uma instrução a partir de registradores

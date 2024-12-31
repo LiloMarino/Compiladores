@@ -1,6 +1,7 @@
 #include "command.hpp"
 #include "mips.hpp"
 #include <stdexcept>
+#include <algorithm>
 
 Command::Command(CommandType type, std::unique_ptr<Expression> condition,
                  std::unique_ptr<std::deque<std::unique_ptr<Command>>> commands)
@@ -98,7 +99,8 @@ void Command::translate()
     break;
     case CommandType::PRINTF:
     {
-        const std::string &format = string.value();
+        std::string &format = string.value();
+        format.erase(std::remove(format.begin(), format.end(), '"'), format.end());
         size_t pos = 0;
         size_t start = 0;
 
