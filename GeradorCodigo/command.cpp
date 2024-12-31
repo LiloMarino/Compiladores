@@ -38,7 +38,7 @@ void Command::translate(Function *func_context)
         std::string label = MIPS::startWhile();
         for (auto &cmd : *commands)
         {
-            cmd->translate();
+            cmd->translate(func_context);
         }
         condition->translate(func_context, false, label);
         MIPS::endWhile();
@@ -50,7 +50,7 @@ void Command::translate(Function *func_context)
         condition->translate(func_context, true, MIPS::getEndIf());
         for (auto &cmd : *commands)
         {
-            cmd->translate();
+            cmd->translate(func_context);
         }
         MIPS::endIf();
     }
@@ -61,13 +61,13 @@ void Command::translate(Function *func_context)
         condition->translate(func_context, true, MIPS::getElse());
         for (auto &cmd : *commands)
         {
-            cmd->translate();
+            cmd->translate(func_context);
         }
         MIPS::jumpTo(MIPS::getEndIf());
         MIPS::startElse();
         for (auto &cmd : *second_commands)
         {
-            cmd->translate();
+            cmd->translate(func_context);
         }
         MIPS::endIf();
     }
@@ -78,7 +78,7 @@ void Command::translate(Function *func_context)
         condition->translate(func_context, true, MIPS::getEndWhile());
         for (auto &cmd : *commands)
         {
-            cmd->translate();
+            cmd->translate(func_context);
         }
         MIPS::jumpTo(label);
         MIPS::endWhile();
@@ -91,7 +91,7 @@ void Command::translate(Function *func_context)
         condition->translate(func_context, true, MIPS::getEndFor());
         for (auto &cmd : *commands)
         {
-            cmd->translate();
+            cmd->translate(func_context);
         }
         step->translate(func_context);
         MIPS::jumpTo(label);

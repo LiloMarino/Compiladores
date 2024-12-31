@@ -90,7 +90,7 @@ public:
     /**
      * @brief Traduz o Comando para código MIPS
      */
-    void translate(Function *func_context = nullptr);
+    void translate(Function *func_context);
 };
 
 #endif
