@@ -5,6 +5,9 @@
 #include <deque>
 #include "expression.hpp"
 
+// Declaração antecipada para evitar dependência circular
+class Function;
+
 enum class CommandType
 {
     DO_WHILE,
@@ -30,6 +33,7 @@ private:
     std::unique_ptr<std::deque<std::unique_ptr<Command>>> commands = nullptr;
     std::unique_ptr<std::deque<std::unique_ptr<Command>>> second_commands = nullptr;
     std::optional<std::string> string = std::nullopt;
+    std::optional<std::string> identifier = std::nullopt;
 
 public:
     /**
@@ -71,9 +75,9 @@ public:
     /**
      * @brief Construtor para SCANF
      * @param string String a ser lida
-     * @param assign Atribuição do SCANF
+     * @param variable Atribuição do SCANF
      */
-    Command(const std::optional<std::string> &string, std::unique_ptr<Expression> assign);
+    Command(const std::string &string, const std::string &variable);
 
     /**
      * @brief Construtor para PRINTF
@@ -86,7 +90,7 @@ public:
     /**
      * @brief Traduz o Comando para código MIPS
      */
-    void translate();
+    void translate(Function *func_context = nullptr);
 };
 
 #endif

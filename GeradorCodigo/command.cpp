@@ -1,5 +1,6 @@
 #include "command.hpp"
 #include "mips.hpp"
+#include "function.hpp"
 #include <stdexcept>
 #include <algorithm>
 
@@ -21,14 +22,14 @@ Command::Command(std::unique_ptr<Expression> assign, std::unique_ptr<Expression>
 Command::Command(CommandType type, std::unique_ptr<Expression> expression)
     : type(type), assign(std::move(expression)) {}
 
-Command::Command(const std::optional<std::string> &string, std::unique_ptr<Expression> assign)
-    : type(CommandType::SCANF), assign(std::move(assign)), string(string) {}
+Command::Command(const std::string &string, const std::string &variable)
+    : type(CommandType::SCANF), string(string), identifier(variable) {}
 
 Command::Command(const std::optional<std::string> &string,
                  std::unique_ptr<std::deque<std::unique_ptr<Expression>>> parameters)
     : type(CommandType::PRINTF), parameters(std::move(parameters)), string(string) {}
 
-void Command::translate()
+void Command::translate(Function *func_context)
 {
     switch (type)
     {
@@ -187,8 +188,7 @@ void Command::translate()
             {
             case 'd': // Inteiro
             {
-                const auto &var = assign->getValue().value();
-                MIPS::callScanf(std::get<std::string>(var));
+                MIPS::callScanf(func_context->getRegister(identifier.value()));
             }
             break;
             default:

@@ -38,6 +38,13 @@ public:
     void addRegister(std::string& identifier, int rg);
 
     /**
+     * @brief Obtém o registrador associado a uma variável
+     * @param identifier Identificador da variável
+     * @return Registrador associado
+     */
+    int getRegister(std::string& identifier);
+
+    /**
      * @brief Obtém o identificador
      * @return Identificador da função
      */

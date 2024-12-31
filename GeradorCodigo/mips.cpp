@@ -422,11 +422,11 @@ void MIPS::callPrintfAsChar(const int rg)
     freeTemporaryRegister(reg);
 }
 
-void MIPS::callScanf(const std::string &identifier)
+void MIPS::callScanf(const int rg)
 {
     text.push("li $v0, 5");
     text.push("syscall");
-    text.push("sw $v0, " + identifier);
+    text.push("move " + getRegisterName(rg) + ", $v0");
 }
 
 void MIPS::callReturn(const int rg)

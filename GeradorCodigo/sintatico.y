@@ -160,7 +160,7 @@ Command: DO_WHILE L_PAREN Commands COMMA Condition R_PAREN {
           delete $3;
         }
        | SCANF L_PAREN STRING COMMA BITWISE_AND L_PAREN IDENTIFIER R_PAREN R_PAREN {
-          $$ = new Command(*$3, std::make_unique<Expression>(*$7));
+          $$ = new Command(*$3, *$7);
           delete $3;
           delete $7;
         }

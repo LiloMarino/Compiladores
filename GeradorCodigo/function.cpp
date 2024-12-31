@@ -13,6 +13,11 @@ void Function::addRegister(std::string &identifier, int rg)
     registers[identifier] = rg;
 }
 
+int Function::getRegister(std::string &identifier)
+{
+    return registers.at(identifier);
+}
+
 std::string Function::getIdentifier() const
 {
     return identifier;
@@ -31,7 +36,7 @@ void Function::translate()
     }
     for (auto &cmd : *commands)
     {
-        cmd->translate();
+        cmd->translate(this);
     }
     MIPS::freeAllRegisters();
 }

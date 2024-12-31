@@ -290,10 +290,10 @@ public:
     static void callPrintfAsChar(const int rg);
 
     /**
-     * @brief Lê um valor inteiro e salva na variável
-     * @param identifier Nome da variável
+     * @brief Lê um valor inteiro e salva no registrador
+     * @param rg Registrador a ser salvo
      */
-    static void callScanf(const std::string &identifier);
+    static void callScanf(const int rg);
 
     /**
      * @brief Retorna a função com o valor de um registrador
