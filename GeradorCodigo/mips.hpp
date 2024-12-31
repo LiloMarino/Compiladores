@@ -3,6 +3,7 @@
 
 #include "expression.hpp"
 #include <queue>
+#include <functional>
 
 #define ARGUMENT_REGISTER 4
 #define TEMPORARY_REGISTER 10
@@ -70,6 +71,20 @@ public:
      * @return Nome do registrador
      */
     static std::string getRegisterName(const int index);
+
+    /**
+     * @brief Obtém o índice do registrador
+     * @param name Nome do registrador
+     * @return Índice do registrador
+     */
+    static int getRegisterIndex(const std::string &name);
+
+    /**
+     * @brief Verifica se o registrador está em uso
+     * @param index Índice do registrador
+     * @return True se o registrador está em uso, false caso contrário
+     */
+    static bool isRegisterInUse(const int index);
 
     /**
      * @brief Imprime o código MIPS
@@ -317,6 +332,13 @@ private:
      * @param r3 Terceiro registrador
      */
     static std::string createInstruction(const std::string &instruction, const int r1, const int r2, const int r3);
+
+    /**
+     * @brief Preserva o valor de um registrador antes de executar uma ação
+     * @param action Ação a ser executada
+     * @param rg Registrador a ser preservado
+     */
+    static void preserveRegister(const int rg, const std::function<void()> &action);
 };
 
 #endif

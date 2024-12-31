@@ -106,6 +106,54 @@ std::string MIPS::getRegisterName(const int index)
     }
 }
 
+int MIPS::getRegisterIndex(const std::string &name)
+{
+    if (name == "$zero")
+    {
+        return 0;
+    }
+    else if (name[1] == 'a')
+    {
+        return 1 + std::stoi(name.substr(2));
+    }
+    else if (name[1] == 't')
+    {
+        return ARGUMENT_REGISTER + 1 + std::stoi(name.substr(2));
+    }
+    else if (name[1] == 's')
+    {
+        return ARGUMENT_REGISTER + TEMPORARY_REGISTER + 1 + std::stoi(name.substr(2));
+    }
+    else
+    {
+        throw std::invalid_argument("Invalid register name");
+    }
+}
+
+bool MIPS::isRegisterInUse(const int index)
+{
+    if (index == 0)
+    {
+        return true;
+    }
+    else if (index < ARGUMENT_REGISTER)
+    {
+        return !arg_registers[index - 1];
+    }
+    else if (index < (ARGUMENT_REGISTER + TEMPORARY_REGISTER))
+    {
+        return !temp_registers[index - ARGUMENT_REGISTER - 1];
+    }
+    else if (index < (ARGUMENT_REGISTER + TEMPORARY_REGISTER + SAVE_REGISTER))
+    {
+        return !save_registers[index - ARGUMENT_REGISTER - TEMPORARY_REGISTER - 1];
+    }
+    else
+    {
+        throw std::invalid_argument("Invalid register index");
+    }
+}
+
 void MIPS::printCode()
 {
     std::cout << ".data" << std::endl;
@@ -380,46 +428,78 @@ void MIPS::callFunction(const std::string &function_name)
 
 void MIPS::callPrintf(const std::string &string)
 {
-    int reg = getTemporaryRegister();
-    text.push("move " + getRegisterName(reg) + ", $a0");
-    text.push("li $v0, 4");
-    text.push("la $a0, " + createString(string));
-    text.push("syscall");
-    text.push("move $a0, " + getRegisterName(reg));
-    freeTemporaryRegister(reg);
+    int a0 = getRegisterIndex("$a0");
+    auto print = [&]()
+    {
+        text.push("li $v0, 4");
+        text.push("la $a0, " + createString(string));
+        text.push("syscall");
+    };
+    if (isRegisterInUse(a0))
+    {
+        preserveRegister(a0, print);
+    }
+    else
+    {
+        print();
+    }
 }
 
 void MIPS::callPrintf(const int value)
 {
-    int reg = getTemporaryRegister();
-    text.push("move " + getRegisterName(reg) + ", $a0");
-    text.push("li $v0, 1");
-    text.push("move $a0, " + getRegisterName(value));
-    text.push("syscall");
-    text.push("move $a0, " + getRegisterName(reg));
-    freeTemporaryRegister(reg);
+    int a0 = getRegisterIndex("$a0");
+    auto print = [&]()
+    {
+        text.push("li $v0, 1");
+        text.push("move $a0, " + getRegisterName(value));
+        text.push("syscall");
+    };
+    if (isRegisterInUse(a0))
+    {
+        preserveRegister(a0, print);
+    }
+    else
+    {
+        print();
+    }
 }
 
 void MIPS::callPrintfAsString(const int rg)
 {
-    int reg = getTemporaryRegister();
-    text.push("move " + getRegisterName(reg) + ", $a0");
-    text.push("li $v0, 4");
-    text.push("move $a0, " + getRegisterName(rg));
-    text.push("syscall");
-    text.push("move $a0, " + getRegisterName(reg));
-    freeTemporaryRegister(reg);
+    int a0 = getRegisterIndex("$a0");
+    auto print = [&]()
+    {
+        text.push("li $v0, 4");
+        text.push("move $a0, " + getRegisterName(rg));
+        text.push("syscall");
+    };
+    if (isRegisterInUse(a0))
+    {
+        preserveRegister(a0, print);
+    }
+    else
+    {
+        print();
+    }
 }
 
 void MIPS::callPrintfAsChar(const int rg)
 {
-    int reg = getTemporaryRegister();
-    text.push("move " + getRegisterName(reg) + ", $a0");
-    text.push("li $v0, 11");
-    text.push("move $a0, " + getRegisterName(rg));
-    text.push("syscall");
-    text.push("move $a0, " + getRegisterName(reg));
-    freeTemporaryRegister(reg);
+    int a0 = getRegisterIndex("$a0");
+    auto print = [&]()
+    {
+        text.push("li $v0, 11");
+        text.push("move $a0, " + getRegisterName(rg));
+        text.push("syscall");
+    };
+    if (isRegisterInUse(a0))
+    {
+        preserveRegister(a0, print);
+    }
+    else
+    {
+        print();
+    }
 }
 
 void MIPS::callScanf(const int rg)
@@ -451,4 +531,13 @@ void MIPS::callExit(const int rg)
 std::string MIPS::createInstruction(const std::string &instruction, const int r1, const int r2, const int r3)
 {
     return instruction + "  " + getRegisterName(r1) + ", " + getRegisterName(r2) + ", " + getRegisterName(r3);
+}
+
+void MIPS::preserveRegister(const int rg, const std::function<void()> &action)
+{
+    std::string tempReg = getRegisterName(getTemporaryRegister());
+    text.push("move " + tempReg + ", " + getRegisterName(rg)); // Salva o valor do registrador
+    action();
+    text.push("move " + getRegisterName(rg) + ", " + tempReg); // Restaura o valor do registrador
+    freeTemporaryRegister(getRegisterIndex(tempReg));
 }
