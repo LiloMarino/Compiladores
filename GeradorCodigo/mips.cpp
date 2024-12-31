@@ -7,6 +7,7 @@ bool MIPS::arg_registers[ARGUMENT_REGISTER];
 bool MIPS::temp_registers[TEMPORARY_REGISTER];
 bool MIPS::save_registers[SAVE_REGISTER];
 int MIPS::string_count = 0;
+std::pair<int, int> MIPS::ternary_count = {0, 0};
 std::pair<int, int> MIPS::if_count = {0, 0};
 std::pair<int, int> MIPS::while_count = {0, 0};
 std::pair<int, int> MIPS::for_count = {0, 0};
@@ -144,10 +145,105 @@ void MIPS::createGlobalVar(const std::string &identifier, const int value)
 
 void MIPS::createExpression(const OperatorType op, const int r1, const int r2, const int rg_result)
 {
+    switch (op)
+    {
+    case OperatorType::PLUS:
+        text.push("add " + getRegisterName(rg_result) + ", " + getRegisterName(r1) + ", " + getRegisterName(r2));
+        break;
+    case OperatorType::MINUS:
+        text.push("sub " + getRegisterName(rg_result) + ", " + getRegisterName(r1) + ", " + getRegisterName(r2));
+        break;
+    case OperatorType::MULTIPLY:
+        text.push("mul " + getRegisterName(rg_result) + ", " + getRegisterName(r1) + ", " + getRegisterName(r2));
+        break;
+    case OperatorType::DIVIDE:
+        text.push("div " + getRegisterName(r1) + ", " + getRegisterName(r2));
+        text.push("mflo " + getRegisterName(rg_result));
+        break;
+    case OperatorType::REMAINDER:
+        text.push("div " + getRegisterName(r1) + ", " + getRegisterName(r2));
+        text.push("mfhi " + getRegisterName(rg_result));
+        break;
+    case OperatorType::BITWISE_AND:
+        text.push("and " + getRegisterName(rg_result) + ", " + getRegisterName(r1) + ", " + getRegisterName(r2));
+        break;
+    case OperatorType::BITWISE_OR:
+        text.push("or " + getRegisterName(rg_result) + ", " + getRegisterName(r1) + ", " + getRegisterName(r2));
+        break;
+    case OperatorType::BITWISE_XOR:
+        text.push("xor " + getRegisterName(rg_result) + ", " + getRegisterName(r1) + ", " + getRegisterName(r2));
+        break;
+    case OperatorType::LOGICAL_AND:
+        text.push("sne " + getRegisterName(r1) + ", " + getRegisterName(r1) + ", $zero");
+        text.push("sne " + getRegisterName(r2) + ", " + getRegisterName(r2) + ", $zero");
+        text.push("and " + getRegisterName(rg_result) + ", " + getRegisterName(r1) + ", " + getRegisterName(r2));
+        break;
+    case OperatorType::LOGICAL_OR:
+        text.push("sne " + getRegisterName(r1) + ", " + getRegisterName(r1) + ", $zero");
+        text.push("sne " + getRegisterName(r2) + ", " + getRegisterName(r2) + ", $zero");
+        text.push("or " + getRegisterName(rg_result) + ", " + getRegisterName(r1) + ", " + getRegisterName(r2));
+        break;
+    case OperatorType::EQUAL:
+        text.push("sub " + getRegisterName(rg_result) + ", " + getRegisterName(r1) + ", " + getRegisterName(r2));
+        text.push("seq " + getRegisterName(rg_result) + ", " + getRegisterName(rg_result) + ", $zero");
+        break;
+    case OperatorType::NOT_EQUAL:
+        text.push("sub " + getRegisterName(rg_result) + ", " + getRegisterName(r1) + ", " + getRegisterName(r2));
+        text.push("sne " + getRegisterName(rg_result) + ", " + getRegisterName(rg_result) + ", $zero");
+        break;
+    case OperatorType::LESS_THAN:
+        text.push("slt " + getRegisterName(rg_result) + ", " + getRegisterName(r1) + ", " + getRegisterName(r2));
+        break;
+    case OperatorType::GREATER_THAN:
+        text.push("sgt " + getRegisterName(rg_result) + ", " + getRegisterName(r1) + ", " + getRegisterName(r2));
+        break;
+    case OperatorType::LESS_EQUAL:
+        text.push("sle " + getRegisterName(rg_result) + ", " + getRegisterName(r1) + ", " + getRegisterName(r2));
+        break;
+    case OperatorType::GREATER_EQUAL:
+        text.push("sge " + getRegisterName(rg_result) + ", " + getRegisterName(r1) + ", " + getRegisterName(r2));
+        break;
+    case OperatorType::R_SHIFT:
+        text.push("srl " + getRegisterName(rg_result) + ", " + getRegisterName(r1) + ", " + getRegisterName(r2));
+        break;
+    case OperatorType::L_SHIFT:
+        text.push("sll " + getRegisterName(rg_result) + ", " + getRegisterName(r1) + ", " + getRegisterName(r2));
+        break;
+    default:
+        throw std::runtime_error("Invalid operator");
+        break;
+    }
 }
 
 void MIPS::createExpression(const OperatorType op, const int r1, const int rg_result)
 {
+    switch (op)
+    {
+    case OperatorType::PLUS:
+        text.push("add " + getRegisterName(rg_result) + ", " + getRegisterName(r1) + ", $zero");
+        break;
+    case OperatorType::MINUS:
+        text.push("sub " + getRegisterName(rg_result) + ", $zero, " + getRegisterName(r1));
+        break;
+    case OperatorType::MULTIPLY:
+        text.push("lw " + getRegisterName(rg_result) + ", 0(" + getRegisterName(r1) + ")");
+        break;
+    case OperatorType::INC:
+        text.push("addi " + getRegisterName(rg_result) + ", " + getRegisterName(r1) + ", 1");
+        break;
+    case OperatorType::DEC:
+        text.push("addi " + getRegisterName(rg_result) + ", " + getRegisterName(r1) + ", -1");
+        break;
+    case OperatorType::BITWISE_NOT:
+        text.push("nor " + getRegisterName(rg_result) + ", " + getRegisterName(r1) + ", $zero");
+        break;
+    case OperatorType::NOT:
+        text.push("seq " + getRegisterName(rg_result) + ", " + getRegisterName(r1) + ", $zero");
+        break;
+    default:
+        throw std::runtime_error("Invalid operator");
+        break;
+    }
 }
 
 void MIPS::createArrayAccess(const std::string &array_identifier, const int rg_index, const int rg_result)
