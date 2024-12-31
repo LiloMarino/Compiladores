@@ -120,7 +120,7 @@ public:
      * @param rg_index Índice do registrador de índice
      * @param rg_result Índice do registrador de resultado
      */
-    static void createArrayAcess(const std::string &array_identifier, const int rg_index, const int rg_result);
+    static void createArrayAccess(const std::string &array_identifier, const int rg_index, const int rg_result);
 
     /**
      * @brief Inicializa uma constante em um registrador

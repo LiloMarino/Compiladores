@@ -116,7 +116,7 @@ int Expression::translate(bool reverse, const std::optional<std::string> &jumpTo
         {
             // Acesso a índices de array
             int rg_index = left->translate();
-            MIPS::createArrayAcess(std::get<std::string>(value.value()), rg_index, result);
+            MIPS::createArrayAccess(std::get<std::string>(value.value()), rg_index, result);
             return result;
         }
         else if (parameters)
