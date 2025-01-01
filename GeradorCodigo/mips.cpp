@@ -113,6 +113,10 @@ std::string MIPS::getRegisterName(const int index)
     {
         return "$v0";
     }
+    else if (index == RETURN_ADDRESS)
+    {
+        return "$ra";
+    }
     else
     {
         throw std::invalid_argument("Invalid register index");
@@ -140,6 +144,10 @@ int MIPS::getRegisterIndex(const std::string &name)
     else if (name == "$v0")
     {
         return RETURN_REGISTER;
+    }
+    else if (name == "$ra")
+    {
+        return RETURN_ADDRESS;
     }
     else
     {
@@ -492,15 +500,6 @@ void MIPS::callFunction(const std::string &function_name)
         }
     }
 
-    for (int i = 0; i < ARGUMENT_REGISTER; ++i)
-    {
-        if (!arg_registers[i])
-        {
-            int rg = getRegisterIndex("$a" + std::to_string(i));
-            currentAction = preserveRegisterInStack(rg, currentAction); // Encadeia a lambda
-        }
-    }
-
     for (int i = 0; i < SAVE_REGISTER; ++i)
     {
         if (!save_registers[i])
@@ -509,6 +508,9 @@ void MIPS::callFunction(const std::string &function_name)
             currentAction = preserveRegisterInStack(rg, currentAction); // Encadeia a lambda
         }
     }
+
+    // Salva o endereço de retorno
+    currentAction = preserveRegisterInStack(getRegisterIndex("$ra"), currentAction); // Encadeia a lambda
 
     // Após percorrer todos os registradores, executa a ação final
     currentAction(); 

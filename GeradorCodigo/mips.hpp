@@ -10,6 +10,7 @@
 #define TEMPORARY_REGISTER 10
 #define SAVE_REGISTER 8
 #define RETURN_REGISTER 22
+#define RETURN_ADDRESS 23
 
 class MIPS
 {
@@ -325,7 +326,6 @@ public:
      */
     static void callExit(const int rg);
 
-private:
     /**
      * @brief Cria uma instrução a partir de registradores
      * @param instruction Instrução a ser criada
