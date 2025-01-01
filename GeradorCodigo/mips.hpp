@@ -327,13 +327,10 @@ public:
     static void callExit(const int rg);
 
     /**
-     * @brief Cria uma instrução a partir de registradores
-     * @param instruction Instrução a ser criada
-     * @param r1 Primeiro registrador
-     * @param r2 Segundo registrador
-     * @param r3 Terceiro registrador
+     * @brief Adiciona uma instrução ao código
+     * @param instruction Instrução a ser adicionada
      */
-    static std::string createInstruction(const std::string &instruction, const int r1, const int r2, const int r3);
+    static void addInstruction(const std::string &instruction);
 
     /**
      * @brief Preserva o valor de um registrador antes de executar uma ação

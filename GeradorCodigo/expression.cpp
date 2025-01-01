@@ -109,13 +109,42 @@ int Expression::translate(Function *func_context, bool reverse, const std::optio
     {
         // Chamada de função
         MIPS::freeTemporaryRegister(result);
-        for (auto &param : *parameters)
+
+        // Preserva registradores de argumento se estiverem em uso
+        std::vector<std::function<void()>> restoreActions; // Ações para restaurar depois do jal
+        for (size_t i = 0; i < parameters->size(); ++i)
         {
-            int r1 = param->translate(func_context);
-            MIPS::moveTo(r1, MIPS::getArgumentRegister());
-            MIPS::freeTemporaryRegister(r1);
+            int arg_rg = MIPS::getRegisterIndex("$a" + std::to_string(i));
+            auto &param = (*parameters)[i];
+
+            if (MIPS::isRegisterInUse(arg_rg))
+            {
+                // Preserva o registrador antes de traduzir o parâmetro
+                MIPS::addInstruction("addi $sp, $sp, -4");
+                MIPS::addInstruction("sw " + MIPS::getRegisterName(arg_rg) + ", 0($sp)");
+
+                // Adiciona uma ação para restaurar o registrador depois do `jal`
+                restoreActions.push_back(
+                    [arg_rg, this]()
+                    {
+                        MIPS::addInstruction("lw " + MIPS::getRegisterName(arg_rg) + ", 0($sp)");
+                        MIPS::addInstruction("addi $sp, $sp, 4");
+                    });
+            }
+
+            // Traduz o parâmetro diretamente para o registrador
+            param->translate(func_context, false, std::nullopt, arg_rg);
         }
+
+        // Chama a função
         MIPS::callFunction(std::get<std::string>(value.value()));
+
+        // Restaura os registradores salvos na pilha
+        for (auto &restore : restoreActions)
+        {
+            restore();
+        }
+
         return RETURN_REGISTER;
     }
     case ExpressionType::INTEGER:
@@ -143,9 +172,17 @@ int Expression::translate(Function *func_context, bool reverse, const std::optio
     case ExpressionType::IDENTIFIER:
     {
         // Identificador
-        MIPS::freeTemporaryRegister(result);
         const int rg = func_context->getRegister(std::get<std::string>(value.value()));
-        return rg;
+        if (useRegister != -1)
+        {
+            MIPS::moveTo(rg, useRegister);
+            return useRegister;
+        }
+        else
+        {
+            MIPS::freeTemporaryRegister(result);
+            return rg;
+        }
     }
     break;
     }

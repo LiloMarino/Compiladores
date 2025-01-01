@@ -619,9 +619,9 @@ void MIPS::callExit(const int rg)
     text.push("syscall");
 }
 
-std::string MIPS::createInstruction(const std::string &instruction, const int r1, const int r2, const int r3)
+void MIPS::addInstruction(const std::string &instruction)
 {
-    return instruction + "  " + getRegisterName(r1) + ", " + getRegisterName(r2) + ", " + getRegisterName(r3);
+    text.push(instruction);
 }
 
 void MIPS::preserveRegister(const int rg, const std::function<void()> &action)
