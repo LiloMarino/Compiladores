@@ -126,7 +126,16 @@ void Command::translate(Function *func_context)
                     if (param_iter != parameters->end())
                     {
                         int reg = (*param_iter)->translate(func_context);
-                        MIPS::callPrintf(reg);
+                        if (reg != RETURN_REGISTER)
+                        {
+                            MIPS::callPrintf(reg);
+                        }
+                        else {
+                            int temp = MIPS::getTemporaryRegister();
+                            MIPS::moveTo(reg, temp);
+                            MIPS::callPrintf(temp);
+                            MIPS::freeTemporaryRegister(temp);
+                        }
                         MIPS::freeTemporaryRegister(reg);
                         ++param_iter;
                     }
