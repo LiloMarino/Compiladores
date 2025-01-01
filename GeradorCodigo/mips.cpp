@@ -109,6 +109,10 @@ std::string MIPS::getRegisterName(const int index)
     {
         return "$s" + std::to_string(index - (ARGUMENT_REGISTER + TEMPORARY_REGISTER + 1));
     }
+    else if (index == RETURN_REGISTER)
+    {
+        return "$v0";
+    }
     else
     {
         throw std::invalid_argument("Invalid register index");
@@ -132,6 +136,10 @@ int MIPS::getRegisterIndex(const std::string &name)
     else if (name[1] == 's')
     {
         return ARGUMENT_REGISTER + TEMPORARY_REGISTER + 1 + std::stoi(name.substr(2));
+    }
+    else if (name == "$v0")
+    {
+        return RETURN_REGISTER;
     }
     else
     {
@@ -402,7 +410,7 @@ void MIPS::endFor()
 
 void MIPS::startTernary()
 {
-     int new_index = ++ternary_data.first;
+    int new_index = ++ternary_data.first;
     ternary_data.second.push(new_index);
     createLabel("ternary_" + std::to_string(new_index));
 }
@@ -468,8 +476,44 @@ void MIPS::getAddress(const int rg, const std::string &label)
 
 void MIPS::callFunction(const std::string &function_name)
 {
-    text.push("jal " + function_name);
+    auto function = [&](){
+        text.push("jal " + function_name);
+    };
+
+    // Salva o contexo por meio de uma espécie de sistema de 'decorator (do Python)'
+    std::function<void()> currentAction = function; // Variável que mantém a cadeia de lambdas
+
+    for (int i = 0; i < TEMPORARY_REGISTER; ++i)
+    {
+        if (!temp_registers[i])
+        {
+            int rg = getRegisterIndex("$t" + std::to_string(i));
+            currentAction = preserveRegisterInStack(rg, currentAction); // Encadeia a lambda
+        }
+    }
+
+    for (int i = 0; i < ARGUMENT_REGISTER; ++i)
+    {
+        if (!arg_registers[i])
+        {
+            int rg = getRegisterIndex("$a" + std::to_string(i));
+            currentAction = preserveRegisterInStack(rg, currentAction); // Encadeia a lambda
+        }
+    }
+
+    for (int i = 0; i < SAVE_REGISTER; ++i)
+    {
+        if (!save_registers[i])
+        {
+            int rg = getRegisterIndex("$s" + std::to_string(i));
+            currentAction = preserveRegisterInStack(rg, currentAction); // Encadeia a lambda
+        }
+    }
+
+    // Após percorrer todos os registradores, executa a ação final
+    currentAction(); 
 }
+
 
 void MIPS::callPrintf(const std::string &string)
 {
@@ -585,4 +629,20 @@ void MIPS::preserveRegister(const int rg, const std::function<void()> &action)
     action();
     text.push("move " + getRegisterName(rg) + ", " + tempReg); // Restaura o valor do registrador
     freeTemporaryRegister(getRegisterIndex(tempReg));
+}
+
+std::function<void()> MIPS::preserveRegisterInStack(const int rg, const std::function<void()> &action)
+{
+    // Aloca o registrador na pilha
+    text.push("addi $sp, $sp, -4");
+    text.push("sw " + getRegisterName(rg) + ", 0($sp)");
+    
+    // Retorna uma função lambda que realiza a ação e restaura o registrador
+    return [=]() {
+        action(); // Chama a ação passada para a função (como um decorator)
+        
+        // Restaura o registrador da pilha
+        text.push("lw " + getRegisterName(rg) + ", 0($sp)");
+        text.push("addi $sp, $sp, 4");
+    };
 }

@@ -115,7 +115,7 @@ int Expression::translate(Function *func_context, bool reverse, const std::optio
             MIPS::freeTemporaryRegister(r1);
         }
         MIPS::callFunction(std::get<std::string>(value.value()));
-        return -1;
+        return RETURN_REGISTER;
     }
     case ExpressionType::INTEGER:
     {

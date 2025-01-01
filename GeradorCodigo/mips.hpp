@@ -9,6 +9,7 @@
 #define ARGUMENT_REGISTER 4
 #define TEMPORARY_REGISTER 10
 #define SAVE_REGISTER 8
+#define RETURN_REGISTER 22
 
 class MIPS
 {
@@ -340,6 +341,14 @@ private:
      * @param rg Registrador a ser preservado
      */
     static void preserveRegister(const int rg, const std::function<void()> &action);
+
+    /**
+     * @brief Preserva o valor de um registrador antes de executar uma ação para funcionar como um decorator Python
+     * @param rg Registrador a ser preservado
+     * @param action Ação a ser executada
+     * @return A função que preservou o registrador
+     */
+    static std::function<void()> preserveRegisterInStack(const int rg, const std::function<void()> &action);
 };
 
 #endif
