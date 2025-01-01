@@ -635,12 +635,13 @@ void MIPS::preserveRegister(const int rg, const std::function<void()> &action)
 
 std::function<void()> MIPS::preserveRegisterInStack(const int rg, const std::function<void()> &action)
 {
-    // Aloca o registrador na pilha
-    text.push("addi $sp, $sp, -4");
-    text.push("sw " + getRegisterName(rg) + ", 0($sp)");
-    
     // Retorna uma função lambda que realiza a ação e restaura o registrador
-    return [=]() {
+    return [=]()
+    {
+        // Aloca o registrador na pilha
+        text.push("addi $sp, $sp, -4");
+        text.push("sw " + getRegisterName(rg) + ", 0($sp)");
+        
         action(); // Chama a ação passada para a função (como um decorator)
         
         // Restaura o registrador da pilha
