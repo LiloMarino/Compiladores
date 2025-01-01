@@ -102,6 +102,7 @@ int Expression::translate(Function *func_context, bool reverse, const std::optio
         // Acesso a índices de array
         int rg_index = left->translate(func_context);
         MIPS::createArrayAccess(std::get<std::string>(value.value()), rg_index, result);
+        MIPS::freeTemporaryRegister(rg_index);
     }
     break;
     case ExpressionType::FUNCTION_CALL:
