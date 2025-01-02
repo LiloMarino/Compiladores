@@ -87,14 +87,14 @@ void Command::translate(Function *func_context)
     break;
     case CommandType::FOR:
     {
-        assign->translate(func_context);
+        MIPS::freeTemporaryRegister(assign->translate(func_context));
         std::string label = MIPS::startFor();
         MIPS::freeTemporaryRegister(condition->translate(func_context, true, MIPS::getEndFor()));
         for (auto &cmd : *commands)
         {
             cmd->translate(func_context);
         }
-        step->translate(func_context);
+        MIPS::freeTemporaryRegister(step->translate(func_context));
         MIPS::jumpTo(label);
         MIPS::endFor();
     }
@@ -216,6 +216,7 @@ void Command::translate(Function *func_context)
                     {
                         MIPS::callScanf(rg);
                         MIPS::saveWord(identifier.value(), rg);
+                        MIPS::freeTemporaryRegister(rg);
                     }
                 }
                 else
