@@ -1,6 +1,7 @@
 #include "expression.hpp"
 #include "mips.hpp"
 #include "function.hpp"
+#include "ast.hpp"
 #include <stdexcept>
 
 Expression::Expression(const char val)
@@ -83,11 +84,27 @@ int Expression::translate(Function *func_context, bool reverse, const std::optio
     case ExpressionType::BINARY:
     {
         // Operação binária
-        int r1 = left->translate(func_context);
-        int r2 = right->translate(func_context);
-        MIPS::createExpression(operatorSymbol, r1, r2, result);
-        MIPS::freeTemporaryRegister(r1);
-        MIPS::freeTemporaryRegister(r2);
+        switch (operatorSymbol)
+        {
+        case OperatorType::ASSIGN:
+
+            break;
+        case OperatorType::ADD_ASSIGN:
+
+            break;
+        case OperatorType::MINUS_ASSIGN:
+
+            break;
+        default:
+        {
+            int r1 = left->translate(func_context);
+            int r2 = right->translate(func_context);
+            MIPS::createExpression(operatorSymbol, r1, r2, result);
+            MIPS::freeTemporaryRegister(r1);
+            MIPS::freeTemporaryRegister(r2);
+        }
+        break;
+        }
     }
     break;
     case ExpressionType::UNARY:
@@ -172,7 +189,19 @@ int Expression::translate(Function *func_context, bool reverse, const std::optio
     case ExpressionType::IDENTIFIER:
     {
         // Identificador
-        const int rg = func_context->getRegister(std::get<std::string>(value.value()));
+        const std::string &identifier = std::get<std::string>(value.value());
+        int rg = func_context->getRegister(identifier);
+        if (rg == -1)
+        {
+            // Caso não encontrado no contexto local, busca no contexto global
+            rg = Ast::getRegister(identifier);
+            if (rg == -1)
+            {
+                // Se o identificador não foi encontrado em nenhum dos contextos, lança um erro
+                throw std::runtime_error("Identifier '" + identifier + "' not found in local or global context.");
+            }
+        }
+
         if (useRegister != -1)
         {
             MIPS::moveTo(rg, useRegister);

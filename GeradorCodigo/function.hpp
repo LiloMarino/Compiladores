@@ -42,7 +42,7 @@ public:
      * @param identifier Identificador da variável
      * @return Registrador associado
      */
-    int getRegister(std::string& identifier);
+    int getRegister(const std::string& identifier);
 
     /**
      * @brief Obtém o identificador
