@@ -251,11 +251,25 @@ public:
     static void jumpTo(const std::string &label);
 
     /**
-     * @brief Movimenta o valor do registrador r_src para r_dst
-     * @param r_src Registrador de origem
-     * @param r_dst Registrador de destino
+     * @brief Movimenta o valor do registrador rg_src para rg_dst
+     * @param rg_src Registrador de origem
+     * @param rg_dst Registrador de destino
      */
-    static void moveTo(const int r_src, const int r_dst);
+    static void moveTo(const int rg_src, const int rg_dst);
+
+    /**
+     * @brief Carrega o valor de uma palavra para um registrador
+     * @param identifier Nome do identificador
+     * @param rg_dst Registrador de destino
+     */
+    static void loadWord(const std::string &identifier, const int rg_dst);
+
+    /**
+     * @brief Salva o valor de um registrador para uma palavra
+     * @param identifier Nome do identificador
+     * @param rg_src Registrador de origem
+     */
+    static void saveWord(const std::string &identifier, const int rg_src);
 
     /**
      * @brief Faz um salto para uma label se uma condição for igual a zero

@@ -495,9 +495,19 @@ void MIPS::jumpTo(const std::string &label)
     text.push("j " + label);
 }
 
-void MIPS::moveTo(const int r_src, const int r_dst)
+void MIPS::moveTo(const int rg_src, const int rg_dst)
 {
-    text.push("move " + getRegisterName(r_dst) + ", " + getRegisterName(r_src));
+    text.push("move " + getRegisterName(rg_dst) + ", " + getRegisterName(rg_src));
+}
+
+void MIPS::loadWord(const std::string &identifier, const int rg_dst)
+{
+    text.push("lw " + getRegisterName(rg_dst) + ", " + identifier);
+}
+
+void MIPS::saveWord(const std::string &identifier, const int rg_src)
+{
+    text.push("sw " + getRegisterName(rg_src) + ", " + identifier);
 }
 
 void MIPS::branchEqualZero(const int rg, const std::string &label)

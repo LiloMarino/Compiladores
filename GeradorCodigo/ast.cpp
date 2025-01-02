@@ -1,6 +1,8 @@
 #include "ast.hpp"
 #include "mips.hpp"
 
+std::unordered_map<std::string, std::unique_ptr<Variable>> Ast::variables;
+
 void Ast::addVariable(std::unique_ptr<Variable> var)
 {
     variables[var->getIdentifier()] = std::move(var);

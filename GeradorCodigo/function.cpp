@@ -1,5 +1,7 @@
 #include "function.hpp"
 #include "mips.hpp"
+#include "ast.hpp"
+#include <stdexcept>
 
 Function::Function(const std::string &identifier, std::unique_ptr<Type> return_type,
                    std::unique_ptr<std::deque<std::unique_ptr<Variable>>> parameters,
@@ -15,8 +17,26 @@ void Function::addRegister(std::string &identifier, int rg)
 
 int Function::getRegister(std::string &identifier)
 {
-    return registers.at(identifier);
+    // Tenta buscar no contexto local
+    auto it = registers.find(identifier);
+    if (it != registers.end())
+    {
+        return it->second;
+    }
+
+    // Caso não encontrado no contexto local, busca no contexto global
+    auto globalIt = Ast::variables.find(identifier);
+    if (globalIt != Ast::variables.end())
+    {
+        int temp = MIPS::getTemporaryRegister();
+        MIPS::loadWord(globalIt->first, temp);
+        return temp;
+    }
+
+    // Se o identificador não foi encontrado em nenhum dos contextos, lança um erro
+    throw std::runtime_error("Identifier '" + identifier + "' not found in local or global context.");
 }
+
 
 std::string Function::getIdentifier() const
 {
