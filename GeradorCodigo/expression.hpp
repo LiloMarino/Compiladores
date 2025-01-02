@@ -158,6 +158,15 @@ public:
      * @return O registrador da expressão
      */
     int translate(Function *func_context, bool reverse = false, const std::optional<std::string> &jumpTo = std::nullopt, int useRegister = -1);
+private:
+
+    /**
+     * @brief Método auxiliar para lidar com variáveis globais
+     * @param op Operação a ser feita
+     * @param identifier Nome da variável global
+     * @param r2 Registrador a ser operado
+     */
+    void handleGlobalVariable(OperatorType op, const std::string& identifier, int r2);
 };
 
 #endif

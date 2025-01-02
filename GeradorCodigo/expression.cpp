@@ -84,27 +84,70 @@ int Expression::translate(Function *func_context, bool reverse, const std::optio
     case ExpressionType::BINARY:
     {
         // Operação binária
+        int r1, r2;
         switch (operatorSymbol)
         {
         case OperatorType::ASSIGN:
-
-            break;
+        {
+            std::string identifier = std::get<std::string>(left->getValue().value());
+            r1 = func_context->getRegister(identifier);
+            r2 = right->translate(func_context);
+            if (r1 != -1)
+            {
+                // Variável Local
+                MIPS::moveTo(r2, r1);
+            }
+            else
+            {
+                // Variável Global
+                MIPS::saveWord(identifier, r2);
+            }
+        }
+        break;
         case OperatorType::ADD_ASSIGN:
-
-            break;
+        {
+            std::string identifier = std::get<std::string>(left->getValue().value());
+            r1 = func_context->getRegister(identifier);
+            r2 = right->translate(func_context);
+            if (r1 != -1)
+            {
+                // Variável local
+                MIPS::createExpression(OperatorType::PLUS, r1, r2, r1);
+            }
+            else
+            {
+                // Variável global
+                handleGlobalVariable(OperatorType::PLUS, identifier, r2);
+            }
+        }
+        break;
         case OperatorType::MINUS_ASSIGN:
-
-            break;
+        {
+            std::string identifier = std::get<std::string>(left->getValue().value());
+            r1 = func_context->getRegister(identifier);
+            r2 = right->translate(func_context);
+            if (r1 != -1)
+            {
+                // Variável local
+                MIPS::createExpression(OperatorType::MINUS, r1, r2, r1);
+            }
+            else
+            {
+                // Variável global
+                handleGlobalVariable(OperatorType::MINUS, identifier, r2);
+            }
+        }
+        break;
         default:
         {
-            int r1 = left->translate(func_context);
-            int r2 = right->translate(func_context);
+            r1 = left->translate(func_context);
+            r2 = right->translate(func_context);
             MIPS::createExpression(operatorSymbol, r1, r2, result);
-            MIPS::freeTemporaryRegister(r1);
-            MIPS::freeTemporaryRegister(r2);
         }
         break;
         }
+        MIPS::freeTemporaryRegister(r1);
+        MIPS::freeTemporaryRegister(r2);
     }
     break;
     case ExpressionType::UNARY:
@@ -233,4 +276,13 @@ int Expression::translate(Function *func_context, bool reverse, const std::optio
     }
 
     return result;
+}
+
+void Expression::handleGlobalVariable(OperatorType op, const std::string &identifier, int r2)
+{
+    int temp = MIPS::getTemporaryRegister();
+    MIPS::loadWord(identifier, temp);
+    MIPS::createExpression(op, temp, r2, temp);
+    MIPS::saveWord(identifier, temp);
+    MIPS::freeTemporaryRegister(temp);
 }
