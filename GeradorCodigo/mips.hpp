@@ -2,6 +2,7 @@
 #define MIPS_HPP
 
 #include "expression.hpp"
+#include "variable.hpp"
 #include <queue>
 #include <stack>
 #include <functional>
@@ -111,9 +112,9 @@ public:
     /**
      * @brief Cria uma variável global em MIPS
      * @param identifier Nome da variável
-     * @param value Valor da variável
+     * @param type Tipo da variável
      */
-    static void createGlobalVar(const std::string &identifier, const int value);
+    static void createGlobalVar(const std::string &identifier, const Type *type);
 
     /**
      * @brief Traduz uma expressão binária para MIPS

@@ -208,9 +208,42 @@ std::string MIPS::createString(const std::string &string)
     return label;
 }
 
-void MIPS::createGlobalVar(const std::string &identifier, const int value)
+void MIPS::createGlobalVar(const std::string &identifier, const Type *type)
 {
-    data.push(identifier + ": .word " + std::to_string(value));
+    switch (type->getType())
+    {
+    case TypeEnum::INT:
+        data.push(identifier + ": .word 0");
+        break;
+    case TypeEnum::CHAR:
+        data.push(identifier + ": .byte 0");
+        break;
+    case TypeEnum::VOID_POINTER:
+        data.push(identifier + ": .word 0");
+        break;
+    case TypeEnum::ARRAY_INT:
+    {
+        int arraySize = 4;
+        for (auto &dim : type->getDimensions())
+        {
+            arraySize *= dim;
+        }
+        data.push(identifier + ": .space " + std::to_string(arraySize));
+    }
+    break;
+    case TypeEnum::ARRAY_CHAR:
+    {
+        int arraySize = 1;
+        for (auto &dim : type->getDimensions())
+        {
+            arraySize *= dim;
+        }
+        data.push(identifier + ": .space " + std::to_string(arraySize));
+    }
+    break;
+    default:
+        throw std::invalid_argument("Unsupported type for global variable: " + identifier);
+    }
 }
 
 void MIPS::createExpression(const OperatorType op, const int r1, const int r2, const int rg_result)
@@ -484,7 +517,8 @@ void MIPS::getAddress(const int rg, const std::string &label)
 
 void MIPS::callFunction(const std::string &function_name)
 {
-    auto function = [&](){
+    auto function = [&]()
+    {
         text.push("jal " + function_name);
     };
 
@@ -513,9 +547,8 @@ void MIPS::callFunction(const std::string &function_name)
     currentAction = preserveRegisterInStack(getRegisterIndex("$ra"), currentAction); // Encadeia a lambda
 
     // Após percorrer todos os registradores, executa a ação final
-    currentAction(); 
+    currentAction();
 }
-
 
 void MIPS::callPrintf(const std::string &string)
 {
@@ -641,9 +674,9 @@ std::function<void()> MIPS::preserveRegisterInStack(const int rg, const std::fun
         // Aloca o registrador na pilha
         text.push("addi $sp, $sp, -4");
         text.push("sw " + getRegisterName(rg) + ", 0($sp)");
-        
+
         action(); // Chama a ação passada para a função (como um decorator)
-        
+
         // Restaura o registrador da pilha
         text.push("lw " + getRegisterName(rg) + ", 0($sp)");
         text.push("addi $sp, $sp, 4");

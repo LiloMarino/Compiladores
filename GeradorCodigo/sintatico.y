@@ -258,19 +258,19 @@ ReturnType: Type { $$ = $1; }
           ;
 
 Type: INT StarLoop {
-        $$ = new Type(Type::INT, $2, nullptr);
+        $$ = new Type(TypeEnum::INT, $2, nullptr);
       }
     | CHAR StarLoop {
-        $$ = new Type(Type::CHAR, $2, nullptr);
+        $$ = new Type(TypeEnum::CHAR, $2, nullptr);
       }
     | VOID MULTIPLY StarLoop {
-        $$ = new Type(Type::VOID_POINTER, $3+1 , nullptr);
+        $$ = new Type(TypeEnum::VOID_POINTER, $3+1 , nullptr);
       }
     | INT Dimensions {
-        $$ = new Type(Type::ARRAY_INT, 1, std::unique_ptr<std::deque<int>>($2));
+        $$ = new Type(TypeEnum::ARRAY_INT, 1, std::unique_ptr<std::deque<int>>($2));
       }
     | CHAR Dimensions {
-        $$ = new Type(Type::ARRAY_CHAR, 1, std::unique_ptr<std::deque<int>>($2));
+        $$ = new Type(TypeEnum::ARRAY_CHAR, 1, std::unique_ptr<std::deque<int>>($2));
       }
     ;
 

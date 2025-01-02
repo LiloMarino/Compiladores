@@ -21,7 +21,7 @@ void Variable::translate(Function *func_context)
         MIPS::createConstant(identifier, value);
         break;
     case VariableCategory::GLOBAL_VARIABLE:
-        MIPS::createGlobalVar(identifier, value);
+        MIPS::createGlobalVar(identifier, type.get());
         break;
     case VariableCategory::LOCAL_VARIABLE:
         func_context->addRegister(identifier, MIPS::getSaveRegister());
