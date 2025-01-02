@@ -203,6 +203,7 @@ Expression: TernaryExpression { $$ = $1; }
           | IDENTIFIER { $$ = new Expression(*$1, ExpressionType::IDENTIFIER); delete $1; }
           | IDENTIFIER L_PAREN Expressions R_PAREN { $$ = new Expression(*$1,std::unique_ptr<std::deque<std::unique_ptr<Expression>>>($3)); delete $1; }
           | IDENTIFIER L_SQUARE_BRACKET Expression R_SQUARE_BRACKET { $$ = new Expression(*$1,std::unique_ptr<Expression>($3)); delete $1; }
+          | IDENTIFIER L_PAREN R_PAREN { $$ = new Expression(*$1, ExpressionType::FUNCTION_CALL); delete $1; }
           ;
 
 TernaryExpression: TERNARY_OPERATOR L_PAREN Expression COMMA Expression COMMA Expression R_PAREN {
