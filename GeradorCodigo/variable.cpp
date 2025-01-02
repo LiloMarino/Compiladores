@@ -13,6 +13,11 @@ std::string Variable::getIdentifier() const
     return identifier;
 }
 
+const Type &Variable::getType() const
+{
+    return *type;
+}
+
 void Variable::translate(Function *func_context)
 {
     switch (category)

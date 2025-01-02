@@ -5,9 +5,10 @@
 #include "type.hpp"
 
 // Declaração antecipada para evitar dependência circular
-class Function; 
+class Function;
 
-enum class VariableCategory {
+enum class VariableCategory
+{
     CONSTANT,
     PARAMETER,
     GLOBAL_VARIABLE,
@@ -21,6 +22,7 @@ private:
     VariableCategory category;
     std::string identifier;
     int value = 0;
+
 public:
     /**
      * @brief Construtor de variável
@@ -29,7 +31,7 @@ public:
      * @param identifier Identificador da variável
      */
     Variable(VariableCategory category, std::unique_ptr<Type> type, const std::string &identifier);
-    
+
     /**
      * @brief Construtor de constante
      * @param value Valor da constante
@@ -42,6 +44,12 @@ public:
      * @return Identificador da variável
      */
     std::string getIdentifier() const;
+
+    /**
+     * @brief Obtém o tipo da variável
+     * @return Tipo da variável
+     */
+    const Type &getType() const;
 
     /**
      * @brief Traduz a Variável para código MIPS

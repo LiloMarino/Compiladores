@@ -137,9 +137,17 @@ public:
      * @brief Traduz uma expressão de acesso a um array para MIPS
      * @param array_identifier Identificador do array
      * @param rg_index Índice do registrador de índice
-     * @param rg_result Índice do registrador de resultado
+     * @param rg_dst Índice do registrador de resultado
      */
-    static void createArrayAccess(const std::string &array_identifier, const int rg_index, const int rg_result);
+    static void createArrayAccess(const std::string &array_identifier, const int rg_index, const int rg_dst);
+
+    /**
+     * @brief Salva um valor em um array
+     * @param array_identifier Identificador do array
+     * @param rg_index Índice do registrador de índice
+     * @param rg_src Índice do registrador de origem
+     */
+    static void createArraySave(const std::string &array_identifier, const int rg_index, const int rg_src);
 
     /**
      * @brief Inicializa uma constante em um registrador

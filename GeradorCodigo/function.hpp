@@ -45,6 +45,13 @@ public:
     int getRegister(const std::string& identifier);
 
     /**
+     * @brief Obtém a variável local
+     * @param identifier Identificador da variável
+     * @return Variável local
+     */
+    const Variable *getVariable(const std::string &identifier);
+
+    /**
      * @brief Obtém o identificador
      * @return Identificador da função
      */

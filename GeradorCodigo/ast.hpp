@@ -32,6 +32,13 @@ public:
     static int getRegister(const std::string &identifier);
 
     /**
+     * @brief Obtém a variável global
+     * @param identifier Identificador da variável
+     * @return Variável global
+     */
+    static const Variable *getVariable(const std::string &identifier);
+
+    /**
      * @brief Traduz a AST para código MIPS
      */
     void translate();

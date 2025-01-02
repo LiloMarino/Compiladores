@@ -349,15 +349,27 @@ void MIPS::createExpression(const OperatorType op, const int r1, const int rg_re
     }
 }
 
-void MIPS::createArrayAccess(const std::string &array_identifier, const int rg_index, const int rg_result)
+void MIPS::createArrayAccess(const std::string &array_identifier, const int rg_index, const int rg_dst)
 {
     // Calcula o deslocamento (index * 4, assumindo elementos de 4 bytes (word size))
     int reg_temp = getTemporaryRegister();
     text.push("sll " + getRegisterName(reg_temp) + ", " + getRegisterName(rg_index) + ", 2");
-    text.push("la " + getRegisterName(rg_result) + ", " + array_identifier);
-    text.push("add " + getRegisterName(rg_result) + ", " + getRegisterName(rg_result) + ", " + getRegisterName(reg_temp));
-    text.push("lw " + getRegisterName(rg_result) + ", 0(" + getRegisterName(rg_result) + ")");
+    text.push("la " + getRegisterName(rg_dst) + ", " + array_identifier);
+    text.push("add " + getRegisterName(rg_dst) + ", " + getRegisterName(rg_dst) + ", " + getRegisterName(reg_temp));
+    text.push("lw " + getRegisterName(rg_dst) + ", 0(" + getRegisterName(rg_dst) + ")");
     freeTemporaryRegister(reg_temp);
+}
+
+void MIPS::createArraySave(const std::string &array_identifier, const int rg_index, const int rg_src)
+{
+    int reg_temp = getTemporaryRegister();
+    int reg_address = getTemporaryRegister();
+    text.push("sll " + getRegisterName(reg_temp) + ", " + getRegisterName(rg_index) + ", 2");
+    text.push("la " + getRegisterName(reg_address) + ", " + array_identifier);
+    text.push("add " + getRegisterName(reg_address) + ", " + getRegisterName(reg_address) + ", " + getRegisterName(reg_temp));
+    text.push("sw " + getRegisterName(rg_src) + ", 0(" + getRegisterName(reg_address) + ")");
+    freeTemporaryRegister(reg_temp);
+    freeTemporaryRegister(reg_address);
 }
 
 void MIPS::initializeConstant(const int rg_dst, const int value)

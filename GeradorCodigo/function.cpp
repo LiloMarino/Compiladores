@@ -24,6 +24,30 @@ int Function::getRegister(const std::string &identifier)
     return -1;
 }
 
+const Variable *Function::getVariable(const std::string &identifier)
+{
+    // Itera sobre a deque de variáveis para procurar a variável com o identificador dado
+    for (const auto &variable : *variables)
+    {
+        if (variable->getIdentifier() == identifier)
+        {
+            return variable.get();
+        }
+    }
+
+    // Se não encontrar, procura nos parâmetros
+    for (const auto &parameter : *parameters)
+    {
+        if (parameter->getIdentifier() == identifier)
+        {
+            return parameter.get();
+        }
+    }
+
+    // Caso a variável não seja encontrada, lança uma exceção
+    throw std::runtime_error("Variável não encontrada: " + identifier);
+}
+
 
 std::string Function::getIdentifier() const
 {

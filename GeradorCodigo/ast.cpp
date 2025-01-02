@@ -1,5 +1,6 @@
 #include "ast.hpp"
 #include "mips.hpp"
+#include <stdexcept>
 
 std::unordered_map<std::string, std::unique_ptr<Variable>> Ast::variables;
 
@@ -23,6 +24,16 @@ int Ast::getRegister(const std::string &identifier)
         return temp;
     }
     return -1;
+}
+
+const Variable *Ast::getVariable(const std::string &identifier)
+{
+    auto globalIt = Ast::variables.find(identifier);
+    if (globalIt != Ast::variables.end())
+    {
+        return globalIt->second.get();
+    }
+    throw std::runtime_error("Variable not found");
 }
 
 void Ast::translate()

@@ -92,50 +92,106 @@ int Expression::translate(Function *func_context, bool reverse, const std::optio
             std::string identifier = std::get<std::string>(left->getValue().value());
             r1 = func_context->getRegister(identifier);
             r2 = right->translate(func_context);
+
+            // Primeiro, verificamos se é uma variável local
             if (r1 != -1)
             {
-                // Variável Local
-                MIPS::moveTo(r2, r1);
+                const Variable *var = func_context->getVariable(identifier); // Variável local
+                int pointerLvl = var->getType().getPointerLevel();
+                if (pointerLvl > 0)
+                {
+                    // Variável Local (Array)
+                    int rg_index = left->left->translate(func_context); // Traduz índice do array
+                    MIPS::createArraySave(identifier, rg_index, r2);
+                    MIPS::freeTemporaryRegister(rg_index);
+                }
+                else
+                {
+                    // Variável Local (Simples)
+                    MIPS::moveTo(r2, r1);
+                    MIPS::freeTemporaryRegister(r2);
+                    return r1;
+                }
             }
             else
             {
-                // Variável Global
-                MIPS::saveWord(identifier, r2);
+                // Caso contrário, buscamos no escopo global
+                const Variable *var = Ast::getVariable(identifier);
+                int pointerLvl = var->getType().getPointerLevel();
+                if (pointerLvl > 0)
+                {
+                    // Variável Global (Array)
+                    int rg_index = left->left->translate(func_context); // Traduz índice do array
+                    MIPS::createArraySave(identifier, rg_index, r2);
+                    MIPS::freeTemporaryRegister(rg_index);
+                }
+                else
+                {
+                    // Variável Global (Simples)
+                    MIPS::saveWord(identifier, r2);
+                }
             }
+
+            MIPS::freeTemporaryRegister(r2);
+            return result;
         }
         break;
         case OperatorType::ADD_ASSIGN:
-        {
-            std::string identifier = std::get<std::string>(left->getValue().value());
-            r1 = func_context->getRegister(identifier);
-            r2 = right->translate(func_context);
-            if (r1 != -1)
-            {
-                // Variável local
-                MIPS::createExpression(OperatorType::PLUS, r1, r2, r1);
-            }
-            else
-            {
-                // Variável global
-                handleGlobalVariable(OperatorType::PLUS, identifier, r2);
-            }
-        }
-        break;
         case OperatorType::MINUS_ASSIGN:
         {
             std::string identifier = std::get<std::string>(left->getValue().value());
             r1 = func_context->getRegister(identifier);
             r2 = right->translate(func_context);
+
+            OperatorType operation = (operatorSymbol == OperatorType::ADD_ASSIGN) ? OperatorType::PLUS : OperatorType::MINUS;
+
+            // Primeiro, verificamos se é uma variável local
             if (r1 != -1)
             {
-                // Variável local
-                MIPS::createExpression(OperatorType::MINUS, r1, r2, r1);
+                const Variable *var = func_context->getVariable(identifier); // Variável local
+                int pointerLvl = var->getType().getPointerLevel();
+                if (pointerLvl > 0)
+                {
+                    // Variável Local (Array)
+                    int rg_index = left->left->translate(func_context); // Traduz índice do array
+                    int rg_value = MIPS::getTemporaryRegister();
+                    MIPS::createArrayAccess(identifier, rg_index, rg_value);   // Carrega valor atual do array
+                    MIPS::createExpression(operation, rg_value, r2, rg_value); // Realiza operação
+                    MIPS::createArraySave(identifier, rg_index, rg_value);     // Salva resultado
+                    MIPS::freeTemporaryRegister(rg_index);
+                    MIPS::freeTemporaryRegister(rg_value);
+                }
+                else
+                {
+                    // Variável Local (Simples)
+                    MIPS::createExpression(operation, r1, r2, r1);
+                }
             }
             else
             {
-                // Variável global
-                handleGlobalVariable(OperatorType::MINUS, identifier, r2);
+                // Caso contrário, buscamos no escopo global
+                const Variable *var = Ast::getVariable(identifier);
+                int pointerLvl = var->getType().getPointerLevel();
+                if (pointerLvl > 0)
+                {
+                    // Variável Global (Array)
+                    int rg_index = left->left->translate(func_context); // Traduz índice do array
+                    int rg_value = MIPS::getTemporaryRegister();
+                    MIPS::createArrayAccess(identifier, rg_index, rg_value);   // Carrega valor atual do array
+                    MIPS::createExpression(operation, rg_value, r2, rg_value); // Realiza operação
+                    MIPS::createArraySave(identifier, rg_index, rg_value);     // Salva resultado
+                    MIPS::freeTemporaryRegister(rg_index);
+                    MIPS::freeTemporaryRegister(rg_value);
+                }
+                else
+                {
+                    // Variável Global (Simples)
+                    handleGlobalVariable(operation, identifier, r2);
+                }
             }
+
+            MIPS::freeTemporaryRegister(r2);
+            return result;
         }
         break;
         default:
