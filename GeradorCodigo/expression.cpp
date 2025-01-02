@@ -228,7 +228,7 @@ int Expression::translate(Function *func_context, bool reverse, const std::optio
         MIPS::freeTemporaryRegister(result);
 
         // Preserva registradores de argumento se estiverem em uso
-        std::vector<std::function<void()>> restoreActions; // Ações para restaurar depois do jal
+        std::stack<std::function<void()>> restoreActions; // Ações para restaurar depois do jal
         for (size_t i = 0; i < parameters->size(); ++i)
         {
             int arg_rg = MIPS::getRegisterIndex("$a" + std::to_string(i));
@@ -241,7 +241,7 @@ int Expression::translate(Function *func_context, bool reverse, const std::optio
                 MIPS::addInstruction("sw " + MIPS::getRegisterName(arg_rg) + ", 0($sp)");
 
                 // Adiciona uma ação para restaurar o registrador depois do `jal`
-                restoreActions.push_back(
+                restoreActions.push(
                     [arg_rg, this]()
                     {
                         MIPS::addInstruction("lw " + MIPS::getRegisterName(arg_rg) + ", 0($sp)");
@@ -257,9 +257,11 @@ int Expression::translate(Function *func_context, bool reverse, const std::optio
         MIPS::callFunction(std::get<std::string>(value.value()));
 
         // Restaura os registradores salvos na pilha
-        for (auto &restore : restoreActions)
+        while (!restoreActions.empty())
         {
-            restore();
+            auto action = restoreActions.top();
+            restoreActions.pop();
+            action();
         }
 
         return RETURN_REGISTER;
