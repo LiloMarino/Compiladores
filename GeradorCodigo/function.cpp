@@ -69,5 +69,16 @@ void Function::translate()
     {
         cmd->translate(this);
     }
+    if (!commands->empty())
+    {
+        // Acessa o último comando
+        auto lastCommand = commands->back().get();
+
+        // Verifica se é um comando do tipo Return
+        if (!(lastCommand->getType() == CommandType::RETURN))
+        {
+            MIPS::callReturn(-1);
+        }
+    }
     MIPS::freeAllRegisters();
 }

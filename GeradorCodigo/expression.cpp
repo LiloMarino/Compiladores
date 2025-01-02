@@ -110,6 +110,7 @@ int Expression::translate(Function *func_context, bool reverse, const std::optio
                     // Variável Local (Simples)
                     MIPS::moveTo(r2, r1);
                     MIPS::freeTemporaryRegister(r2);
+                    MIPS::freeTemporaryRegister(result);
                     return r1;
                 }
             }
@@ -309,6 +310,20 @@ int Expression::translate(Function *func_context, bool reverse, const std::optio
         else
         {
             MIPS::freeTemporaryRegister(result);
+            if (jumpTo.has_value())
+            {
+                // Registrador = 1 True, = 0 False
+                if (reverse)
+                {
+                    // Se for falso então jump
+                    MIPS::branchEqualZero(rg, jumpTo.value());
+                }
+                else
+                {
+                    // Se for true então jump
+                    MIPS::branchNotEqualZero(rg, jumpTo.value());
+                }
+            }
             return rg;
         }
     }

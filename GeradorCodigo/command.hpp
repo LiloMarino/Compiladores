@@ -88,6 +88,12 @@ public:
             std::unique_ptr<std::deque<std::unique_ptr<Expression>>> parameters = nullptr);
 
     /**
+     * @brief Obtém o tipo do comando
+     * @return Tipo do comando
+     */
+    CommandType getType() const;
+
+    /**
      * @brief Traduz o Comando para código MIPS
      */
     void translate(Function *func_context);

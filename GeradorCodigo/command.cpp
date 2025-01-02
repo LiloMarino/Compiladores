@@ -30,6 +30,11 @@ Command::Command(const std::optional<std::string> &string,
                  std::unique_ptr<std::deque<std::unique_ptr<Expression>>> parameters)
     : type(CommandType::PRINTF), parameters(std::move(parameters)), string(string) {}
 
+CommandType Command::getType() const
+{
+    return type;
+}
+
 void Command::translate(Function *func_context)
 {
     switch (type)
