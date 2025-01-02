@@ -1,6 +1,7 @@
 #include "command.hpp"
 #include "mips.hpp"
 #include "function.hpp"
+#include "ast.hpp"
 #include <stdexcept>
 #include <algorithm>
 
@@ -130,7 +131,8 @@ void Command::translate(Function *func_context)
                         {
                             MIPS::callPrintf(reg);
                         }
-                        else {
+                        else
+                        {
                             int temp = MIPS::getTemporaryRegister();
                             MIPS::moveTo(reg, temp);
                             MIPS::callPrintf(temp);
@@ -200,7 +202,26 @@ void Command::translate(Function *func_context)
             {
             case 'd': // Inteiro
             {
-                MIPS::callScanf(func_context->getRegister(identifier.value()));
+                int rg = func_context->getRegister(identifier.value());
+                if (rg == -1)
+                {
+                    // Caso não encontrado no contexto local, busca no contexto global
+                    rg = Ast::getRegister(identifier.value());
+                    if (rg == -1)
+                    {
+                        // Se o identificador não foi encontrado em nenhum dos contextos, lança um erro
+                        throw std::runtime_error("Identifier '" + identifier.value() + "' not found in local or global context.");
+                    }
+                    else
+                    {
+                        MIPS::callScanf(rg);
+                        MIPS::saveWord(identifier.value(), rg);
+                    }
+                }
+                else
+                {
+                    MIPS::callScanf(rg);
+                }
             }
             break;
             default:
@@ -232,7 +253,7 @@ void Command::translate(Function *func_context)
     break;
     case CommandType::EXPRESSION:
     {
-        assign->translate(func_context);
+        MIPS::freeTemporaryRegister(assign->translate(func_context));
     }
     break;
     }
