@@ -46,16 +46,16 @@ GraphData: K ASSIGN INTEGER GraphNodes {
          ;
 
 GraphNodes: GraphNode GraphNodes {
-                $$ = $2;
-                $$->addAdjacencyList($1->first, *($1->second));
-                delete $1->second;
-                delete $1;
+              $$ = $2;
+              $$->addAdjacencyList($1->first, *($1->second));
+              delete $1->second;
+              delete $1;
             }
           | GraphNode {
-                $$ = new Graph();
-                $$->addAdjacencyList($1->first, *($1->second));
-                delete $1->second;
-                delete $1;
+              $$ = new Graph();
+              $$->addAdjacencyList($1->first, *($1->second));
+              delete $1->second;
+              delete $1;
             }
           ;
 

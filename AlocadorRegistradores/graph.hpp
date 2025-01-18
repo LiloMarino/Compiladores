@@ -34,11 +34,37 @@ public:
     void removeEdge(int u, int v);
 
     /**
+     * @brief Remove o vértice u do grafo.
+     * @param u O vértice a ser removido.
+     */
+    void removeNode(int u);
+
+    /**
      * @brief Obtém a lista de adjacência de um vértice.
      * @param u O vértice cuja lista de adjacência será obtida.
      * @return Uma referência à lista de vértices adjacentes.
      */
     const std::list<int> &getAdjacencyList(int u) const;
+
+    /**
+     * @brief Obtém o grau do vértice u.
+     * @param u O vértice cujo grau será obtido.
+     * @return O grau do vértice u.
+     */
+    int getDegree(int u) const;
+
+    /**
+     * @brief Verifica se o vértice u existe no grafo.
+     * @param u O vértice a ser verificado.
+     * @return True se o vértice u existe no grafo, false caso contrário.
+     */
+    bool hasNode(int u) const;
+
+    /**
+     * @brief Obtém todos os vértices do grafo.
+     * @return Uma lista de vértices do grafo.
+     */
+    std::vector<int> getAllNodes() const;
 
     /**
      * @brief Exibe o grafo como listas de adjacência.
