@@ -1,4 +1,4 @@
 #include "regalloc.hpp"
 
-#include <list>
-
+RegAlloc::RegAlloc(std::unique_ptr<Graph> grafo, int K) 
+    : grafo(std::move(grafo)), K(K) {}

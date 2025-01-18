@@ -4,6 +4,7 @@
 #include <list>
 #include <utility>
 #include "graph.hpp"
+#include "regalloc.hpp"
 }
 
 %{
@@ -17,6 +18,7 @@ void yyerror(const char *msg);
     std::list<int>*  list_int;
     std::pair<int, std::list<int>*>* pair_int_list;
     Graph* graph;
+    RegAlloc* regalloc;
 }
 
 %token <integer> INTEGER
@@ -26,26 +28,34 @@ void yyerror(const char *msg);
 %type <list_int> IntegerLoop
 %type <pair_int_list> GraphNode
 %type <graph> GraphNodes
+%type <regalloc> GraphData
 
 %start Grafo
 
 %%
 
 Grafo: GRAFO INTEGER COLON GraphData {
-        
+        $4->start();
+        delete $4;
       }
      ;
 
 GraphData: K ASSIGN INTEGER GraphNodes {
-            
+            $$ = new RegAlloc(std::unique_ptr<Graph>($4), $3);
           }
          ;
 
 GraphNodes: GraphNode GraphNodes {
-              
+                $$ = $2;
+                $$->addAdjacencyList($1->first, *($1->second));
+                delete $1->second;
+                delete $1;
             }
           | GraphNode {
-              
+                $$ = new Graph();
+                $$->addAdjacencyList($1->first, *($1->second));
+                delete $1->second;
+                delete $1;
             }
           ;
 
@@ -55,13 +65,12 @@ GraphNode: INTEGER ARROW IntegerLoop {
          ;
 
 IntegerLoop: INTEGER IntegerLoop { 
-              $$ = new std::list<int>(*$2);
+              $$ = $2;
               $$->push_front($1);
-              delete $2;  
             }
            | INTEGER { 
               $$ = new std::list<int>();
-              $$->push_front($1); 
+              $$->push_front($1);
             } 
            ;
 
