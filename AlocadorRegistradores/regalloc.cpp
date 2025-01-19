@@ -1,60 +1,98 @@
 #include "regalloc.hpp"
 #include <stack>
-#include <unordered_set>
+#include <iostream>
+#include <algorithm>
+#include <map>
 
 RegAlloc::RegAlloc(std::unique_ptr<Graph> graph, int K)
     : graph(std::move(graph)), K(K) {}
 
 void RegAlloc::start()
 {
-    std::stack<int> nodeStack;
-    std::unordered_set<int> nodesToRemove;
-
-    // Simplify phase: Trabalha com a cópia do grafo
-    while (true)
+    for (int currentK = K; currentK >= 2; --currentK)
     {
-        bool removedNode = false;
-        for (int node : graphCopy->getAllNodes())
+        std::stack<int> nodeStack;
+        std::map<int, int> localColorMap;
+        std::map<int, std::list<int>> originalAdjacency;
+        bool spillOccurred = false;
+
+        // Simplify phase
+        while (!graph->getAllNodes().empty())
         {
-            if (graphCopy->getDegree(node) < K && nodesToRemove.find(node) == nodesToRemove.end())
+            auto nodes = graph->getAllNodes();
+            std::sort(nodes.begin(), nodes.end(), [this](int a, int b) {
+                int degreeA = graph->getDegree(a);
+                int degreeB = graph->getDegree(b);
+                return (degreeA < degreeB) || (degreeA == degreeB && a < b);
+            });
+
+            int nodeToRemove = -1;
+            for (int node : nodes)
             {
-                nodesToRemove.insert(node);
-                nodeStack.push(node);
-                removedNode = true;
-                break;
+                if (graph->getDegree(node) < currentK)
+                {
+                    nodeToRemove = node;
+                    break;
+                }
             }
-        }
-        if (!removedNode)
-        {
-            break;
-        }
-    }
 
-    // Color phase
-    while (!nodeStack.empty())
-    {
-        int node = nodeStack.top();
-        nodeStack.pop();
-
-        std::vector<bool> availableColors(K, true);
-
-        for (int neighbor : graph->getAdjacencyList(node))
-        {
-            if (colorMap.find(neighbor) != colorMap.end())
+            if (nodeToRemove == -1)
             {
-                availableColors[colorMap[neighbor]] = false;
+                auto maxDegreeNode = std::max_element(nodes.begin(), nodes.end(), [this](int a, int b) {
+                    return graph->getDegree(a) < graph->getDegree(b) || 
+                           (graph->getDegree(a) == graph->getDegree(b) && a < b);
+                });
+                nodeToRemove = *maxDegreeNode;
+                spillOccurred = true;
+                std::cout << "Potential Spill: " << nodeToRemove << std::endl;
             }
+
+            std::cout << "Push: " << nodeToRemove << std::endl;
+            originalAdjacency[nodeToRemove] = graph->getAdjacencyList(nodeToRemove);
+            nodeStack.push(nodeToRemove);
+            graph->removeNode(nodeToRemove);
         }
 
-        for (int color = 0; color < K; ++color)
+        // Color phase
+        while (!nodeStack.empty())
         {
-            if (availableColors[color])
+            int node = nodeStack.top();
+            nodeStack.pop();
+
+            std::vector<bool> availableColors(currentK, true);
+
+            for (int neighbor : originalAdjacency[node])
             {
-                colorMap[node] = color;
-                break;
+                if (localColorMap.find(neighbor) != localColorMap.end())
+                {
+                    availableColors[localColorMap[neighbor]] = false;
+                }
             }
+
+            bool colored = false;
+            for (int color = 0; color < currentK; ++color)
+            {
+                if (availableColors[color])
+                {
+                    localColorMap[node] = color;
+                    colored = true;
+                    break;
+                }
+            }
+
+            if (!colored)
+            {
+                std::cout << "Pop: " << node << " -> NO COLOR AVAILABLE" << std::endl;
+                spillOccurred = true;
+            }
+            else
+            {
+                std::cout << "Pop: " << node << " -> " << localColorMap[node] << std::endl;
+            }
+
+            graph->addNode(node, originalAdjacency[node]);
         }
 
-        graph->addEdge(node, node);
+        std::cout << "Graph -> K = " << currentK << ": " << (spillOccurred ? "SPILL" : "Successful Allocation") << std::endl;
     }
 }

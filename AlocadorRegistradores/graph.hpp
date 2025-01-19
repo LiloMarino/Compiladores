@@ -20,6 +20,13 @@ public:
     void addEdge(int u, int v);
 
     /**
+     * @brief Adiciona um vértice com a lista de adjacências.
+     * @param u O vértice.
+     * @param adjList A lista de adjacências.
+     */
+    void addNode(int u, const std::list<int> &adjList);
+
+    /**
      * @brief Adiciona uma lista de adjacência ao grafo.
      * @param u O vértice ao qual a lista de adjacência será associada.
      * @param adjList A lista de vértices adjacentes ao vértice u.

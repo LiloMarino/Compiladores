@@ -6,6 +6,15 @@ void Graph::addEdge(int u, int v)
     adjacencyList[u].push_back(v);
 }
 
+void Graph::addNode(int u, const std::list<int> &adjList)
+{
+    adjacencyList[u] = adjList;
+    for (int v : adjList)
+    {
+        adjacencyList[v].push_back(u);
+    }
+}
+
 void Graph::addAdjacencyList(int u, const std::list<int> &adjList)
 {
     adjacencyList[u].insert(adjacencyList[u].end(), adjList.begin(), adjList.end());
