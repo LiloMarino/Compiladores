@@ -6,19 +6,20 @@
 #include <unordered_map>
 #include <iostream>
 
+
+struct GraphNode
+{
+    int virtualRegister;
+    std::list<int> adjacencyList;
+};
+
+
 class Graph
 {
 private:
     std::unordered_map<int, std::list<int>> adjacencyList;
 
 public:
-    /**
-     * @brief Adiciona uma aresta do vértice u ao vértice v.
-     * @param u O vértice de origem.
-     * @param v O vértice de destino.
-     */
-    void addEdge(int u, int v);
-
     /**
      * @brief Adiciona um vértice com a lista de adjacências.
      * @param u O vértice.
@@ -34,17 +35,11 @@ public:
     void addAdjacencyList(int u, const std::list<int> &adjList);
 
     /**
-     * @brief Remove uma aresta do vértice u ao vértice v.
-     * @param u O vértice de origem.
-     * @param v O vértice de destino.
+     * @brief Remove o nó u do grafo.
+     * @param u O nó a ser removido.
+     * @return Nó removido
      */
-    void removeEdge(int u, int v);
-
-    /**
-     * @brief Remove o vértice u do grafo.
-     * @param u O vértice a ser removido.
-     */
-    void removeNode(int u);
+    GraphNode popNode(int u);
 
     /**
      * @brief Obtém a lista de adjacência de um vértice.
@@ -72,11 +67,6 @@ public:
      * @return Uma lista de vértices do grafo.
      */
     std::vector<int> getAllNodes() const;
-
-    /**
-     * @brief Exibe o grafo como listas de adjacência.
-     */
-    void display() const;
 };
 
 #endif

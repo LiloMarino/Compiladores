@@ -25,6 +25,25 @@ public:
      * @brief Inicia o algoritmo de coloração dos grafos
      */
     void start();
+private:
+    /**
+     * @brief Simplifica o grafo de interferência removendo os nós que não possuem dependências.
+     * @param nodeStack Uma pilha de nós que precisam ser visitados.
+     * @param currentK O número de registradores disponíveis.
+     */
+    void simplify(std::stack<GraphNode> &nodeStack, int currentK);
+
+    /**
+     * @brief Realiza a substituição de um nó por um registrador.
+     * @param nodeStack Uma pilha de nós que precisam ser visitados.
+     */
+    void spill(std::stack<GraphNode> &nodeStack);
+
+    /**
+     * @brief Seleciona os nós que precisam ser visitados.
+     * @param nodeStack Uma pilha de nós que precisam ser visitados.
+     */
+    void select(std::stack<GraphNode> &nodeStack);
 };
 
 #endif

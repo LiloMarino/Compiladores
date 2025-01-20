@@ -1,11 +1,6 @@
 #include "graph.hpp"
 #include <iostream>
 
-void Graph::addEdge(int u, int v)
-{
-    adjacencyList[u].push_back(v);
-}
-
 void Graph::addNode(int u, const std::list<int> &adjList)
 {
     adjacencyList[u] = adjList;
@@ -20,18 +15,17 @@ void Graph::addAdjacencyList(int u, const std::list<int> &adjList)
     adjacencyList[u].insert(adjacencyList[u].end(), adjList.begin(), adjList.end());
 }
 
-void Graph::removeEdge(int u, int v)
+GraphNode Graph::popNode(int u)
 {
-    adjacencyList[u].remove(v);
-}
-
-void Graph::removeNode(int u)
-{
+    GraphNode node;
+    node.virtualRegister = u;
+    node.adjacencyList = adjacencyList[u];
     for (auto &neighbor : adjacencyList[u])
     {
         adjacencyList[neighbor].remove(u);
     }
     adjacencyList.erase(u);
+    return node;
 }
 
 const std::list<int> &Graph::getAdjacencyList(int u) const
@@ -57,17 +51,4 @@ std::vector<int> Graph::getAllNodes() const
         nodes.push_back(pair.first);
     }
     return nodes;
-}
-
-void Graph::display() const
-{
-    for (const auto &pair : adjacencyList)
-    {
-        std::cout << pair.first << ": ";
-        for (int v : pair.second)
-        {
-            std::cout << v << " ";
-        }
-        std::cout << std::endl;
-    }
 }
