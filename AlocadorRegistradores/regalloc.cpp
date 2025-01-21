@@ -13,7 +13,8 @@ void RegAlloc::start()
     for (int currentK = K; currentK >= 2; --currentK)
     {
         printLine();
-        std::cout << "K = " << currentK << std::endl << std::endl;
+        std::cout << "K = " << currentK << std::endl
+                  << std::endl;
         simplify(nodeStack, currentK);
         select(nodeStack, currentK);
     }
@@ -45,7 +46,7 @@ void RegAlloc::simplify(std::stack<GraphNode> &nodeStack, int currentK)
         int nodeToRemove = -1;
         for (auto &node : nodes)
         {
-            if (graph->getDegree(node) < currentK)
+            if (node >= K && graph->getDegree(node) < currentK)
             {
                 nodeToRemove = node;
                 break;
@@ -90,7 +91,11 @@ void RegAlloc::select(std::stack<GraphNode> &nodeStack, int currentK)
         // Marca as cores dos vizinhos como indisponíveis
         for (int neighbor : node.adjacencyList)
         {
-            if (colorMap.find(neighbor) != colorMap.end())
+            if (neighbor < K)
+            {
+                availableColors[neighbor] = false;
+            }
+            else if (colorMap.find(neighbor) != colorMap.end())
             {
                 int usedColor = colorMap[neighbor];
                 if (usedColor < currentK)
@@ -110,6 +115,7 @@ void RegAlloc::select(std::stack<GraphNode> &nodeStack, int currentK)
                 break;
             }
         }
+
         if (assignedColor != -1)
         {
             colorMap[node.virtualRegister] = assignedColor;
@@ -119,5 +125,7 @@ void RegAlloc::select(std::stack<GraphNode> &nodeStack, int currentK)
         {
             std::cout << "Pop: " << node.virtualRegister << " -> NO COLOR AVAILABLE" << std::endl;
         }
+
+        graph->addNode(node.virtualRegister, node.adjacencyList);
     }
 }
