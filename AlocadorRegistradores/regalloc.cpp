@@ -3,20 +3,43 @@
 #include <iostream>
 #include <algorithm>
 #include <map>
+#include <iomanip>
 
 RegAlloc::RegAlloc(std::unique_ptr<Graph> graph, int K)
     : graph(std::move(graph)), K(K) {}
 
-void RegAlloc::start()
+void RegAlloc::start(int graphId)
 {
-    std::stack<GraphNode> nodeStack;
+    this->graphId = graphId;
+    std::cout << "Graph " << graphId << " -> " << "Physical Registers: " << K << std::endl;
+    printLine();
+    std::vector<std::string> results;
     for (int currentK = K; currentK >= 2; --currentK)
     {
+        std::stack<GraphNode> nodeStack;
         printLine();
         std::cout << "K = " << currentK << std::endl
                   << std::endl;
+
         simplify(nodeStack, currentK);
-        select(nodeStack, currentK);
+        bool success = select(nodeStack, currentK);
+
+        // Use std::setw para garantir alinhamento
+        std::ostringstream oss;
+        oss << "Graph " << graphId << " -> K = " << std::setw(2) << currentK << ": "
+            << (success ? "Successful Allocation" : "SPILL");
+        results.push_back(oss.str());
+    }
+    printLine();
+    printSummary(results);
+}
+
+void RegAlloc::printSummary(const std::vector<std::string> &results)
+{
+    printLine(false);
+    for (const auto &result : results)
+    {
+        std::cout << std::endl << result;
     }
 }
 
@@ -25,9 +48,12 @@ int RegAlloc::getK()
     return K;
 }
 
-void RegAlloc::printLine()
+void RegAlloc::printLine(bool endLine)
 {
-    std::cout << "----------------------------------------" << std::endl;
+    std::cout << "----------------------------------------";
+    if (endLine) {
+        std::cout << std::endl;
+    }
 }
 
 void RegAlloc::simplify(std::stack<GraphNode> &nodeStack, int currentK)
@@ -40,9 +66,9 @@ void RegAlloc::simplify(std::stack<GraphNode> &nodeStack, int currentK)
                   {
                       int degreeA = graph->getDegree(a);
                       int degreeB = graph->getDegree(b);
-                      // Em caso de nós com o mesmo grau, o nó com o menor número de registrador virtual será escolhido.
                       return (degreeA < degreeB) || (degreeA == degreeB && a < b);
                   });
+
         int nodeToRemove = -1;
         for (auto &node : nodes)
         {
@@ -52,14 +78,19 @@ void RegAlloc::simplify(std::stack<GraphNode> &nodeStack, int currentK)
                 break;
             }
         }
+
         if (nodeToRemove == -1)
         {
-            // Não houve um nó cujo o grau seja menor que K
-            spill(nodes);
+            int spillNode = spill(nodes);
+            std::cout << "Push: " << spillNode << " *" << std::endl;
+            nodeStack.push(graph->popNode(spillNode));
             break;
         }
-        nodeStack.push(graph->popNode(nodeToRemove));
-        std::cout << "Push: " << nodeToRemove << std::endl;
+        else
+        {
+            std::cout << "Push: " << nodeToRemove << std::endl;
+            nodeStack.push(graph->popNode(nodeToRemove));
+        }
     }
 }
 
@@ -72,23 +103,21 @@ int RegAlloc::spill(std::vector<int> &nodes)
                                               return graph->getDegree(a) < graph->getDegree(b) ||
                                                      (graph->getDegree(a) == graph->getDegree(b) && a < b);
                                           });
-    std::cout << "Potential Spill: " << *maxDegreeNode << std::endl;
     return *maxDegreeNode;
 }
 
-void RegAlloc::select(std::stack<GraphNode> &nodeStack, int currentK)
+bool RegAlloc::select(std::stack<GraphNode> &nodeStack, int currentK)
 {
     std::unordered_map<int, int> colorMap;
+    bool success = true;
 
     while (!nodeStack.empty())
     {
         auto node = nodeStack.top();
         nodeStack.pop();
 
-        // Todas as cores estão disponíveis inicialmente
         std::vector<bool> availableColors(currentK, true);
 
-        // Marca as cores dos vizinhos como indisponíveis
         for (int neighbor : node.adjacencyList)
         {
             if (neighbor < K)
@@ -105,7 +134,6 @@ void RegAlloc::select(std::stack<GraphNode> &nodeStack, int currentK)
             }
         }
 
-        // Atribui a primeira cor disponível ao nó atual
         int assignedColor = -1;
         for (int color = 0; color < currentK; ++color)
         {
@@ -124,8 +152,10 @@ void RegAlloc::select(std::stack<GraphNode> &nodeStack, int currentK)
         else
         {
             std::cout << "Pop: " << node.virtualRegister << " -> NO COLOR AVAILABLE" << std::endl;
+            success = false;
         }
 
         graph->addNode(node.virtualRegister, node.adjacencyList);
     }
+    return success;
 }

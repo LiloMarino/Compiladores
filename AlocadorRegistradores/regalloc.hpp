@@ -9,6 +9,7 @@
 class RegAlloc
 {
 private:
+    int graphId = -1;
     std::unique_ptr<Graph> graph;
     int K;
 
@@ -24,7 +25,7 @@ public:
     /**
      * @brief Inicia o algoritmo de coloração dos grafos
      */
-    void start();
+    void start(int graphId);
 
     /**
      * @brief Retorna o número de registradores disponíveis.
@@ -35,7 +36,7 @@ public:
     /**
      * @brief Imprime uma linha separadora
      */
-    void printLine();
+    void printLine(bool endLine = true);
 private:
     /**
      * @brief Simplifica o grafo de interferência removendo os nós que não possuem dependências.
@@ -55,8 +56,15 @@ private:
      * @brief Seleciona os nós que precisam ser visitados.
      * @param nodeStack Uma pilha de nós que precisam ser visitados.
      * @param currentK O número de registradores disponíveis.
+     * @return Booleano para coloração bem-sucedida
      */
-    void select(std::stack<GraphNode> &nodeStack, int currentK);
+    bool select(std::stack<GraphNode> &nodeStack, int currentK);
+
+    /**
+     * @brief Imprime a resumo do algoritmo de coloração dos grafos
+     * @param results Resultado do algoritmo
+     */
+    void printSummary(const std::vector<std::string> &results);
 };
 
 #endif
