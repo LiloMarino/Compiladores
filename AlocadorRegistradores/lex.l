@@ -8,7 +8,8 @@
 %}
 %%
 
-[ \t\n]        {}
+[ \t]          {}
+\n             { return NEWLINE; }
 "Grafo"        { return GRAFO; }
 "-->"          { return ARROW; }
 ":"            { return COLON; }

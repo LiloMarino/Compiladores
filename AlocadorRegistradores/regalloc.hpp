@@ -4,6 +4,7 @@
 #include "graph.hpp"
 #include <memory>
 #include <unordered_map>
+#include <stack>
 
 class RegAlloc
 {

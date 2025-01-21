@@ -23,7 +23,7 @@ void yyerror(const char *msg);
 
 %token <integer> INTEGER
 
-%token GRAFO ARROW COLON ASSIGN K
+%token GRAFO ARROW COLON ASSIGN K NEWLINE
 
 %type <list_int> IntegerLoop
 %type <pair_int_list> GraphNode
@@ -34,19 +34,19 @@ void yyerror(const char *msg);
 
 %%
 
-Grafo: GRAFO INTEGER COLON GraphData {
-        $4->start();
-        delete $4;
+Grafo: GRAFO INTEGER COLON NEWLINE GraphData {
+        $5->start();
+        delete $5;
       }
      ;
 
-GraphData: K ASSIGN INTEGER GraphNodes {
-            $$ = new RegAlloc(std::unique_ptr<Graph>($4), $3);
+GraphData: K ASSIGN INTEGER NEWLINE GraphNodes {
+            $$ = new RegAlloc(std::unique_ptr<Graph>($5), $3);
           }
          ;
 
-GraphNodes: GraphNode GraphNodes {
-              $$ = $2;
+GraphNodes: GraphNode NEWLINE GraphNodes {
+              $$ = $3;
               $$->addAdjacencyList($1->first, *($1->second));
               delete $1->second;
               delete $1;
