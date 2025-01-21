@@ -41,7 +41,8 @@ void RegAlloc::simplify(std::stack<GraphNode> &nodeStack, int currentK)
         }
         if (nodeToRemove == -1)
         {
-            // Alguma lógica
+            // Não houve um nó cujo o grau seja menor que K
+            spill(nodes);
             break;
         }
         nodeStack.push(graph->popNode(nodeToRemove));
@@ -49,8 +50,17 @@ void RegAlloc::simplify(std::stack<GraphNode> &nodeStack, int currentK)
     }
 }
 
-void RegAlloc::spill(std::stack<GraphNode> &nodeStack)
+int RegAlloc::spill(std::vector<int> &nodes)
 {
+    auto maxDegreeNode = std::max_element(nodes.begin(), nodes.end(),
+                                          [this](int a, int b)
+                                          {
+                                            // Obtém o nó de maior grau, em caso de empate obtém o de menor número
+                                              return graph->getDegree(a) < graph->getDegree(b) ||
+                                                     (graph->getDegree(a) == graph->getDegree(b) && a < b);
+                                          });
+    std::cout << "Potential Spill: " << *maxDegreeNode << std::endl;
+    return *maxDegreeNode;
 }
 
 void RegAlloc::select(std::stack<GraphNode> &nodeStack)

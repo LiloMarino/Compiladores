@@ -36,9 +36,10 @@ private:
 
     /**
      * @brief Realiza a substituição de um nó por um registrador.
-     * @param nodeStack Uma pilha de nós que precisam ser visitados.
+     * @param nodes Vetor de nós do grafo
+     * @return O registrador a ser feito o spill
      */
-    void spill(std::stack<GraphNode> &nodeStack);
+    int spill(std::vector<int> &nodes);
 
     /**
      * @brief Seleciona os nós que precisam ser visitados.
