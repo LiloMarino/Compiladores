@@ -14,7 +14,13 @@ void RegAlloc::start()
     for (int currentK = K; currentK >= 2; --currentK)
     {
         simplify(nodeStack, currentK);
+        select(nodeStack, currentK);
     }
+}
+
+int RegAlloc::getK()
+{
+    return K;
 }
 
 void RegAlloc::simplify(std::stack<GraphNode> &nodeStack, int currentK)
@@ -55,7 +61,7 @@ int RegAlloc::spill(std::vector<int> &nodes)
     auto maxDegreeNode = std::max_element(nodes.begin(), nodes.end(),
                                           [this](int a, int b)
                                           {
-                                            // Obtém o nó de maior grau, em caso de empate obtém o de menor número
+                                              // Obtém o nó de maior grau, em caso de empate obtém o de menor número
                                               return graph->getDegree(a) < graph->getDegree(b) ||
                                                      (graph->getDegree(a) == graph->getDegree(b) && a < b);
                                           });
@@ -63,6 +69,49 @@ int RegAlloc::spill(std::vector<int> &nodes)
     return *maxDegreeNode;
 }
 
-void RegAlloc::select(std::stack<GraphNode> &nodeStack)
+void RegAlloc::select(std::stack<GraphNode> &nodeStack, int currentK)
 {
+    std::unordered_map<int, int> colorMap;
+
+    while (!nodeStack.empty())
+    {
+        auto node = nodeStack.top();
+        nodeStack.pop();
+
+        // Todas as cores estão disponíveis inicialmente
+        std::vector<bool> availableColors(currentK, true);
+
+        // Marca as cores dos vizinhos como indisponíveis
+        for (int neighbor : node.adjacencyList)
+        {
+            if (colorMap.find(neighbor) != colorMap.end())
+            {
+                int usedColor = colorMap[neighbor];
+                if (usedColor < currentK)
+                {
+                    availableColors[usedColor] = false;
+                }
+            }
+        }
+
+        // Atribui a primeira cor disponível ao nó atual
+        int assignedColor = -1;
+        for (int color = 0; color < currentK; ++color)
+        {
+            if (availableColors[color])
+            {
+                assignedColor = color;
+                break;
+            }
+        }
+        if (assignedColor != -1)
+        {
+            colorMap[node.virtualRegister] = assignedColor;
+            std::cout << "Pop: " << node.virtualRegister << " -> " << assignedColor << std::endl;
+        }
+        else
+        {
+            std::cout << "Pop: " << node.virtualRegister << " -> NO COLOR AVAILABLE" << std::endl;
+        }
+    }
 }

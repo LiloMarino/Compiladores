@@ -10,7 +10,6 @@ class RegAlloc
 {
 private:
     std::unique_ptr<Graph> graph;
-    std::unordered_map<int, int> colorMap;
     int K;
 
 public:
@@ -26,6 +25,12 @@ public:
      * @brief Inicia o algoritmo de coloração dos grafos
      */
     void start();
+
+    /**
+     * @brief Retorna o número de registradores disponíveis.
+     * @return O número de registradores disponíveis.
+     */
+    int getK();
 private:
     /**
      * @brief Simplifica o grafo de interferência removendo os nós que não possuem dependências.
@@ -44,8 +49,9 @@ private:
     /**
      * @brief Seleciona os nós que precisam ser visitados.
      * @param nodeStack Uma pilha de nós que precisam ser visitados.
+     * @param currentK O número de registradores disponíveis.
      */
-    void select(std::stack<GraphNode> &nodeStack);
+    void select(std::stack<GraphNode> &nodeStack, int currentK);
 };
 
 #endif
