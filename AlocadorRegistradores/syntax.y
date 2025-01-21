@@ -36,6 +36,7 @@ void yyerror(const char *msg);
 
 Grafo: GRAFO INTEGER COLON NEWLINE GraphData {
         std::cout << "Graph " << $2 << " -> " << "Physical Registers: " << $5->getK() << std::endl;
+        $5->printLine();
         $5->start();
         delete $5;
       }

@@ -31,6 +31,11 @@ public:
      * @return O número de registradores disponíveis.
      */
     int getK();
+
+    /**
+     * @brief Imprime uma linha separadora
+     */
+    void printLine();
 private:
     /**
      * @brief Simplifica o grafo de interferência removendo os nós que não possuem dependências.

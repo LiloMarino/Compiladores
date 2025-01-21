@@ -9,10 +9,11 @@ RegAlloc::RegAlloc(std::unique_ptr<Graph> graph, int K)
 
 void RegAlloc::start()
 {
-    // Simplificação
     std::stack<GraphNode> nodeStack;
     for (int currentK = K; currentK >= 2; --currentK)
     {
+        printLine();
+        std::cout << "K = " << currentK << std::endl << std::endl;
         simplify(nodeStack, currentK);
         select(nodeStack, currentK);
     }
@@ -21,6 +22,11 @@ void RegAlloc::start()
 int RegAlloc::getK()
 {
     return K;
+}
+
+void RegAlloc::printLine()
+{
+    std::cout << "----------------------------------------" << std::endl;
 }
 
 void RegAlloc::simplify(std::stack<GraphNode> &nodeStack, int currentK)
