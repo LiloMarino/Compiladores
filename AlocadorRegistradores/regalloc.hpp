@@ -65,6 +65,13 @@ private:
      * @param results Resultado do algoritmo
      */
     void printSummary(const std::vector<std::string> &results);
+
+    /**
+     * @brief Verifica se o nó é virtual
+     * @param node O nó a ser verificado
+     * @return Retorna true se o nó for virtual, false caso contrário
+     */
+    bool isVirtual(int node);
 };
 
 #endif

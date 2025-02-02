@@ -24,7 +24,6 @@ void RegAlloc::start(int graphId)
         simplify(nodeStack, currentK);
         bool success = select(nodeStack, currentK);
 
-        // Use std::setw para garantir alinhamento
         std::ostringstream oss;
         oss << "Graph " << graphId << " -> K = " << std::setw(2) << currentK << ": "
             << (success ? "Successful Allocation" : "SPILL");
@@ -48,6 +47,11 @@ int RegAlloc::getK()
     return K;
 }
 
+bool  RegAlloc::isVirtual(int node)
+{
+    return node >= K;
+}
+
 void RegAlloc::printLine(bool endLine)
 {
     std::cout << "----------------------------------------";
@@ -66,13 +70,16 @@ void RegAlloc::simplify(std::stack<GraphNode> &nodeStack, int currentK)
                   {
                       int degreeA = graph->getDegree(a);
                       int degreeB = graph->getDegree(b);
+                      // Ordena de forma crescente pelo menor grau e, em caso de empate, pelo menor número
                       return (degreeA < degreeB) || (degreeA == degreeB && a < b);
                   });
 
+        
+        // Procura e remove o registrador virtual (node >= K) que possui grau menor que currentK
         int nodeToRemove = -1;
         for (auto &node : nodes)
         {
-            if (node >= K && graph->getDegree(node) < currentK)
+            if (isVirtual(node) && graph->getDegree(node) < currentK)
             {
                 nodeToRemove = node;
                 break;
@@ -81,18 +88,35 @@ void RegAlloc::simplify(std::stack<GraphNode> &nodeStack, int currentK)
 
         if (nodeToRemove == -1)
         {
-            int spillNode = spill(nodes);
-            std::cout << "Push: " << spillNode << " *" << std::endl;
-            nodeStack.push(graph->popNode(spillNode));
-            break;
+            // Não encontrou um registrador virtual com grau menor que currentK
+            
+            // Cria um vetor com apenas os registradores virtuais
+            std::vector<int> virtualNodes;
+            std::copy_if(nodes.begin(), nodes.end(), std::back_inserter(virtualNodes),
+                        [this](int node) { return isVirtual(node); });
+
+            if (!virtualNodes.empty())
+            {
+                // Existe nós virtuais, então procura e marca um nó para spill
+                int spillNode = spill(virtualNodes);
+                std::cout << "Push: " << spillNode << " *" << std::endl;
+                nodeStack.push(graph->popNode(spillNode));
+            }
+            else
+            {
+                // Se não houver nenhum nó virtual (ou seja, só há nós físicos), podemos sair do laço.
+                break;
+            }
         }
         else
         {
+            // Encontrou um registrador virtual com grau menor que currentK então remove
             std::cout << "Push: " << nodeToRemove << std::endl;
             nodeStack.push(graph->popNode(nodeToRemove));
         }
     }
 }
+
 
 int RegAlloc::spill(std::vector<int> &nodes)
 {
@@ -108,7 +132,8 @@ int RegAlloc::spill(std::vector<int> &nodes)
 
 bool RegAlloc::select(std::stack<GraphNode> &nodeStack, int currentK)
 {
-    std::unordered_map<int, int> colorMap;
+    std::unordered_map<int, int> colorMap; // Mapa de cores dos nós
+    std::vector<bool> availableColors(currentK, true); // Aloca currentK cores disponíveis
     bool success = true;
 
     while (!nodeStack.empty())
@@ -116,25 +141,30 @@ bool RegAlloc::select(std::stack<GraphNode> &nodeStack, int currentK)
         auto node = nodeStack.top();
         nodeStack.pop();
 
-        std::vector<bool> availableColors(currentK, true);
-
-        for (int neighbor : node.adjacencyList)
+        // Reseta todas as cores para disponíveis
+        std::fill(availableColors.begin(), availableColors.end(), true);
+        
+        // Marca as cores usadas pelos vizinhos
+        for (int neighbor : node.adjacencyList) 
         {
-            if (neighbor < K)
+            if (neighbor < currentK)
             {
-                availableColors[neighbor] = false;
+                // Vizinho é um registrador físico
+                availableColors[neighbor] = false; 
             }
             else if (colorMap.find(neighbor) != colorMap.end())
             {
-                int usedColor = colorMap[neighbor];
-                if (usedColor < currentK)
-                {
-                    availableColors[usedColor] = false;
-                }
+                // Vizinho é um registrador virtual com cor atribuída
+                availableColors[colorMap[neighbor]] = false;
+            }
+            else {
+                // Vizinho é um registrador virtual sem cor atribuída
+                std::cerr << "Vizinho sem cor atribuída: " << neighbor << std::endl;
             }
         }
 
-        int assignedColor = -1;
+        // Tenta atribuir a cor ao nó
+        int assignedColor = -1; 
         for (int color = 0; color < currentK; ++color)
         {
             if (availableColors[color])
@@ -146,13 +176,16 @@ bool RegAlloc::select(std::stack<GraphNode> &nodeStack, int currentK)
 
         if (assignedColor != -1)
         {
+            // Encontrou uma cor disponível
             colorMap[node.virtualRegister] = assignedColor;
             std::cout << "Pop: " << node.virtualRegister << " -> " << assignedColor << std::endl;
         }
         else
         {
-            std::cout << "Pop: " << node.virtualRegister << " -> NO COLOR AVAILABLE" << std::endl;
+            // Não encontrou uma cor disponível
+            std::cout << "Pop: " << node.virtualRegister << " -> NO COLOR AVAILABLE" << std::endl; 
             success = false;
+            break;
         }
 
         graph->addNode(node.virtualRegister, node.adjacencyList);
