@@ -8,7 +8,7 @@
 %}
 %%
 
-[ \t]          {}
+[ \r\t]        {}
 \n             { return NEWLINE; }
 "-->"          { return ARROW; }
 "="            { return ASSIGN; }

@@ -86,7 +86,8 @@
         "sintatico.tab.h": "c",
         "csignal": "cpp",
         "valarray": "cpp",
-        "future": "cpp"
+        "future": "cpp",
+        "syntax.tab.h": "c"
     },
     "makefile.launchConfigurations": [
         {
