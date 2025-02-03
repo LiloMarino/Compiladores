@@ -157,11 +157,6 @@ bool RegAlloc::select(std::stack<GraphNode> &nodeStack, int currentK)
                 // Vizinho é um registrador virtual com cor atribuída
                 availableColors[colorMap[neighbor]] = false;
             }
-            else
-            {
-                // Vizinho é um registrador virtual sem cor atribuída
-                std::cerr << "Vizinho sem cor atribuída: " << neighbor << std::endl;
-            }
         }
 
         // Tenta atribuir a cor ao nó
