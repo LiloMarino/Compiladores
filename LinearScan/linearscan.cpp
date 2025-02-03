@@ -11,7 +11,7 @@ void LinearScan::start(const int K)
 
     for (int currentK = K; currentK >= 2; --currentK)
     {
-        std::cout << "K = " << currentK << std::endl;
+        std::cout << "K = " << currentK << std::endl << std::endl;
         bool success = allocateRegisters(currentK);
         results.push_back("K = " + std::to_string(currentK) + ": " + (success ? "Successful Allocation" : "SPILL"));
         std::cout << "----------------------------------------" << std::endl;
@@ -74,10 +74,10 @@ bool LinearScan::allocateRegisters(int currentK)
 
 void LinearScan::printSummary(const std::vector<std::string> &results)
 {
-    std::cout << "----------------------------------------" << std::endl;
+    std::cout << "----------------------------------------";
     for (const auto &result : results)
     {
-        std::cout << result << std::endl;
+        std::cout << std::endl << result;
     }
 }
 
