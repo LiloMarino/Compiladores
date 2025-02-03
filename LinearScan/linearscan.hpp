@@ -45,7 +45,12 @@ private:
     /**
      * @brief Realiza o spill
      */
-    void spill();
+    bool spill(int currentVr, int iteration,
+                       std::unordered_map<int, int>& registerMap,
+                       std::unordered_map<int, int>& allocationOrder,
+                       std::vector<bool>& availableRegisters,
+                       std::set<int>& activeRegisters,
+                       std::vector<int>& spillIterations);
 };
 
 #endif
