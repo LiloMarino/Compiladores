@@ -1,7 +1,6 @@
 #include "linearscan.hpp"
 #include <iostream>
 #include <vector>
-#include <map>
 #include <set>
 #include <algorithm>
 
@@ -14,7 +13,7 @@ void LinearScan::start(const int K)
     {
         std::cout << "K = " << currentK << std::endl;
         bool success = allocateRegisters(currentK);
-        results.push_back(formatResult(currentK, success));
+        results.push_back("K = " + std::to_string(currentK) + ": " + (success ? "Successful Allocation" : "SPILL"));
         std::cout << "----------------------------------------" << std::endl;
     }
     printSummary(results);
@@ -22,66 +21,55 @@ void LinearScan::start(const int K)
 
 bool LinearScan::allocateRegisters(int currentK)
 {
-    std::map<int, int> registerMap;
+    std::unordered_map<int, int> registerMap;
+    std::vector<bool> availableRegisters(currentK, true); // Aloca currentK registradores disponíveis
     std::set<int> activeRegisters;
     bool success = true;
 
     for (const auto &[vr, interval] : lifeTimes)
     {
-        removeExpiredIntervals(activeRegisters, interval.first);
+        // Elimina os registradores expirados
+        for (auto it = activeRegisters.begin(); it != activeRegisters.end();)
+        {
+            auto vr = *it; 
+            if (lifeTimes[vr].second <= interval.first)
+            {
+                availableRegisters[registerMap[vr]] = true;
+                it = activeRegisters.erase(it);
+            }
+            else
+            {
+                ++it;
+            }
+        }
 
-        int reg = findAvailableRegister(activeRegisters, currentK);
+        // Procura um registrador disponível
+        int reg = -1;
+        for (int i = 0; i < currentK; ++i)
+        {
+            if (availableRegisters[i])
+            {
+                reg = i;
+                break;
+            }
+        }
+
         if (reg != -1)
         {
+            // Encontrou um registrador disponível
             registerMap[vr] = reg;
-            activeRegisters.insert(reg);
+            availableRegisters[reg] = false;
+            activeRegisters.insert(vr);
         }
         else
         {
-            handleSpill(vr);
+            // Não encontrou um registrador disponível, então faz spill
+            std::cout << "Spill occurred for vr" << vr << std::endl;
             success = false;
         }
         std::cout << "vr" << vr << ": " << (reg != -1 ? std::to_string(reg) : "SPILL") << std::endl;
     }
     return success;
-}
-
-void LinearScan::removeExpiredIntervals(std::set<int> &activeRegisters, int currentLine)
-{
-    for (auto it = activeRegisters.begin(); it != activeRegisters.end();)
-    {
-        auto vr = *it;
-        if (lifeTimes[vr].second < currentLine)
-        {
-            it = activeRegisters.erase(it);
-        }
-        else
-        {
-            ++it;
-        }
-    }
-}
-
-int LinearScan::findAvailableRegister(const std::set<int> &activeRegisters, int currentK)
-{
-    for (int reg = 0; reg < currentK; ++reg)
-    {
-        if (activeRegisters.find(reg) == activeRegisters.end())
-        {
-            return reg;
-        }
-    }
-    return -1;
-}
-
-void LinearScan::handleSpill(int vr)
-{
-    std::cout << "Spill occurred for vr" << vr << std::endl;
-}
-
-std::string LinearScan::formatResult(int currentK, bool success)
-{
-    return "K = " + std::to_string(currentK) + ": " + (success ? "Successful Allocation" : "SPILL");
 }
 
 void LinearScan::printSummary(const std::vector<std::string> &results)
