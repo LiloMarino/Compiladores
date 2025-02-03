@@ -47,7 +47,7 @@ bool LinearScan::allocateRegisters(int currentK, std::vector<int>& spillIteratio
     std::set<int> activeRegisters;
     bool success = true;
     
-    int iteration = 1;
+    int iteration = 0;
     for (const auto &[vr, interval] : lifeTimes)
     {
         // Remove registradores expirados
@@ -95,6 +95,11 @@ bool LinearScan::allocateRegisters(int currentK, std::vector<int>& spillIteratio
         iteration++;
     }
     return success;
+}
+
+void LinearScan::spill()
+{
+    
 }
 
 void LinearScan::printSummary(const std::vector<std::string> &results)

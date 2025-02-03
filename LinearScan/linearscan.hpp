@@ -41,6 +41,11 @@ private:
      * @param results Vetor contendo os resultados formatados
      */
     void printSummary(const std::vector<std::string> &results);
+
+    /**
+     * @brief Realiza o spill
+     */
+    void spill();
 };
 
 #endif
