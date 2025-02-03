@@ -11,7 +11,6 @@
 [ \t]          {}
 \n             { return NEWLINE; }
 "-->"          { return ARROW; }
-":"            { return COLON; }
 "="            { return ASSIGN; }
 "K"            { return K; }
 "vr"           { return VR; }
