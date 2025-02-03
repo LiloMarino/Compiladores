@@ -11,7 +11,7 @@ class LinearScan
 {
 private:
     int K;
-    std::unordered_map<int, std::pair<int, int>> lifeTimes;
+    std::unordered_map<int, std::pair<int, int>> lifeTimes; 
 
 public:
     /**
@@ -31,9 +31,10 @@ private:
     /**
      * @brief Aloca os registradores para os tempos de vida
      * @param currentK Número atual de registradores físicos
+     * @param spillIterations Vetor que armazenará as iterações (ordem dos registradores) onde ocorreu spill
      * @return true se a alocação foi bem-sucedida, false se ocorreu spill
      */
-    bool allocateRegisters(int currentK);
+    bool allocateRegisters(int currentK, std::vector<int>& spillIterations);
 
     /**
      * @brief Imprime o resumo dos resultados da alocação
