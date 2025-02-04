@@ -89,17 +89,76 @@ bool LinearScan::allocateRegisters(int currentK, std::vector<int> &spillIteratio
         }
         else
         {
-            // Não há registrador livre: usa o algoritmo de spill
-            // A função spill() (abaixo) fará:
-            // - Selecionar entre os ativos o candidato com maior linha de última utilização,
-            //   desempate por intervalo (menor duração) e, se necessário, por alocação mais recente.
-            // - Se o candidato ativo tiver fim (última utilização) MAIOR que o fim do intervalo atual,
-            //   ele é spillado (e seu registrador é liberado para o atual);
-            // - Caso contrário, o próprio intervalo atual é spillado.
-            bool allocated = spill(vr, iteration, registerMap, allocationOrder,
-                                   availableRegisters, activeRegisters, spillIterations);
-            // Se allocated == false, o vr corrente foi spillado (ou seja, registerMap[vr] == -1).
-            // Caso contrário, já foi alocado usando o registrador do candidato spillado.
+            // Não há registrador livre usa o algoritmo de spill
+            spillIterations.push_back(iteration);
+            
+            // Inicializa o candidato como o próprio nó atual.
+            int candidate = vr;
+            int candidateEnd = lifeTimes[vr].second;
+            int candidateLifeTime = lifeTimes[vr].second - lifeTimes[vr].first;
+            int candidateAllocOrder = iteration;
+
+            // Itera sobre os nós ativos para ver se algum deles deve ser spillado em vez do atual.
+            for (int act : activeRegisters)
+            {
+                int actEnd = lifeTimes[act].second;
+                int actLifeTime = lifeTimes[act].second - lifeTimes[act].first;
+                int actAllocOrder = allocationOrder[act];
+
+                if (actEnd > candidateEnd)
+                {
+                    // Critério 1: maior linha de última utilização (end)
+                    candidate = act;
+                    candidateEnd = actEnd;
+                    candidateLifeTime = actLifeTime;
+                    candidateAllocOrder = actAllocOrder;
+                }
+                else if (actEnd == candidateEnd)
+                {
+                    // Critério 2: se empatarem em end, o de menor intervalo de vida
+                    if (actLifeTime < candidateLifeTime)
+                    {
+                        candidate = act;
+                        candidateEnd = actEnd;
+                        candidateLifeTime = actLifeTime;
+                        candidateAllocOrder = actAllocOrder;
+                    }
+                    else if (actLifeTime == candidateLifeTime)
+                    {
+                        // Critério 3: se ainda empatarem, o que foi alocado mais recentemente (maior allocationOrder)
+                        if (actAllocOrder > candidateAllocOrder)
+                        {
+                            candidate = act;
+                            candidateEnd = actEnd;
+                            candidateLifeTime = actLifeTime;
+                            candidateAllocOrder = actAllocOrder;
+                        }
+                    }
+                }
+            }
+
+            if (candidate != vr)
+            {
+                // O candidato não é o nó atual
+                int spilledReg = registerMap[candidate];
+                registerMap[candidate] = -1;
+
+                // Aloca o registrador liberado para o nó atual.
+                registerMap[vr] = spilledReg;
+                allocationOrder[vr] = iteration;
+
+                // Atualiza os nós ativos: remove o candidato spillado e insere o nó atual.
+                activeRegisters.erase(candidate);
+                activeRegisters.insert(vr);
+
+                // O registrador liberado permanece marcado como ocupado.
+                availableRegisters[spilledReg] = false;
+            }
+            else
+            {
+                // O candidato é o nó atual, então spilla ele
+                registerMap[vr] = -1;
+            }
         }
 
         iteration++;
@@ -115,98 +174,6 @@ bool LinearScan::allocateRegisters(int currentK, std::vector<int> &spillIteratio
 
     // Retorna true se nenhuma iteração teve spill; caso contrário, false.
     return spillIterations.empty();
-}
-
-// ----------------------------------------------------------------------
-// Método spill: realiza o algoritmo de spill para quando não há registrador livre.
-// Parâmetros:
-//   currentVr        - O registrador virtual do intervalo corrente.
-//   iteration        - A iteração atual (usada para registrar qual intervalo foi spillado).
-//   registerMap      - Mapeamento (por referência) do número de registrador atribuído a cada vr.
-//   allocationOrder  - Mapeamento (por referência) da ordem em que cada vr foi alocado.
-//   availableRegisters - Vetor (por referência) indicando quais registradores físicos estão livres.
-//   activeRegisters  - Conjunto (por referência) dos vr atualmente ativos.
-//   spillIterations  - Vetor (por referência) onde são registradas as iterações em que ocorreu spill.
-bool LinearScan::spill(int currentVr, int iteration,
-                       std::map<int, int> &registerMap,
-                       std::unordered_map<int, int> &allocationOrder,
-                       std::vector<bool> &availableRegisters,
-                       std::set<int> &activeRegisters,
-                       std::vector<int> &spillIterations)
-{
-    // Inicializa o candidato como o próprio nó atual.
-    int candidate = currentVr;
-    int candidateEnd = lifeTimes[currentVr].second;
-    int candidateSpan = lifeTimes[currentVr].second - lifeTimes[currentVr].first;
-    int candidateAllocOrder = iteration; // Para o nó atual, a ordem é a iteração corrente
-
-    // Itera sobre os nós ativos para ver se algum deles deve ser spillado em vez do atual.
-    for (int act : activeRegisters)
-    {
-        int actEnd = lifeTimes[act].second;
-        int actSpan = lifeTimes[act].second - lifeTimes[act].first;
-        int actAllocOrder = allocationOrder[act];
-
-        // Critério 1: maior linha de última utilização (end)
-        if (actEnd > candidateEnd)
-        {
-            candidate = act;
-            candidateEnd = actEnd;
-            candidateSpan = actSpan;
-            candidateAllocOrder = actAllocOrder;
-        }
-        else if (actEnd == candidateEnd)
-        {
-            // Critério 2: se empatarem em end, o de menor intervalo de vida (end - start)
-            if (actSpan < candidateSpan)
-            {
-                candidate = act;
-                candidateEnd = actEnd;
-                candidateSpan = actSpan;
-                candidateAllocOrder = actAllocOrder;
-            }
-            else if (actSpan == candidateSpan)
-            {
-                // Critério 3: se ainda empatarem, o que foi alocado mais recentemente (maior allocationOrder)
-                if (actAllocOrder > candidateAllocOrder)
-                {
-                    candidate = act;
-                    candidateEnd = actEnd;
-                    candidateSpan = actSpan;
-                    candidateAllocOrder = actAllocOrder;
-                }
-            }
-        }
-    }
-
-    // Se o candidato encontrado não for o nó atual, spilla o candidato ativo.
-    if (candidate != currentVr)
-    {
-        int freedReg = registerMap[candidate];
-        // Marca o candidato como spillado.
-        registerMap[candidate] = -1;
-        // Registra a iteração em que o spill ocorreu para o candidato.
-        spillIterations.push_back(allocationOrder[candidate]);
-
-        // Aloca o registrador liberado para o nó atual.
-        registerMap[currentVr] = freedReg;
-        allocationOrder[currentVr] = iteration;
-
-        // Atualiza os nós ativos: remove o candidato spillado e insere o nó atual.
-        activeRegisters.erase(candidate);
-        activeRegisters.insert(currentVr);
-
-        // O registrador liberado permanece marcado como ocupado.
-        availableRegisters[freedReg] = false;
-        return true; // currentVr foi alocado com sucesso
-    }
-    else
-    {
-        // Caso contrário, spilla o próprio nó atual.
-        registerMap[currentVr] = -1;
-        spillIterations.push_back(iteration); // registra a iteração corrente
-        return false;                         // currentVr não foi alocado
-    }
 }
 
 void LinearScan::printSummary(const std::vector<std::string> &results)
