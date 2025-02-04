@@ -6,6 +6,7 @@
 #include <vector>
 #include <set>
 #include <string>
+#include <map>
 
 class LinearScan
 {
@@ -46,7 +47,7 @@ private:
      * @brief Realiza o spill
      */
     bool spill(int currentVr, int iteration,
-                       std::unordered_map<int, int>& registerMap,
+                       std::map<int, int>& registerMap,
                        std::unordered_map<int, int>& allocationOrder,
                        std::vector<bool>& availableRegisters,
                        std::set<int>& activeRegisters,
