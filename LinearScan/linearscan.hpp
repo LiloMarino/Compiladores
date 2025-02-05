@@ -12,7 +12,7 @@ class LinearScan
 {
 private:
     int K;
-    std::unordered_map<int, std::pair<int, int>> lifeTimes; 
+    std::map<int, std::pair<int, int>> lifeTimes; 
 
 public:
     /**
