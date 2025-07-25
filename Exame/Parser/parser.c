@@ -3,7 +3,7 @@
 #include <string.h>
 #include <stdbool.h>
 
-#define MAX_TOKENS 1000
+#define MAX_TOKENS 1024
 
 // Enum para os tokens
 enum TokenType
@@ -21,10 +21,11 @@ enum TokenType
 // Lista de tokens da linha atual
 int tokens[MAX_TOKENS];
 int token_count = 0;
+int token;
 int pos = 0;
 bool erro = false;
 
-// Função para converter token para string
+// Função para mapear código para string
 const char *token_to_string(int t)
 {
     switch (t)
@@ -64,23 +65,10 @@ bool read_tokens_line()
         }
     }
 
-    return true;
+    return token_count > 0;
 }
 
-// Funções auxiliares
-int lookahead()
-{
-    if (pos < token_count)
-        return tokens[pos];
-    return -1;
-}
-
-void advance()
-{
-    if (pos < token_count)
-        pos++;
-}
-
+// Função de erro sintático esperada
 void syntax_error(int got, const int *expected, int expected_size)
 {
     erro = true;
@@ -93,26 +81,35 @@ void syntax_error(int got, const int *expected, int expected_size)
     }
 }
 
-void eat(int t)
+// Avança para o próximo token
+void advance()
 {
-    if (lookahead() == t)
+    if (pos < token_count)
+        token = tokens[pos++];
+    else
+        token = TOK_UNKNOWN;
+}
+
+// Verifica se o token atual é o esperado
+void eat(int expected)
+{
+    if (token == expected)
     {
         advance();
     }
     else
     {
-        int expected[] = {t};
-        syntax_error(lookahead(), expected, 1);
+        int expected_list[] = {expected};
+        syntax_error(token, expected_list, 1);
     }
 }
 
-// Produções da gramática
+// === Produções ===
 void S(), E(), E_(), T(), T_(), F(), P();
 
 void S()
 {
-    int la = lookahead();
-    if (la == TOK_ID || la == TOK_LPAREN)
+    if (token == TOK_ID || token == TOK_LPAREN)
     {
         E();
         if (!erro)
@@ -121,14 +118,13 @@ void S()
     else
     {
         int expected[] = {TOK_ID, TOK_LPAREN};
-        syntax_error(la, expected, 2);
+        syntax_error(token, expected, 2);
     }
 }
 
 void E()
 {
-    int la = lookahead();
-    if (la == TOK_ID || la == TOK_LPAREN)
+    if (token == TOK_ID || token == TOK_LPAREN)
     {
         T();
         if (!erro)
@@ -137,14 +133,13 @@ void E()
     else
     {
         int expected[] = {TOK_ID, TOK_LPAREN};
-        syntax_error(la, expected, 2);
+        syntax_error(token, expected, 2);
     }
 }
 
 void E_()
 {
-    int la = lookahead();
-    if (la == TOK_PLUS)
+    if (token == TOK_PLUS)
     {
         eat(TOK_PLUS);
         if (!erro)
@@ -152,21 +147,20 @@ void E_()
         if (!erro)
             E_();
     }
-    else if (la == TOK_RPAREN || la == TOK_DOLLAR)
+    else if (token == TOK_RPAREN || token == TOK_DOLLAR)
     {
-        // epsilon
+        // ε
     }
     else
     {
         int expected[] = {TOK_PLUS, TOK_RPAREN, TOK_DOLLAR};
-        syntax_error(la, expected, 3);
+        syntax_error(token, expected, 3);
     }
 }
 
 void T()
 {
-    int la = lookahead();
-    if (la == TOK_ID || la == TOK_LPAREN)
+    if (token == TOK_ID || token == TOK_LPAREN)
     {
         F();
         if (!erro)
@@ -175,14 +169,13 @@ void T()
     else
     {
         int expected[] = {TOK_ID, TOK_LPAREN};
-        syntax_error(la, expected, 2);
+        syntax_error(token, expected, 2);
     }
 }
 
 void T_()
 {
-    int la = lookahead();
-    if (la == TOK_STAR)
+    if (token == TOK_STAR)
     {
         eat(TOK_STAR);
         if (!erro)
@@ -190,27 +183,26 @@ void T_()
         if (!erro)
             T_();
     }
-    else if (la == TOK_PLUS || la == TOK_RPAREN || la == TOK_DOLLAR)
+    else if (token == TOK_PLUS || token == TOK_RPAREN || token == TOK_DOLLAR)
     {
-        // epsilon
+        // ε
     }
     else
     {
         int expected[] = {TOK_STAR, TOK_PLUS, TOK_RPAREN, TOK_DOLLAR};
-        syntax_error(la, expected, 4);
+        syntax_error(token, expected, 4);
     }
 }
 
 void F()
 {
-    int la = lookahead();
-    if (la == TOK_ID)
+    if (token == TOK_ID)
     {
         eat(TOK_ID);
         if (!erro)
             P();
     }
-    else if (la == TOK_LPAREN)
+    else if (token == TOK_LPAREN)
     {
         eat(TOK_LPAREN);
         if (!erro)
@@ -223,25 +215,24 @@ void F()
     else
     {
         int expected[] = {TOK_ID, TOK_LPAREN};
-        syntax_error(la, expected, 2);
+        syntax_error(token, expected, 2);
     }
 }
 
 void P()
 {
-    int la = lookahead();
-    if (la == TOK_PLUSPLUS)
+    if (token == TOK_PLUSPLUS)
     {
         eat(TOK_PLUSPLUS);
     }
-    else if (la == TOK_PLUS || la == TOK_STAR || la == TOK_RPAREN || la == TOK_DOLLAR)
+    else if (token == TOK_PLUS || token == TOK_STAR || token == TOK_RPAREN || token == TOK_DOLLAR)
     {
-        // epsilon
+        // ε
     }
     else
     {
         int expected[] = {TOK_PLUSPLUS, TOK_PLUS, TOK_STAR, TOK_RPAREN, TOK_DOLLAR};
-        syntax_error(la, expected, 5);
+        syntax_error(token, expected, 5);
     }
 }
 
@@ -249,22 +240,24 @@ int main()
 {
     bool first_line = true;
 
-    while (1)
+    while (read_tokens_line())
     {
-        if (!read_tokens_line())
-            break;
-
         if (!first_line)
+        {
             printf("\n");
+        }
         first_line = false;
 
         pos = 0;
         erro = false;
 
+        advance(); // Inicializa token global
         S();
 
-        if (!erro && pos == token_count)
+        if (!erro && token == TOK_UNKNOWN)
+        {
             printf("CADEIA ACEITA");
+        }
     }
 
     return 0;
