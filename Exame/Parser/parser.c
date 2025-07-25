@@ -45,7 +45,7 @@ const char *token_to_string(int t)
     case TOK_DOLLAR:
         return "$";
     default:
-        return "UNKNOWN";
+        return "";
     }
 }
 
@@ -65,14 +65,17 @@ bool read_tokens_line()
         }
     }
 
-    return token_count > 0;
+   return true;
 }
 
 // Função de erro sintático esperada
 void syntax_error(int got, const int *expected, int expected_size)
 {
     erro = true;
-    printf("ERRO SINTATICO EM: %s ESPERADO: ", token_to_string(got));
+    if (token_to_string(got)[0] != '\0')
+        printf("ERRO SINTATICO EM: %s ESPERADO: ", token_to_string(got));
+    else
+        printf("ERRO SINTATICO EM: ESPERADO: ");
     for (int i = 0; i < expected_size; i++)
     {
         if (i > 0)
@@ -189,7 +192,7 @@ void T_()
     }
     else
     {
-        int expected[] = {TOK_STAR, TOK_PLUS, TOK_RPAREN, TOK_DOLLAR};
+        int expected[] = {TOK_PLUS, TOK_STAR, TOK_RPAREN, TOK_DOLLAR};
         syntax_error(token, expected, 4);
     }
 }
@@ -231,7 +234,7 @@ void P()
     }
     else
     {
-        int expected[] = {TOK_PLUSPLUS, TOK_PLUS, TOK_STAR, TOK_RPAREN, TOK_DOLLAR};
+        int expected[] = {TOK_PLUS, TOK_STAR, TOK_PLUSPLUS, TOK_RPAREN, TOK_DOLLAR};
         syntax_error(token, expected, 5);
     }
 }
@@ -254,7 +257,7 @@ int main()
         advance(); // Inicializa token global
         S();
 
-        if (!erro && token == TOK_UNKNOWN)
+        if (!erro && pos == token_count && token == TOK_UNKNOWN)
         {
             printf("CADEIA ACEITA");
         }
